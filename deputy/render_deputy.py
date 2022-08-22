@@ -7,7 +7,7 @@ from proxy.tooltip_proxy import TooltipProxy
 from utils.color_set import ColorSet
 from utils.xps_checker import XPSChecker
 from utils.custom_2d import *
-from tqdm import tqdm,trange
+from tqdm import tqdm, trange
 
 
 class RenderDeputy:
@@ -30,7 +30,12 @@ class RenderDeputy:
 
         # 布尔参数
         self.need_reload = True  # 是否需要重载数据
+        self.aoi_need_update = True  # 是否需要更新AOI
+        self.parcels_need_update = True  # 是否需要更新包裹
+        self.traces_need_update = True  # 是否需要更新轨迹
         self.need_repaint = True  # 是否需要重绘图层
+
+        # 绘制参数
         self.enable_dot_line = True  # 是否使用点线绘制轨迹
         self.enable_crd_mark = True  # 是否标记逻辑坐标
         self.enable_geo_mark = True  # 是否标记地理坐标
@@ -75,12 +80,18 @@ class RenderDeputy:
             self.xps.check("BGET")
             self.buff_map.fill(ColorSet.named["Background"])
             self.xps.check("BINI")
+            if self.aoi_need_update:
+                self.updt_aoi_areas()
             self.draw_aoi_areas()  # 绘制AOI
             self.xps.check("APS")
             self.draw_grid_lines()  # 绘制栅格
             self.xps.check("GPS")
+            if self.traces_need_update:
+                self.updt_traces()
             self.draw_traces()  # 绘制轨迹
             self.xps.check("TPS")
+            if self.parcels_need_update:
+                self.updt_parcels()
             self.draw_parcels()  # 绘制包裹
             self.xps.check("PPS")
             self.draw_scale_marks()  # 绘制刻度
@@ -97,13 +108,21 @@ class RenderDeputy:
         self.tooltip_proxy.draw()  # 绘制提示
         self.xps.check("FPS", dif_from="")
 
+    def mark_need_reload(self):
+        """标记需要重载"""
+        self.need_reload = True
+        self.need_repaint = True
+
     def mark_need_repaint(self):
         """标记需要重绘"""
         self.need_repaint = True
 
-    def mark_need_reload(self):
-        """标记需要重载"""
-        self.need_reload = True
+    def mark_need_update(self, aoi: bool = True, parcels: bool = False, trace: bool = False):
+        """标记需要更新"""
+        self.aoi_need_update = aoi
+        self.parcels_need_update = parcels
+        self.traces_need_update = trace
+        self.need_repaint = True
 
     def set_focus_point(self, crd: QPoint):
         """设置聚焦点"""
@@ -191,7 +210,8 @@ class RenderDeputy:
 
     def updt_aoi_areas(self):
         """更新AOI图层"""
-        pass
+        aoi_img = self.data_deputy.get_aoi_info()
+        self.aoi_map: QPixmap = QPixmap.fromImage(aoi_img)
 
     def draw_aoi_areas(self):
         """在缓冲图层绘制AOI"""
@@ -235,26 +255,27 @@ class RenderDeputy:
 
     def init_traces(self):
         """初始化轨迹图层"""
-        lst = self.data_deputy.get_traces_info(self.trace_indexes)
-        with tqdm(total=len(lst)) as t:
-            for trace in lst:
-                t.update()
-                t.set_description_str("Painting traces")
-                bias = rect_bias(trace.area)
-                self.trace_area_dict[trace.index] = trace.area
-                pixmap = QPixmap(trace.area.size() * 15)
-                pixmap.fill(QColor(0, 0, 0, 0))
-                pen = QPen(trace.color)
-                self.painter.begin(pixmap)
-                self.painter.setPen(pen)
-                nt = []
-                for p in trace.p_lst:
-                    _p = (p - bias) * 15
-                    nt.append(_p + QPoint(7, 7))
-                for i in range(1, len(nt)):
-                    self.draw_dot_line(self.painter, nt[i - 1], nt[i])
-                self.painter.end()
-                self.trace_maps[trace.index] = pixmap
+        if self.trace_indexes:
+            lst = self.data_deputy.get_traces_info(self.trace_indexes)
+            with tqdm(total=len(lst)) as t:
+                for trace in lst:
+                    t.update()
+                    t.set_description_str("Painting traces")
+                    bias = rect_bias(trace.area)
+                    self.trace_area_dict[trace.index] = trace.area
+                    pixmap = QPixmap(trace.area.size() * 15)
+                    pixmap.fill(QColor(0, 0, 0, 0))
+                    pen = QPen(trace.color)
+                    self.painter.begin(pixmap)
+                    self.painter.setPen(pen)
+                    nt = []
+                    for p in trace.p_lst:
+                        _p = (p - bias) * 15
+                        nt.append(_p + QPoint(7, 7))
+                    for i in range(1, len(nt)):
+                        self.draw_dot_line(self.painter, nt[i - 1], nt[i])
+                    self.painter.end()
+                    self.trace_maps[trace.index] = pixmap
 
     def updt_traces(self):
         """更新轨迹图层"""
@@ -274,7 +295,7 @@ class RenderDeputy:
         self.painter.begin(self.buff_map)
         self.painter.setWindow(mul_rect(layout.window, 15))
         self.painter.setViewport(layout.viewport)
-        if self.trace_indexes:
+        if self.trace_indexes != [-1]:
             for i in self.trace_indexes:
                 if i in self.trace_maps.keys():
                     draw_trace_at(i)
@@ -285,31 +306,32 @@ class RenderDeputy:
 
     def init_parcels(self):
         """初始化包裹图层"""
-        lst = self.data_deputy.get_parcels_info(self.parcels_indexes)
-        brush_bk = QBrush(ColorSet.named["LightGrey"])
-        step_p = QPoint(1, 1)
-        step_s = QSize(-2, -2)
-        with tqdm(total=len(lst)) as t:
-            for parcels in lst:
-                t.update()
-                t.set_description_str("Painting parcels")
-                bias = rect_bias(parcels.area)
-                self.parcels_area_dict[parcels.index] = parcels.area
-                pixmap = QPixmap(parcels.area.size() * 10)
-                pixmap.fill(QColor(0, 0, 0, 0))
-                color = parcels.color
-                brush_id = QBrush(color)
-                self.painter.begin(pixmap)
-                for p in parcels.p_lst:
-                    _p = (p - bias) * 10
-                    rect = QRect(_p + step_p, QSize(8, 8))
-                    self.painter.fillRect(rect, brush_id)
-                    rect = trans_rect(rect, step_p, step_s)
-                    self.painter.fillRect(rect, brush_bk)
-                    rect = trans_rect(rect, step_p, step_s)
-                    self.painter.fillRect(rect, brush_id)
-                self.painter.end()
-                self.parcels_maps[parcels.index] = pixmap
+        if self.parcels_indexes:
+            lst = self.data_deputy.get_parcels_info(self.parcels_indexes)
+            brush_bk = QBrush(ColorSet.named["LightGrey"])
+            step_p = QPoint(1, 1)
+            step_s = QSize(-2, -2)
+            with tqdm(total=len(lst)) as t:
+                for parcels in lst:
+                    t.update()
+                    t.set_description_str("Painting parcels")
+                    bias = rect_bias(parcels.area)
+                    self.parcels_area_dict[parcels.index] = parcels.area
+                    pixmap = QPixmap(parcels.area.size() * 10)
+                    pixmap.fill(QColor(0, 0, 0, 0))
+                    color = parcels.color
+                    brush_id = QBrush(color)
+                    self.painter.begin(pixmap)
+                    for p in parcels.p_lst:
+                        _p = (p - bias) * 10
+                        rect = QRect(_p + step_p, QSize(8, 8))
+                        self.painter.fillRect(rect, brush_id)
+                        rect = trans_rect(rect, step_p, step_s)
+                        self.painter.fillRect(rect, brush_bk)
+                        rect = trans_rect(rect, step_p, step_s)
+                        self.painter.fillRect(rect, brush_id)
+                    self.painter.end()
+                    self.parcels_maps[parcels.index] = pixmap
 
     def updt_parcels(self):
         """更新包裹图层"""
@@ -329,7 +351,7 @@ class RenderDeputy:
         self.painter.begin(self.buff_map)
         self.painter.setWindow(mul_rect(layout.window, 10))
         self.painter.setViewport(layout.viewport)
-        if self.parcels_indexes:
+        if self.parcels_indexes != [-1]:
             for i in self.parcels_indexes:
                 if i in self.parcels_maps.keys():
                     draw_parcels_at(i)

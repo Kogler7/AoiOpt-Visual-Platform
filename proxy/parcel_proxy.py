@@ -48,7 +48,7 @@ class ParcelProxy:
 
     def get_parcels(self, indexes: list):
         res = []
-        if not indexes:
+        if indexes == [-1]:
             for _, parcels in self.parcels_dict.items():
                 res.append(parcels)
         else:

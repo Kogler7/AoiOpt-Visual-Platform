@@ -30,7 +30,7 @@ class DataDeputy:
                     print("Data Deputy: Image Reading Failed.")
             else:
                 print("Data Deputy: Unexpected Read Mode.")
-        elif data:
+        elif data is not None:
             self.aoi_proxy.read_npy(data)
         else:
             print("Data Deputy: No Data.")

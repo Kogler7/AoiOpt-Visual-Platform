@@ -1,3 +1,5 @@
+import time
+
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
@@ -49,9 +51,10 @@ class GridWorld(QWidget):
         self.tooltip_br.set("LEVEL", "0")
         self.setMouseTracking(True)  # 开启鼠标追踪
 
-        # 数据加载列表
-        self.trace_indexes = []
-        self.parcels_indexes = []
+    def aoi_update(self, aoi_data: np.ndarray):
+        self.data_deputy.read_aoi(data=aoi_data)
+        self.render_deputy.mark_need_update(aoi=True)
+        self.update()
 
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""

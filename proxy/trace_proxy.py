@@ -60,7 +60,7 @@ class TraceProxy:
 
     def get_trace(self, indexes: list):
         res = []
-        if not indexes:
+        if indexes == [-1]:
             for _, trace in self.trace_dict.items():
                 res.append(trace)
         else:
