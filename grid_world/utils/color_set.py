@@ -22,7 +22,7 @@ class ColorSet:
 
     @classmethod
     def init(cls):
-        with open("./utils/color_set.txt") as f:
+        with open("./data/color_set.txt") as f:
             name = ""
             for line in f:
                 line = line.rstrip('\n')

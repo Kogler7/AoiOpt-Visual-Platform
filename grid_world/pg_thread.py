@@ -13,4 +13,4 @@ class PGLearning(QThread):
         while True:
             data = np.random.randint(20, size=(100, 100))
             self.update_signal.emit(data)
-            self.msleep(2000)
+            self.msleep(500)

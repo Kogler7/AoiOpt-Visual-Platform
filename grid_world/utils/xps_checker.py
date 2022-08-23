@@ -1,4 +1,4 @@
-from utils.float_tooltip import FloatTooltip
+from grid_world.utils.float_tooltip import FloatTooltip
 from collections import defaultdict
 import timeit
 

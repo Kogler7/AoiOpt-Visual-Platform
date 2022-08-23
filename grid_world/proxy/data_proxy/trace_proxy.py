@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QColor
 from collections import defaultdict
-from utils.custom_2d import area_of_points, area_of_array
-from utils.color_set import ColorSet
+from grid_world.utils.custom_2d import area_of_points
+from grid_world.utils.color_set import ColorSet
 import numpy as np
 from tqdm import trange
 

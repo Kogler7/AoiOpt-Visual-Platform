@@ -1,15 +1,13 @@
-import time
-
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import warnings
 
-from deputy.layout_deputy import LayoutDeputy, GeographyInfo
-from deputy.menu_deputy import MenuDeputy
-from deputy.data_deputy import DataDeputy
-from deputy.render_deputy import RenderDeputy
-from utils.custom_2d import *
+from grid_world.deputy.layout_deputy import LayoutDeputy, GeographyInfo
+from grid_world.deputy.menu_deputy import MenuDeputy
+from grid_world.deputy.data_deputy import DataDeputy
+from grid_world.deputy.render_deputy import RenderDeputy
+from grid_world.utils.custom_2d import *
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 

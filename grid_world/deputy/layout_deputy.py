@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from utils.custom_2d import *
+from grid_world.utils.custom_2d import *
 
 
 @dataclass

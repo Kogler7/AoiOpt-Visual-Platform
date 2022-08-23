@@ -1,13 +1,12 @@
-from PySide6.QtCore import QPointF, QSize, QPoint
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import *
-from deputy.layout_deputy import LayoutDeputy
-from deputy.data_deputy import DataDeputy
-from proxy.tooltip_proxy import TooltipProxy
-from utils.color_set import ColorSet
-from utils.xps_checker import XPSChecker
-from utils.custom_2d import *
-from tqdm import tqdm, trange
+from grid_world.deputy.layout_deputy import LayoutDeputy
+from grid_world.deputy.data_deputy import DataDeputy
+from grid_world.proxy.tooltip_proxy import TooltipProxy
+from grid_world.utils.color_set import ColorSet
+from grid_world.utils.xps_checker import XPSChecker
+from grid_world.utils.custom_2d import *
+from tqdm import tqdm
 
 
 class RenderDeputy:

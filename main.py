@@ -1,14 +1,14 @@
 import sys
-from pg_learning import PGLearning
+from grid_world.pg_thread import PGLearning
 from PySide6.QtWidgets import QApplication
-from grid_world import GridWorld
+from grid_world.grid_world import GridWorld
 
 
 def show_world():
     app = QApplication([])
     world = GridWorld()
 
-    world.data_deputy.read_aoi("./data/AOI_20_grid.npy")
+    world.data_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
     # world.data_deputy.read_aoi("./data/2.jpg")
     # world.data_deputy.read_traces("./data/trace/trace_1.npy")
     # world.data_deputy.read_parcels("./data/parcels_n.npy")
