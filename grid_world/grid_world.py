@@ -7,7 +7,15 @@ from grid_world.deputy.layout_deputy import LayoutDeputy, GeographyInfo
 from grid_world.deputy.menu_deputy import MenuDeputy
 from grid_world.deputy.data_deputy import DataDeputy
 from grid_world.deputy.render_deputy import RenderDeputy
+from grid_world.deputy.state_deputy import StateDeputy
 from grid_world.utils.custom_2d import *
+from grid_world.proxy.layer_proxy import LayerBase
+from grid_world.layers.built_in.aoi_layer import AOILayer
+from grid_world.layers.built_in.trace_layer import TraceLayer
+from grid_world.layers.built_in.parcel_layer import ParcelLayer
+from grid_world.layers.built_in.grid_layer import GridLayer
+from grid_world.layers.built_in.scale_layer import ScaleLayer
+from grid_world.layers.built_in.focus_layer import FocusLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -16,13 +24,6 @@ class GridWorld(QWidget):
     def __init__(self):
         super(GridWorld, self).__init__()
         self.resize(1000, 800)
-
-        self.on_drag = False  # 正在拖动
-        self.on_frame = False  # 正在框选
-        self.framed = False  # 已经框选某个矩形
-
-        self.last_mouse_pos: QPoint = QPoint()  # 上次记录的鼠标坐标
-        self.press_start_pos: QPoint = QPoint()  # 上次鼠标按下的坐标
 
         # Deputies
         self.data_deputy = DataDeputy()
@@ -35,24 +36,28 @@ class GridWorld(QWidget):
                 southern=False
             )
         )
-        self.render_deputy = RenderDeputy(self, self.layout_deputy, self.data_deputy)
+        self.state_deputy = StateDeputy()
+        self.render_deputy = RenderDeputy(self)
         self.menu_deputy = MenuDeputy(self, tooltip=self.render_deputy.tooltip_proxy.tooltip_ft)
 
-        # Tooltip
-        self.tooltip_tl = self.render_deputy.tooltip_proxy.tooltip_tl
-        self.tooltip_tr = self.render_deputy.tooltip_proxy.tooltip_tr
-        self.tooltip_bl = self.render_deputy.tooltip_proxy.tooltip_bl
-        self.tooltip_br = self.render_deputy.tooltip_proxy.tooltip_br
-        self.tooltip_ft = self.render_deputy.tooltip_proxy.tooltip_ft
+        self.state_deputy.dragging_signal.connect(self.dragging_slot)
+        self.state_deputy.zooming_signal.connect(self.zooming_slot)
+
+        # Layers
+        LayerBase.bind(self)
+        self.aoi_layer = AOILayer()
+        self.trace_layer = TraceLayer()
+        self.parcel_layer = ParcelLayer()
+        self.gird_layer = GridLayer()
+        self.scale_layer = ScaleLayer()
+        self.focus_layer = FocusLayer()
+
+        # TooltipProxy
+        self.tooltip_proxy = self.render_deputy.tooltip_proxy
+        self.tooltip_proxy.tooltip_br.set("LEVEL", "0")
 
         # Other
-        self.tooltip_br.set("LEVEL", "0")
         self.setMouseTracking(True)  # 开启鼠标追踪
-
-    def aoi_update(self, aoi_data: np.ndarray):
-        self.data_deputy.read_aoi(data=aoi_data)
-        self.render_deputy.mark_need_update(aoi=True)
-        self.update()
 
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
@@ -60,87 +65,63 @@ class GridWorld(QWidget):
 
     def mousePressEvent(self, event):
         """鼠标按下时调用"""
-        pos = QPoint(event.pos())
-        crd = self.layout_deputy.pos2crd(pos)
+        event = self.layout_deputy.wrap_event(event)
+        self.state_deputy.on_mouse_press(event)
 
-        self.press_start_pos = pos
-        self.tooltip_ft.show()
-        self.tooltip_ft.move(pos + QPoint(10, -20))
-        self.tooltip_ft.set("At", f"({crd.x()}, {crd.y()})")
-
-        if event.button() == Qt.LeftButton:
-            self.framed = False
-            self.on_frame = True
-            self.render_deputy.set_focus_point(crd)
-        elif event.button() == Qt.RightButton:
-            self.on_drag = True
-            self.last_mouse_pos = pos
-            self.setCursor(Qt.OpenHandCursor)
-            self.menu_deputy.menu_allow = True
+        self.tooltip_proxy.tooltip_ft.show()
+        self.tooltip_proxy.tooltip_ft.move(event.pos + QPoint(10, -20))
+        self.tooltip_proxy.tooltip_ft.set("At", f"({event.crd.x()}, {event.crd.y()})")
 
         self.update()
 
     def mouseMoveEvent(self, event):
         """鼠标移动时调用"""
-        crd = self.layout_deputy.pos2crd(event.pos())
-        self.menu_deputy.menu_allow = False
+        if self.state_deputy.on_dragging:
+            self.layout_deputy.translate(self.state_deputy.last_mouse_pos - event.pos())
+            self.render_deputy.mark_need_restage()
 
-        if not self.render_deputy.enable_base_lines:
-            self.render_deputy.enable_base_lines = True
-            self.render_deputy.mark_need_repaint()
+        event = self.layout_deputy.wrap_event(event)
+        self.state_deputy.on_mouse_move(event)
 
         self.render_deputy.tooltip_proxy.tooltip_ft.hide()
-        self.render_deputy.tooltip_proxy.tooltip_bl.set("CRD", f"({crd.x()}, {crd.y()})")
-        self.render_deputy.tooltip_proxy.tooltip_bl.set("POS", f"({event.x()}, {event.y()})")
-
-        if self.on_drag:
-            pos = event.pos()
-            self.layout_deputy.translate(self.last_mouse_pos - pos)
-            self.last_mouse_pos = pos
-            self.render_deputy.enable_base_lines = False
-            self.render_deputy.mark_need_repaint()
-        elif self.on_frame:
-            self.framed = True
-            start = self.layout_deputy.pos2crd(self.press_start_pos)
-            end = crd
-            area = area_of_points([start, end])
-            self.render_deputy.set_focus_rect(area)
-        else:
-            self.last_mouse_pos = event.pos()
-            if not self.framed:
-                self.render_deputy.set_focus_point(crd)
+        self.render_deputy.tooltip_proxy.tooltip_bl.set("CRD", f"({event.crd.x()}, {event.crd.y()})")
+        self.render_deputy.tooltip_proxy.tooltip_bl.set("POS", f"({event.pos.x()}, {event.pos.y()})")
 
         self.update()
 
     def mouseReleaseEvent(self, event):
         """鼠标释放时调用"""
-        self.setCursor(Qt.ArrowCursor)
+        self.state_deputy.on_mouse_release()
 
-        self.on_drag = False
-        self.on_frame = False
-
-        self.render_deputy.enable_base_lines = True
-        self.render_deputy.mark_need_repaint()
-
-        self.tooltip_bl.set("POS")
-        self.tooltip_tl.set("FPS")
+        self.tooltip_proxy.tooltip_bl.set("POS")
+        self.tooltip_proxy.tooltip_tl.set("FPS")
 
         self.update()
 
     def wheelEvent(self, event):
         """滚动鼠标滚轮时调用"""
-        self.layout_deputy.zoom_at(event.angleDelta().y(), self.last_mouse_pos)
+        self.state_deputy.on_mouse_wheel()
+        self.layout_deputy.zoom_at(event.angleDelta().y(), self.state_deputy.last_mouse_pos)
 
-        self.render_deputy.enable_base_lines = False  # 优化性能
-        self.render_deputy.mark_need_repaint()
+        self.tooltip_proxy.tooltip_br.set("LEVEL", str(self.layout_deputy.grid_level))
 
-        self.tooltip_br.set("LEVEL", str(self.layout_deputy.grid_level))
-
+        self.render_deputy.mark_need_restage()
         self.update()
 
     def resizeEvent(self, event):
         """改变窗口大小时调用"""
         self.layout_deputy.resize(event.size())
-        self.render_deputy.mark_need_repaint()
-
+        self.render_deputy.mark_need_restage()
         self.update()
+
+    def dragging_slot(self, on_drag: bool):
+        if on_drag:
+            self.setCursor(Qt.OpenHandCursor)
+        else:
+            self.setCursor(Qt.ArrowCursor)
+            self.render_deputy.mark_need_restage()
+
+    def zooming_slot(self, on_zoom: bool):
+        if not on_zoom:
+            self.render_deputy.mark_need_restage()
+            # self.update()

@@ -2,7 +2,7 @@ from PySide6.QtCore import *
 import numpy as np
 
 
-class PGLearning(QThread):
+class ThreadLauncher(QThread):
     update_signal = Signal(np.ndarray)
 
     def __init__(self, aoi_slot):

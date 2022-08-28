@@ -145,3 +145,9 @@ class LayoutDeputy:
         """获取基准坐标所对应方格的中心屏幕坐标"""
         bias = int(self.win2view_factor / 2)
         return self.crd2pos(crd) + square_point(bias)
+
+    def wrap_event(self, event):
+        pos = event.pos()
+        event.pos = pos
+        event.crd = self.pos2crd(pos)
+        return event

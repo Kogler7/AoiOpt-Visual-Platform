@@ -6,7 +6,7 @@ from grid_world.utils.float_tooltip import FloatTooltip
 
 class MenuDeputy:
     def __init__(self, host: QWidget, tooltip: FloatTooltip):
-        self.menu_allow = False
+        self.allow_menu = False
         self.host = host
         self.set_style()
         self.tooltip = tooltip
@@ -20,7 +20,7 @@ class MenuDeputy:
         self.pop_menu.addAction(QAction('绘制模式 >', host))
 
     def pop_menu(self, point: QPoint):
-        if self.menu_allow:
+        if self.allow_menu:
             self.pop_menu.exec(self.host.mapToGlobal(point))
 
     def set_style(self):
