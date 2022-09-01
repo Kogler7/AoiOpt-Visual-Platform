@@ -94,6 +94,12 @@ class LayoutDeputy:
         self.win_bias_dec, self.win_bias_int = dec_int_2d(self.window_bias)
         self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
 
+    def teleport(self, target: QPoint):
+        """传送视窗"""
+        self.window_bias = target
+        self.win_bias_dec, self.win_bias_int = dec_int_2d(self.window_bias)
+        self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
+
     def zoom_at(self, angle: float, point: QPoint):
         """定点缩放"""
         # 乘以level因子以保证在不同level下有相同的缩放速率
@@ -151,3 +157,16 @@ class LayoutDeputy:
         event.pos = pos
         event.crd = self.pos2crd(pos)
         return event
+
+    def get_central_bias(self, aoi_size: QSize):
+        """返回当AOI区域处于视窗中心时的逻辑偏移量"""
+        win_size = size2point_f(self.size) / self.win2view_factor
+        bias = (win_size - size2point_f(aoi_size)) / 2
+        return bias
+
+    def get_device_logic_size(self):
+        """返回物理视窗对应的逻辑大小"""
+        h = math.ceil(self.size.height() * self.view2win_factor)
+        w = math.ceil(self.size.width() * self.view2win_factor)
+        return QSize(w, h)
+

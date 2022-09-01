@@ -4,7 +4,7 @@ from grid_world.proxy.tooltip_proxy import TooltipProxy
 from grid_world.utils.color_set import ColorSet
 from grid_world.utils.xps_checker import XPSChecker
 from grid_world.utils.custom_2d import *
-from grid_world.proxy.layer_proxy import LayerBase
+from grid_world.proxy.layer_proxy import LayerProxy
 
 
 class RenderDeputy:
@@ -12,7 +12,7 @@ class RenderDeputy:
         self.device = device
 
         # Layers
-        self.layers: list[LayerBase] = []
+        self.layers: list[LayerProxy] = []
 
         # 视图缓冲图层
         self.buff_map: QPixmap = QPixmap(self.device.size())

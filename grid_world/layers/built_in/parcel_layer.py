@@ -4,9 +4,10 @@ from grid_world.utils.color_set import ColorSet
 from tqdm import tqdm
 
 
-class ParcelLayer(LayerBase):
+class ParcelLayer(LayerProxy):
     def __init__(self):
         super(ParcelLayer, self).__init__()
+        self.level = -1
         self.xps_tag = "PPS"
         self.parcels_indexes = []
         self.parcels_maps: dict[int, QPixmap] = {}

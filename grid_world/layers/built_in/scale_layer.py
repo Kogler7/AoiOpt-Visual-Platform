@@ -3,9 +3,10 @@ from grid_world.utils.custom_2d import *
 from grid_world.utils.color_set import ColorSet
 
 
-class ScaleLayer(LayerBase):
+class ScaleLayer(LayerProxy):
     def __init__(self):
         super(ScaleLayer, self).__init__()
+        self.level = 2
         self.enable_crd_mark = True  # 是否标记逻辑坐标
         self.enable_geo_mark = True  # 是否标记地理坐标
 

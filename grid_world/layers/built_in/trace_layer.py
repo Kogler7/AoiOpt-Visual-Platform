@@ -4,9 +4,10 @@ from grid_world.utils.color_set import ColorSet
 from tqdm import tqdm
 
 
-class TraceLayer(LayerBase):
+class TraceLayer(LayerProxy):
     def __init__(self):
         super(TraceLayer, self).__init__()
+        self.level = -2
         self.xps_tag = "TPS"
         self.trace_indexes = []
         self.trace_maps: dict[int, QPixmap] = {}

@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 import numpy as np
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import QPoint, QSize
 from PySide6.QtGui import QColor, QImage
 
 from grid_world.utils.color_set import ColorSet
@@ -35,6 +35,7 @@ class AOIInfoSet:
 class AOIProxy:
     def __init__(self):
         self.crd_count = 0
+        self.aoi_size = QSize()
         self.aoi_dict = defaultdict(lambda: AOIInfo(crd_set=set()))
         self.crd_dict = {}
         self.index_map: QImage = QImage()
@@ -103,6 +104,7 @@ class AOIProxy:
 
     def read_img(self, img: QImage):
         self.color_map = img
+        self.aoi_size = self.color_map.size()
 
     def read_npy(self, arr: np.array):
         shape = arr.shape
@@ -110,6 +112,7 @@ class AOIProxy:
         for y in range(shape[0]):
             for x in range(shape[1]):
                 self.color_map.setPixelColor(QPoint(x, y), ColorSet.idx_color(arr[y][x]))
+        self.aoi_size = self.color_map.size()
 
     def get_aoi_map(self, idx: int = -1):
         return self.color_map

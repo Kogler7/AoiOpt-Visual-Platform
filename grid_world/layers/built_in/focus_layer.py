@@ -3,9 +3,10 @@ from grid_world.utils.custom_2d import *
 from grid_world.utils.color_set import ColorSet
 
 
-class FocusLayer(LayerBase):
+class FocusLayer(LayerProxy):
     def __init__(self):
         super(FocusLayer, self).__init__()
+        self.level = 3
         self.focus_brush = QBrush(QColor(255, 255, 255, 100))
         self.focus_rect_pen = QPen(ColorSet.named["LightGrey"])
         self.focus_rect_pen.setWidth(3)

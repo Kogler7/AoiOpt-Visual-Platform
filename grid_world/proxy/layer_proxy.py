@@ -1,18 +1,12 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
+from PySide6.QtCore import *
+from abc import ABC, abstractmethod
+from grid_world.utils.custom_2d import *
+from grid_world.proxy.async_proxy import *
 
 
-# from grid_world.deputy.data_deputy import DataDeputy
-# from grid_world.deputy.state_deputy import StateDeputy
-# from grid_world.deputy.render_deputy import RenderDeputy
-# from grid_world.deputy.layout_deputy import LayoutDeputy
-
-
-class LayerBase:
-    # data: DataDeputy
-    # state: StateDeputy
-    # render: RenderDeputy
-    # layout: LayoutDeputy
+class LayerProxy:
 
     @classmethod
     def bind(cls, base):
@@ -22,18 +16,27 @@ class LayerBase:
         cls.state = base.state_deputy
         cls.render = base.render_deputy
         cls.layout = base.layout_deputy
+        cls.layers: list[LayerProxy] = base.render_deputy.layers
 
     def __new__(cls, *args, **kwargs):
-        self = super(LayerBase, cls).__new__(cls)
-        self.render.layers.append(self)
+        self = super(LayerProxy, cls).__new__(cls)
+        self.level = 0
+        self.layers.append(self)
+        self.layers.sort(key=lambda layer: layer.level, reverse=False)
         return self
 
     def __init__(self):
+        self.level = 0
         self.xps_tag = ""
         self.visible = True
 
     def __del__(self):
-        pass
+        self.render.layers.remove(self)
+
+    def set_level(self, level: int):
+        """调整层级关系"""
+        self.level = level
+        self.layers.sort(key=lambda layer: layer.level, reverse=False)
 
     def reload(self, data):
         """全局更新时调用"""
@@ -42,6 +45,10 @@ class LayerBase:
     def force_restage(self):
         """用于主动更新"""
         self.render.mark_need_restage()
+        self.base.update()
+
+    def force_repaint(self):
+        """用于主动刷新"""
         self.base.update()
 
     def update(self, data):
@@ -56,12 +63,12 @@ class LayerBase:
         """重绘时自动调用"""
         return False
 
-    def mark_need_restage(self):
-        """强制更新buff图层"""
-        self.render.mark_need_restage()
-
     def show(self):
         self.visible = True
+        self.force_restage()
 
     def hide(self):
         self.visible = False
+        self.force_restage()
+
+
