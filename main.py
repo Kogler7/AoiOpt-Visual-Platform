@@ -1,9 +1,25 @@
 import sys
-from grid_world.thread_launcher import Learner
+import numpy as np
+import time
 from PySide6.QtWidgets import QApplication
 from grid_world.grid_world import GridWorld
-from grid_world.proxy.async_proxy import AsyncProxy
 from custom_layers.weight_layer import WeightAsyncLayer
+from PySide6.QtCore import *
+from grid_world.proxy.async_proxy import AsyncProxy, AsyncWorker
+
+
+class LearnWorker(AsyncWorker):
+    update_signal = Signal(np.ndarray)
+
+    def __init__(self, aoi_slot):
+        super().__init__()
+        self.update_signal.connect(aoi_slot)
+
+    def runner(self):
+        while True:
+            data = np.random.randint(20, size=(100, 100))
+            self.update_signal.emit(data)
+            time.sleep(0.5)
 
 
 def world_config(world: GridWorld):
@@ -18,11 +34,8 @@ def world_config(world: GridWorld):
     # world.trace_layer.set_indexes(indexes)
     # world.parcel_layer.set_indexes(indexes)
 
-    weight_layer = WeightAsyncLayer()
-
-
-def async_config(world: GridWorld):
-    learner = Learner(world.aoi_layer.reload)
+    # weight_layer = WeightAsyncLayer()
+    learner = LearnWorker(world.aoi_layer.reload)
     AsyncProxy.start(learner)
 
 
@@ -31,7 +44,6 @@ if __name__ == '__main__':
     grid_world = GridWorld()
 
     world_config(grid_world)
-    # async_config(grid_world)
 
     grid_world.show()
     sys.exit(app.exec())

@@ -10,16 +10,19 @@ from grid_world.deputy.menu_deputy import MenuDeputy
 from grid_world.deputy.data_deputy import DataDeputy
 from grid_world.deputy.render_deputy import RenderDeputy
 from grid_world.deputy.state_deputy import StateDeputy
+
 from grid_world.utils.custom_2d import *
 from grid_world.utils.bezier_curves import *
+
+from grid_world.proxy.async_proxy import AsyncProxy
 from grid_world.proxy.layer_proxy import LayerProxy
+
 from grid_world.layers.built_in.aoi_layer import AOILayer
 from grid_world.layers.built_in.trace_layer import TraceLayer
 from grid_world.layers.built_in.parcel_layer import ParcelLayer
-from grid_world.layers.built_in.grid_layer import GridLayer
+from grid_world.layers.built_in.grids_layer import GridsLayer
 from grid_world.layers.built_in.scale_layer import ScaleLayer
 from grid_world.layers.built_in.focus_layer import FocusLayer
-from grid_world.proxy.async_proxy import AsyncProxy
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -52,7 +55,7 @@ class GridWorld(QWidget):
         self.aoi_layer = AOILayer()
         self.trace_layer = TraceLayer()
         self.parcel_layer = ParcelLayer()
-        self.gird_layer = GridLayer()
+        self.gird_layer = GridsLayer()
         self.scale_layer = ScaleLayer()
         self.focus_layer = FocusLayer()
 

@@ -1,4 +1,6 @@
 from grid_world.proxy.layer_proxy import *
+from grid_world.utils.custom_2d import *
+from grid_world.proxy.async_proxy import *
 
 
 class AutoAsyncLayer(LayerProxy):

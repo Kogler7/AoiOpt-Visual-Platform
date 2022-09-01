@@ -1,9 +1,5 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import *
-from abc import ABC, abstractmethod
-from grid_world.utils.custom_2d import *
-from grid_world.proxy.async_proxy import *
 
 
 class LayerProxy:

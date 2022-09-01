@@ -1,5 +1,4 @@
 from PySide6.QtGui import QColor
-from collections import defaultdict
 
 
 class ColorSet:

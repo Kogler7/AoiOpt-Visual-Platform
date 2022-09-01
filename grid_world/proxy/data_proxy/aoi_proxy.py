@@ -1,13 +1,11 @@
+import time
+import numpy as np
 from collections import defaultdict
 from dataclasses import dataclass
 
-import numpy as np
 from PySide6.QtCore import QPoint, QSize
 from PySide6.QtGui import QColor, QImage
-
 from grid_world.utils.color_set import ColorSet
-from tqdm import trange
-import time
 
 
 @dataclass

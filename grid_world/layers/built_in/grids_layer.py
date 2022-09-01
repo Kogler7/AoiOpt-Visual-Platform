@@ -3,9 +3,9 @@ from grid_world.utils.custom_2d import *
 from grid_world.utils.color_set import ColorSet
 
 
-class GridLayer(LayerProxy):
+class GridsLayer(LayerProxy):
     def __init__(self):
-        super(GridLayer, self).__init__()
+        super(GridsLayer, self).__init__()
         self.level = 1
         self.xps_tag = "GPS"
         self.enable_base_lines = True  # 是否绘制基础栅格

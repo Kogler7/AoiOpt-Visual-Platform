@@ -1,5 +1,5 @@
 from PySide6.QtCore import *
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 
 class AsyncWorker(QObject):

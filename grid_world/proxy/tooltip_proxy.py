@@ -1,6 +1,6 @@
-from grid_world.utils.float_tooltip import FloatTooltip, TipAnchor
 from PySide6.QtCore import QPointF, QPoint, QSize
 from PySide6.QtWidgets import QWidget
+from grid_world.utils.float_tooltip import FloatTooltip, TipAnchor
 
 
 class TooltipProxy:

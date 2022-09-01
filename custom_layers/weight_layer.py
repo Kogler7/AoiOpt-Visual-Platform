@@ -1,6 +1,6 @@
 import time
 
-from grid_world.proxy.layer_proxy import *
+from grid_world.layers.auto_base.async_layer import *
 
 
 class WeightAsyncLayer(AutoAsyncLayer):
