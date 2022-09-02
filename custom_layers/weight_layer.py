@@ -3,7 +3,7 @@ import time
 from grid_world.layers.auto_base.async_layer import *
 
 
-class WeightAsyncLayer(AutoAsyncLayer):
+class WeightAsyncLayer(AutoRectAsyncLayer):
     def __init__(self):
         super(WeightAsyncLayer, self).__init__()
         self.data_size = QSize(100, 100)

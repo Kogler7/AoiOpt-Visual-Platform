@@ -4,8 +4,19 @@ from grid_world.proxy.async_proxy import *
 
 
 class AutoAsyncLayer(LayerProxy):
+    pass
+
+    def async_draw(self):
+        pass
+
+
+class AutoListAsyncLayer(LayerProxy):
+    pass
+
+
+class AutoRectAsyncLayer(LayerProxy):
     def __init__(self):
-        super(AutoAsyncLayer, self).__init__()
+        super(AutoRectAsyncLayer, self).__init__()
         self.update_step = 3
         self.focus_triggered: bool = False
         self.buff_rect = QRect()  # 已绘制完毕的rect
@@ -60,7 +71,13 @@ class AutoAsyncLayer(LayerProxy):
     def bound_diff(self, bound_rect: QRect = None):
         """判断是否需要启动更新"""
         # 计算约束矩形
-        if not bound_rect:
+        if bound_rect:
+            # 传入约束矩形可能会超出数据范围
+            data_rect = QRect(QPoint(0, 0), self.data_size)
+            bound_rect = rects_intersection(bound_rect, data_rect)
+            if not bound_rect:
+                return False
+        else:
             # 未传入约束矩形时，根据data_size结合偏移量计算约束矩形
             device_size: QSize = self.layout.get_device_logic_size()
             device_rect = QRect(QPoint(0, 0), device_size)

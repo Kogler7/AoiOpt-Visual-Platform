@@ -1,11 +1,13 @@
 import sys
 import numpy as np
 import time
+
+from PySide6.QtCore import *
 from PySide6.QtWidgets import QApplication
 from grid_world.grid_world import GridWorld
-from custom_layers.weight_layer import WeightAsyncLayer
-from PySide6.QtCore import *
 from grid_world.proxy.async_proxy import AsyncProxy, AsyncWorker
+
+from custom_layers.weight_layer import WeightAsyncLayer
 
 
 class LearnWorker(AsyncWorker):
