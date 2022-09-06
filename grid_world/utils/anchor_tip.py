@@ -6,15 +6,15 @@ from PySide6.QtGui import *
 from enum import Enum
 
 
-class TipAnchor(Enum):
+class AnchorLocate(Enum):
     top_lft = 0
     top_rgt = 1
     btm_lft = 2
     btm_rgt = 3
 
 
-class FloatTooltip:
-    def __init__(self, anchor=TipAnchor.top_lft, locate=QPoint(0, 0)):
+class AnchorTip:
+    def __init__(self, anchor=AnchorLocate.top_lft, locate=QPoint(0, 0)):
         self.visible = True
         self.anchor = anchor
         self.locate = locate
@@ -29,13 +29,13 @@ class FloatTooltip:
             return QRect()
         width = int(txt_len * 6.5) + 10
         height = self.back_height
-        if self.anchor is TipAnchor.top_lft:
+        if self.anchor is AnchorLocate.top_lft:
             return QRect(int(self.locate.x()), int(self.locate.y()), width, height)
-        elif self.anchor is TipAnchor.top_rgt:
+        elif self.anchor is AnchorLocate.top_rgt:
             return QRect(int(self.locate.x()) - width, int(self.locate.y()), width, height)
-        elif self.anchor is TipAnchor.btm_lft:
+        elif self.anchor is AnchorLocate.btm_lft:
             return QRect(int(self.locate.x()), int(self.locate.y()) - height, width, height)
-        elif self.anchor is TipAnchor.btm_rgt:
+        elif self.anchor is AnchorLocate.btm_rgt:
             return QRect(int(self.locate.x()) - width, int(self.locate.y()) - height, width, height)
         else:
             raise
