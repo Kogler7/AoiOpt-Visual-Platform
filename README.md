@@ -6,7 +6,7 @@ A Platform for GridWorld Visualization
 
 ## 1 使用说明
 
-### 基本概念
+### 1.1 基本概念
 
 - 坐标系统
   - 设备坐标系统
@@ -70,7 +70,7 @@ A Platform for GridWorld Visualization
       - Level: inf（最顶层）
       - 提示信息的绘制并不是基于图层实现的。它由`TooltipProxy`负责管理，并由`RenderDeputy`在所有图层绘制完成之后绘制在窗口上，因此可视为一个永远位于最顶层的虚拟图层。
 
-### 代码启动
+### 1.2 代码启动
 
 - 创建GridWorld
 
@@ -99,31 +99,107 @@ world.parcel_layer.set_indexes(indexes)
 - 创建异步任务
 >GridWorld启动后会进入**事件循环**，以保证能时刻对用户输入做出反应。任何在主线程进行的耗时任务均会造成**线程阻塞**，进而导致可视化**窗口卡死**。因此，必须开启子线程来**同步处理**其他计算任务。GridWorld2.0对多线程提供了简单的支持。在GridWorld3.0中，`AsyncProxy`提供了更为方便、强大的支持。
 
-  - 添加信号和槽
-  - 动态申请线程
-  - 动态送回数据
-- 进入事件循环
-- 展示
+在GridWorld3.0之后，创建**异步任务**的方法之一便是继承`AsyncWorker`类并实现`runner`方法，并通过`AsyncProxy`**申请线程**启动该任务，`AsyncWorker`的定义如下：
 
 ```python
-app = QApplication([])
-grid_world = GridWorld()
+class AsyncWorker(QObject):
+    @abstractmethod
+    def runner(self):
+        pass
+```
 
-world_config(grid_world)
+设`worker`为继承了`AsyncWorker`类的一个**实例化对象**，则启动该任务时只需：
 
-grid_world.show()
-sys.exit(app.exec())
+```python
+AsyncProxy.start(worker)
+```
+
+  - 添加信号和槽
+
+> **信号和槽**是Qt中的一个重要概念。信号的本质是**广播的事件**，而槽则是订阅该事件的回调函数。**在**Qt中，信号和槽实现了**发布-订阅模式**，但二者并非是双向深度绑定的。利用信号和槽，可以实现异步任务之间的通讯和互相调度。在Qt中，信号（`Signal`）必须声明为**类变量**（而不能是实例变量），且必须在**类初始化阶段**（`__init__`）完成与槽的绑定。使用`Signal.connect`方法与槽绑定，使用`Signal.emit`方法发布消息（信号）。
+
+以在GridWorld中申请线程运行深度学习算法为例，展示信号和槽在线程之间的通讯起到的作用。
+
+```python
+class LearnWorker(AsyncWorker):
+    signal = Signal(tuple) # 必须声明为类变量，可在括号内指定需要传输的数据类型
+
+    def __init__(self, world: GridWorld, info: InfoLayer):
+        super(LearnWorker, self).__init__()
+        self.aoi_learning = PolicyGradientRL() # 在init阶段声明的变量为实例变量，不可在此定义Signal
+        self.signal.connect(self.update) # 使用connect方法与槽绑定，当信号发出消息时，update函数会被调用
+        self.world = world
+        self.info = info
+
+    def update(self, data): # 异步任务拿到信号并定期发送消息，主线程收到后根据得到的数据更新可视化内容
+        aoi_map = data[0]
+        self.world.aoi_layer.reload(aoi_map)
+        self.info.reload(data)
+
+    def runner(self): # 子线程主要执行的任务，即启动深度学习
+        self.aoi_learning.execute(self.signal) # 将signal传给异步任务
+```
+
+  - 动态申请线程
+
+> 在GridWorld3.0之后，`AsyncProxy`本质是一个**全局线程池**，调用`start`或`run`方法即可自动完成线程的申请，并运行指定的任务。
+
+设计并继承了上述`AsyncWorker`类之后，按如下方法即可启动：
+
+```python
+learner = LearnWorker(world, info_layer) # 类的实例化
+AsyncProxy.start(learner) # 申请并启动线程
+```
+
+  - 动态送回数据
+
+> 一般情况下，异步任务中可能需要将运算过程产生的数据传回主线程的可视化部分。推荐的做法是，在`AsyncWorker`子类中声明一个Signal，并将该signal通过`runner`函数传给子线程。在子线程运行过程中，可以随时通过该`signal`传回数据并触发主线程的绘图更新函数。
+
+例如，在子线程的某一个过程中执行下列指令：
+
+```python
+if self.signal:
+    data = (
+        self.state,
+        (j, i, int(act[0])),
+        (int(reward0), int(reward1), int(reward_one)),
+        (0, 0)
+    ) # 根据需要定义data
+    self.signal.emit(data) # 通过signal将data传回主线程并启动槽函数
+```
+
+- 进入事件循环
+
+> 完成初始化配置并启动异步任务之后，再调用以下两个方法。此后主线程会进入事件循环，且**不会主动退出**，因此不建议在该指令后执行其他指令。
+
+```python
+world.show() # 显示窗口
+sys.exit(app.exec()) #进入事件循环（固定用法）
 ```
 
 
 
-### 基本操作
+### 1.3 基本操作
 
-- - 
-- 鼠标操作
-- 图层核心
-  - 内置图层
-  - 智能图层
+- 拖动
+
+> 在窗口中`按住`**鼠标右键**即可拖动整个画布。拖动时会不断触发图层的`on_stage`方法。
+
+- 缩放
+
+> 在窗口中`滚动`**鼠标中键**即可缩放整个画布，该缩放为**定点缩放**，即鼠标指针对应的逻辑坐标保持不变。缩放时会不断触发图层的`on_stage`方法。
+
+- 框选
+
+> 在窗口中`按住`**鼠标左键**并拖动即可框选部分栅格。框选时不会触发图层的`on_stage`方法，而只会不断触发`on_paint`方法。
+
+- 滑动
+
+> 在窗口中`点按`**鼠标中键**会进入滑动模式。此后画布会以点按时的鼠标指针坐标为原点，鼠标指针当前坐标为终点的向量作为滑动的**速度向量**进行定向平移。滑动时会不断触发图层的`on_stage`方法。
+
+- 归位
+
+> 在窗口中`双击`**鼠标中键**，画布AOI区域会自动归位至窗口中心。此过程中会不断触发图层的`on_stage`方法。
 
 
 
