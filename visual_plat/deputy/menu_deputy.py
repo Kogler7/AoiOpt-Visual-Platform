@@ -1,7 +1,7 @@
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from grid_world.utils.anchor_tip import AnchorTip
+from visual_plat.utils.anchor_tip import AnchorTip
 
 
 class MenuDeputy:

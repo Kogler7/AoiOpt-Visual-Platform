@@ -213,7 +213,7 @@ class Matrix2D:
 
 
 if __name__ == "__main__":
-    from grid_world.utils.xps_checker import XPSChecker
+    from visual_plat.utils.xps_checker import XPSChecker
 
     rect = QRect(1, 1, 6, 6)
     ctr_r = QRect(2, 2, 4, 4)
