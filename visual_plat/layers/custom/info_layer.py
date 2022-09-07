@@ -1,4 +1,4 @@
-from visual_plat.layers.auto_base.async_layer import *
+from visual_plat.layers.auto.async_layer import *
 from visual_plat.utils.anchor_tip import AnchorTip, AnchorLocate
 
 
