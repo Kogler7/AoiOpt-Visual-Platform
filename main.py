@@ -4,10 +4,8 @@ import time
 
 from PySide6.QtCore import *
 from PySide6.QtWidgets import QApplication
-from grid_world.grid_world import GridWorld
-from grid_world.proxy.async_proxy import AsyncProxy, AsyncWorker
-
-from custom_layers.weight_layer import WeightAsyncLayer
+from visual_plat.canvas import VisualCanvas
+from visual_plat.proxy.async_proxy import AsyncProxy, AsyncWorker
 
 
 class LearnWorker(AsyncWorker):
@@ -24,7 +22,7 @@ class LearnWorker(AsyncWorker):
             time.sleep(0.5)
 
 
-def world_config(world: GridWorld):
+def world_config(world: VisualCanvas):
     world.data_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
     world.aoi_layer.reload()
     # world.data_deputy.read_aoi("./data/images/2.jpg")
@@ -43,7 +41,7 @@ def world_config(world: GridWorld):
 
 if __name__ == '__main__':
     app = QApplication([])
-    grid_world = GridWorld()
+    grid_world = VisualCanvas()
 
     world_config(grid_world)
 

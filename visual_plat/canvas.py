@@ -5,31 +5,31 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import warnings
 
-from grid_world.deputy.layout_deputy import LayoutDeputy, GeographyInfo
-from grid_world.deputy.menu_deputy import MenuDeputy
-from grid_world.deputy.data_deputy import DataDeputy
-from grid_world.deputy.render_deputy import RenderDeputy
-from grid_world.deputy.state_deputy import StateDeputy
+from visual_plat.deputy.layout_deputy import LayoutDeputy, GeographyInfo
+from visual_plat.deputy.menu_deputy import MenuDeputy
+from visual_plat.deputy.data_deputy import DataDeputy
+from visual_plat.deputy.render_deputy import RenderDeputy
+from visual_plat.deputy.state_deputy import StateDeputy
 
-from grid_world.utils.custom_2d import *
-from grid_world.utils.bezier_curves import *
+from visual_plat.utils.custom_2d import *
+from visual_plat.utils.bezier_curves import *
 
-from grid_world.proxy.async_proxy import AsyncProxy
-from grid_world.proxy.layer_proxy import LayerProxy
+from visual_plat.proxy.async_proxy import AsyncProxy
+from visual_plat.proxy.layer_proxy import LayerProxy
 
-from grid_world.layers.built_in.aoi_layer import AOILayer
-from grid_world.layers.built_in.trace_layer import TraceLayer
-from grid_world.layers.built_in.parcel_layer import ParcelLayer
-from grid_world.layers.built_in.grids_layer import GridsLayer
-from grid_world.layers.built_in.scale_layer import ScaleLayer
-from grid_world.layers.built_in.focus_layer import FocusLayer
+from visual_plat.layers.built_in.aoi_layer import AOILayer
+from visual_plat.layers.built_in.trace_layer import TraceLayer
+from visual_plat.layers.built_in.parcel_layer import ParcelLayer
+from visual_plat.layers.built_in.grids_layer import GridsLayer
+from visual_plat.layers.built_in.scale_layer import ScaleLayer
+from visual_plat.layers.built_in.focus_layer import FocusLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
-class GridWorld(QWidget):
+class VisualCanvas(QWidget):
     def __init__(self):
-        super(GridWorld, self).__init__()
+        super(VisualCanvas, self).__init__()
         self.resize(1000, 800)
 
         # Deputies
