@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import *
 
-from grid_world.utils.color_set import ColorSet
-from grid_world.utils.custom_2d import *
-from grid_world.utils.xps_checker import XPSChecker
-from grid_world.proxy.layer_proxy import LayerProxy
-from grid_world.proxy.tooltip_proxy import TooltipProxy
+from visual_plat.utils.color_set import ColorSet
+from visual_plat.utils.custom_2d import *
+from visual_plat.utils.xps_checker import XPSChecker
+from visual_plat.proxy.layer_proxy import LayerProxy
+from visual_plat.proxy.tooltip_proxy import TooltipProxy
 
 
 class RenderDeputy:

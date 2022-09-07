@@ -1,4 +1,4 @@
-from grid_world.proxy.layer_proxy import *
+from visual_plat.proxy.layer_proxy import *
 
 
 class AOILayer(LayerProxy):

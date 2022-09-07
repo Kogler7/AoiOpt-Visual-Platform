@@ -1,4 +1,4 @@
-from grid_world.utils.anchor_tip import AnchorTip
+from visual_plat.utils.anchor_tip import AnchorTip
 from collections import defaultdict
 import timeit
 
