@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QColor
-from grid_world.utils.custom_2d import area_of_points, area_of_array
-from grid_world.utils.color_set import ColorSet
+from visual_plat.utils.custom_2d import area_of_points, area_of_array
+from visual_plat.utils.color_set import ColorSet
 
 
 @dataclass

@@ -1,8 +1,8 @@
 import time
 from PySide6.QtGui import *
 from PySide6.QtCore import *
-from grid_world.utils.custom_2d import *
-from grid_world.proxy.async_proxy import AsyncProxy, AsyncWorker
+from visual_plat.utils.custom_2d import *
+from visual_plat.proxy.async_proxy import AsyncProxy, AsyncWorker
 
 
 class StateDeputy(QObject):

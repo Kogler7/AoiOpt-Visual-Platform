@@ -1,6 +1,6 @@
 from PySide6.QtCore import QPointF, QPoint, QSize
 from PySide6.QtWidgets import QWidget
-from grid_world.utils.float_tooltip import FloatTooltip, TipAnchor
+from visual_plat.utils.anchor_tip import AnchorTip, AnchorLocate
 
 
 class TooltipProxy:
@@ -8,21 +8,21 @@ class TooltipProxy:
         self.device = device
         self.size = device.size()
         self.bias = anchor_bias
-        self.tooltip_ft = FloatTooltip(TipAnchor.btm_lft)
-        self.tooltip_tl = FloatTooltip(
-            anchor=TipAnchor.top_lft,
+        self.tooltip_ft = AnchorTip(AnchorLocate.btm_lft)
+        self.tooltip_tl = AnchorTip(
+            anchor=AnchorLocate.top_lft,
             locate=self.bias
         )
-        self.tooltip_tr = FloatTooltip(
-            anchor=TipAnchor.top_rgt,
+        self.tooltip_tr = AnchorTip(
+            anchor=AnchorLocate.top_rgt,
             locate=QPointF(self.size.width() - self.bias.x(), self.bias.y())
         )
-        self.tooltip_bl = FloatTooltip(
-            anchor=TipAnchor.btm_lft,
+        self.tooltip_bl = AnchorTip(
+            anchor=AnchorLocate.btm_lft,
             locate=QPointF(self.bias.x(), self.size.height() - self.bias.y())
         )
-        self.tooltip_br = FloatTooltip(
-            anchor=TipAnchor.btm_rgt,
+        self.tooltip_br = AnchorTip(
+            anchor=AnchorLocate.btm_rgt,
             locate=QPointF(self.size.width() - self.bias.x(), self.size.height() - self.bias.y())
         )
 

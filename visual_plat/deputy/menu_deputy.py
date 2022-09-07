@@ -1,11 +1,11 @@
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from grid_world.utils.float_tooltip import FloatTooltip
+from visual_plat.utils.anchor_tip import AnchorTip
 
 
 class MenuDeputy:
-    def __init__(self, host: QWidget, tooltip: FloatTooltip):
+    def __init__(self, host: QWidget, tooltip: AnchorTip):
         self.allow_menu = False
         self.host = host
         self.set_style()

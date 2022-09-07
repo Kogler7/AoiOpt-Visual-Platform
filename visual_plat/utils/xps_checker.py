@@ -1,10 +1,10 @@
-from grid_world.utils.float_tooltip import FloatTooltip
+from visual_plat.utils.anchor_tip import AnchorTip
 from collections import defaultdict
 import timeit
 
 
 class XPSChecker:
-    def __init__(self, tooltip: FloatTooltip = None):
+    def __init__(self, tooltip: AnchorTip = None):
         self.tooltip = tooltip
         self.cache = defaultdict(float)
         self.last_head = ""
@@ -14,7 +14,7 @@ class XPSChecker:
         self.last_head = ""
         self.cache[""] = timeit.default_timer()
 
-    def set_tooltip(self, tip: FloatTooltip):
+    def set_tooltip(self, tip: AnchorTip):
         self.tooltip = tip
 
     def check(self, head: str, tail: str = "", dif_from: str = "-1", factor: int = 1, no_tooltip: bool = False):

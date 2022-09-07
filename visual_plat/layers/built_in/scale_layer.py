@@ -1,6 +1,6 @@
-from grid_world.proxy.layer_proxy import *
-from grid_world.utils.custom_2d import *
-from grid_world.utils.color_set import ColorSet
+from visual_plat.proxy.layer_proxy import *
+from visual_plat.utils.custom_2d import *
+from visual_plat.utils.color_set import ColorSet
 
 
 class ScaleLayer(LayerProxy):

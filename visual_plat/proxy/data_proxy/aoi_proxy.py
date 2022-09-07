@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QPoint, QSize
 from PySide6.QtGui import QColor, QImage
-from grid_world.utils.color_set import ColorSet
+from visual_plat.utils.color_set import ColorSet
 
 
 @dataclass

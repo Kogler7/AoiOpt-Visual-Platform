@@ -1,10 +1,10 @@
 from PySide6.QtGui import QImage
 import numpy as np
 
-from grid_world.proxy.data_proxy.aoi_proxy import AOIProxy
-from grid_world.proxy.data_proxy.trace_proxy import TraceProxy
-from grid_world.proxy.data_proxy.parcel_proxy import ParcelProxy
-from grid_world.utils.txt_reader import TxtReader
+from visual_plat.proxy.data_proxy.aoi_proxy import AOIProxy
+from visual_plat.proxy.data_proxy.trace_proxy import TraceProxy
+from visual_plat.proxy.data_proxy.parcel_proxy import ParcelProxy
+from visual_plat.utils.txt_reader import TxtReader
 
 
 class DataDeputy:
