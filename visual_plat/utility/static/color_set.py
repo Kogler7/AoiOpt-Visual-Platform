@@ -1,4 +1,5 @@
 from PySide6.QtGui import QColor
+import json
 
 
 class ColorSet:
@@ -21,15 +22,12 @@ class ColorSet:
 
     @classmethod
     def init(cls):
-        with open("./data/color_set.txt") as f:
-            name = ""
-            for line in f:
-                line = line.rstrip('\n')
-                if line[0] == '-':
-                    name = line.lstrip('-')
-                else:
-                    c = cls.hex_to_rgb(line)
-                    cls.color_dict[name].append(QColor(c[0], c[1], c[2]))
+        with open("./visual_plat/builtin_config/colors.json") as f:
+            color_dict: dict = json.load(f)
+            for cate, colors in color_dict.items():
+                for c_str in colors:
+                    color = cls.hex_to_rgb(c_str)
+                    cls.color_dict[cate].append(QColor(color[0], color[1], color[2]))
 
     @classmethod
     def new_color(cls, c_type: str = "light"):
