@@ -5,7 +5,7 @@ import time
 from PySide6.QtCore import *
 from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
-from visual_plat.proxy.async_proxy import AsyncProxy, AsyncWorker
+from visual_plat.global_proxy.async_proxy import AsyncProxy, AsyncWorker
 
 
 class LearnWorker(AsyncWorker):

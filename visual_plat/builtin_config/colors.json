@@ -1,0 +1,9 @@
+{
+  "root": "./",
+  "aoi_data_path": "data/aoi.npy",
+  "trace_data_path": "data/trace.npy",
+  "parcel_data_path": "data/parcel.npy",
+  "abc": {
+    "haha": "baba"
+  }
+}

@@ -5,24 +5,24 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import warnings
 
-from visual_plat.deputy.layout_deputy import LayoutDeputy, GeographyInfo
-from visual_plat.deputy.menu_deputy import MenuDeputy
-from visual_plat.deputy.data_deputy import DataDeputy
-from visual_plat.deputy.render_deputy import RenderDeputy
-from visual_plat.deputy.state_deputy import StateDeputy
+from visual_plat.canvas_deputy.layout_deputy import LayoutDeputy, GeographyInfo
+from visual_plat.canvas_deputy.menu_deputy import MenuDeputy
+from visual_plat.canvas_deputy.data_deputy import DataDeputy
+from visual_plat.canvas_deputy.render_deputy import RenderDeputy
+from visual_plat.canvas_deputy.state_deputy import StateDeputy
 
-from visual_plat.utils.custom_2d import *
-from visual_plat.utils.bezier_curves import *
+from visual_plat.utility.static.custom_2d import *
+from visual_plat.utility.static.bezier_curves import *
 
-from visual_plat.proxy.async_proxy import AsyncProxy
-from visual_plat.proxy.layer_proxy import LayerProxy
+from visual_plat.global_proxy.async_proxy import AsyncProxy
+from visual_plat.render_layer.layer_base import LayerBase
 
-from visual_plat.layers.built_in.aoi_layer import AOILayer
-from visual_plat.layers.built_in.trace_layer import TraceLayer
-from visual_plat.layers.built_in.parcel_layer import ParcelLayer
-from visual_plat.layers.built_in.grids_layer import GridsLayer
-from visual_plat.layers.built_in.scale_layer import ScaleLayer
-from visual_plat.layers.built_in.focus_layer import FocusLayer
+from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
+from visual_plat.render_layer.builtin.traj_layer import TrajLayer
+from visual_plat.render_layer.builtin.parcel_layer import ParcelLayer
+from visual_plat.render_layer.builtin.grids_layer import GridsLayer
+from visual_plat.render_layer.builtin.scale_layer import ScaleLayer
+from visual_plat.render_layer.builtin.focus_layer import FocusLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -51,9 +51,9 @@ class VisualCanvas(QWidget):
         self.state_deputy.zooming_signal.connect(self.zooming_slot)
 
         # Layers
-        LayerProxy.bind(self)
-        self.aoi_layer = AOILayer()
-        self.trace_layer = TraceLayer()
+        LayerBase.bind(self)
+        self.aoi_layer = AoiLayer()
+        self.trace_layer = TrajLayer()
         self.parcel_layer = ParcelLayer()
         self.gird_layer = GridsLayer()
         self.scale_layer = ScaleLayer()
