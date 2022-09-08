@@ -6,6 +6,7 @@ from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QColor
 from visual_plat.utility.static.custom_2d import area_of_points, area_of_array
 from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.utility.static.txt_reader import TxtReader
 
 
 @dataclass
@@ -28,6 +29,23 @@ class ParcelAgent:
         info = ParcelInfo(area, index, color, [])
         info.p_lst = crd_list
         self.parcels_dict[index] = info
+
+    def auto_read(self, data):
+        """读入包裹数据"""
+        if isinstance(data, str):
+            path = data
+            mode = path[-3:]
+            if mode == "npy":
+                data = np.load(path, allow_pickle=True)
+                self.read_npy(data)
+            elif mode == "txt":
+                self.read_lst(TxtReader.read_grouped_points(path))
+            else:
+                print("Data Deputy: Unexpected Read Mode.")
+        elif isinstance(data, np.ndarray):
+            self.read_npy(data)
+        else:
+            print("Data Deputy: No Data.")
 
     def read_npy(self, arr: np.array):
         with trange(len(arr)) as t:

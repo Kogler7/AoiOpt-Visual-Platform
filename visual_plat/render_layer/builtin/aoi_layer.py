@@ -1,4 +1,5 @@
 from visual_plat.render_layer.layer_base import *
+from visual_plat.data_agent.aoi_agent import AoiAgent
 
 
 class AoiLayer(LayerBase):
@@ -7,15 +8,16 @@ class AoiLayer(LayerBase):
         """初始化AOI图层"""
         self.level = -3
         self.xps_tag = "AOI"
-        aoi_img = self.data.get_aoi_info()
+        self.agent = AoiAgent()
+        aoi_img = self.agent.get_aoi_map()
         self.aoi_map: QPixmap = QPixmap.fromImage(aoi_img)
         self.size = self.aoi_map.size()
 
     def reload(self, data=None):
         """更新AOI图层"""
         if data is not None:
-            self.data.read_aoi(data=data)
-        aoi_img = self.data.get_aoi_info()
+            self.agent.auto_read(data)
+        aoi_img = self.agent.get_aoi_map()
         self.aoi_map: QPixmap = QPixmap.fromImage(aoi_img)
         self.size = self.aoi_map.size()
         self.force_restage()

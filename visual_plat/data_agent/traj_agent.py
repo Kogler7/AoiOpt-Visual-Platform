@@ -7,7 +7,7 @@ from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QColor
 from visual_plat.utility.static.custom_2d import area_of_points
 from visual_plat.utility.static.color_set import ColorSet
-
+from visual_plat.utility.static.txt_reader import TxtReader
 
 
 @dataclass
@@ -39,6 +39,23 @@ class TrajAgent:
         info.p_lst.append(crd_list[len(crd_list) - 1])
         info.area = area_of_points(info.p_lst)
         self.traj_dict[index] = info
+
+    def auto_read(self, data):
+        """读入轨迹数据"""
+        if isinstance(data, str):
+            path = data
+            mode = path[-3:]
+            if mode == "npy":
+                data = np.load(path, allow_pickle=True)
+                self.read_npy(data)
+            elif mode == "txt":
+                self.read_lst(TxtReader.read_grouped_points(path))
+            else:
+                print("Data Deputy: Unexpected Read Mode.")
+        elif isinstance(data, np.ndarray):
+            self.read_npy(data)
+        else:
+            print("Data Deputy: No Data.")
 
     def read_npy(self, arr: np.array):
         data = []

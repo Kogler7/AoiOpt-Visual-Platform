@@ -9,14 +9,14 @@ from visual_plat.utility.static.color_set import ColorSet
 
 
 @dataclass
-class AOIInfo:
+class AoiInfo:
     crd_set: set
     index: int = 0
     label: str = ""
     color: QColor = QColor()
 
 
-class AOIInfoSet:
+class AoiInfoSet:
     def __init__(self):
         pass
 
@@ -34,7 +34,7 @@ class AoiAgent:
     def __init__(self):
         self.crd_count = 0
         self.aoi_size = QSize()
-        self.aoi_dict = defaultdict(lambda: AOIInfo(crd_set=set()))
+        self.aoi_dict = defaultdict(lambda: AoiInfo(crd_set=set()))
         self.crd_dict = {}
         self.index_map: QImage = QImage()
         self.color_map: QImage = QImage()
@@ -99,6 +99,26 @@ class AoiAgent:
         if crd in self.crd_dict.keys():
             return self.crd_dict.get(crd)
         return None
+
+    def auto_read(self, data):
+        """读入AOI数据"""
+        if isinstance(data, str):
+            path = data
+            mode = path[-3:]
+            if mode == "npy":
+                self.read_npy(np.load(path))
+            elif mode == "jpg" or mode == "png":
+                img = QImage()
+                if img.load(path):
+                    self.read_img(img)
+                else:
+                    print("Aoi Agent: Image Reading Failed.")
+            else:
+                print("Aoi Agent: Unexpected Read Mode.")
+        elif isinstance(data, np.ndarray):
+            self.read_npy(data)
+        else:
+            print("Aoi Agent: No Data.")
 
     def read_img(self, img: QImage):
         self.color_map = img

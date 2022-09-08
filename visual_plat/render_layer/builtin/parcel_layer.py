@@ -1,6 +1,7 @@
 from visual_plat.render_layer.layer_base import *
 from visual_plat.utility.static.custom_2d import *
 from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.data_agent.parcel_agent import ParcelAgent
 from tqdm import tqdm
 
 
@@ -9,6 +10,7 @@ class ParcelLayer(LayerBase):
         super(ParcelLayer, self).__init__()
         self.level = -1
         self.xps_tag = "PPS"
+        self.agent = ParcelAgent()
         self.parcels_indexes = []
         self.parcels_maps: dict[int, QPixmap] = {}
         self.parcels_area_dict: dict[int, QRect] = {}
@@ -23,7 +25,7 @@ class ParcelLayer(LayerBase):
         if data:
             self.parcels_indexes: list[int] = data
         if self.parcels_indexes:
-            lst = self.data.get_parcels_info(self.parcels_indexes)
+            lst = self.agent.get_parcels(self.parcels_indexes)
             brush_bk = QBrush(ColorSet.named["LightGrey"])
             step_p = QPoint(1, 1)
             step_s = QSize(-2, -2)

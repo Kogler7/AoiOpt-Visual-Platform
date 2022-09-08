@@ -23,11 +23,9 @@ class LearnWorker(AsyncWorker):
 
 
 def world_config(world: VisualCanvas):
-    world.data_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
-    world.aoi_layer.reload()
-    # world.data_deputy.read_aoi("./data/images/2.jpg")
-    # world.data_deputy.read_traces("./data/trace/trace_1.npy")
-    # world.data_deputy.read_parcels("./data/parcels/parcels_n.npy")
+    world.aoi_layer.reload("./data/aoi/AOI_20_grid.npy")
+    # world.trace_layer.agent.auto_read("./data/trace/trace_1.npy")
+    # world.parcel_layer.agent.auto_read("./data/parcels/parcels_n.npy")
 
     indexes = range(10)
     bias = 1

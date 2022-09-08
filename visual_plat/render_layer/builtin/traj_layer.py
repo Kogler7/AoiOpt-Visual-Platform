@@ -1,6 +1,7 @@
 from visual_plat.render_layer.layer_base import *
 from visual_plat.utility.static.custom_2d import *
 from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.data_agent.traj_agent import TrajAgent
 from tqdm import tqdm
 
 
@@ -9,6 +10,7 @@ class TrajLayer(LayerBase):
         super(TrajLayer, self).__init__()
         self.level = -2
         self.xps_tag = "TPS"
+        self.agent = TrajAgent()
         self.traj_indexes = []
         self.trace_maps: dict[int, QPixmap] = {}
         self.trace_area_dict: dict[int, QRect] = {}
@@ -37,7 +39,7 @@ class TrajLayer(LayerBase):
         if data:
             self.traj_indexes: list[int] = data
         if self.traj_indexes:
-            lst = self.data.get_traces_info(self.traj_indexes)
+            lst = self.agent.get_trace(self.traj_indexes)
             with tqdm(total=len(lst)) as t:
                 for trace in lst:
                     t.update()
