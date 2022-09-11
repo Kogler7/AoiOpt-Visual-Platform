@@ -1,13 +1,11 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.global_proxy.color_proxy import ColorProxy
 
 
 class GridsLayer(LayerBase):
-    def __init__(self):
-        super(GridsLayer, self).__init__()
-        self.level = 1
-        self.xps_tag = "GPS"
+    def __init__(self, canvas):
+        super(GridsLayer, self).__init__(canvas)
         self.enable_base_lines = True  # 是否绘制基础栅格
 
     def on_stage(self, device: QWidget):
@@ -19,7 +17,7 @@ class GridsLayer(LayerBase):
         size = int(layout.viewport_size)
         step = layout.grid_gap
 
-        pen = QPen(ColorSet.named["LightGrey"])
+        pen = QPen(ColorProxy.named["LightGrey"])
 
         with QPainter(device) as painter:
             painter.setPen(pen)

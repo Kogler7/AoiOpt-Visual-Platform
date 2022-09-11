@@ -1,14 +1,13 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.global_proxy.color_proxy import ColorProxy
 
 
 class FocusLayer(LayerBase):
-    def __init__(self):
-        super(FocusLayer, self).__init__()
-        self.level = 3
+    def __init__(self, canvas):
+        super(FocusLayer, self).__init__(canvas)
         self.focus_brush = QBrush(QColor(255, 255, 255, 100))
-        self.focus_rect_pen = QPen(ColorSet.named["LightGrey"])
+        self.focus_rect_pen = QPen(ColorProxy.named["LightGrey"])
         self.focus_rect_pen.setWidth(3)
 
     def on_paint(self, device: QWidget):

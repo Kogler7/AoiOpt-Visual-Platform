@@ -3,31 +3,16 @@ from PySide6.QtGui import *
 
 
 class LayerBase:
-
-    @classmethod
-    def bind(cls, base):
-        """与GridWorld绑定，请在实例化GridWorld时调用"""
-        cls.base = base
-        cls.data = base.data_deputy
-        cls.state = base.state_deputy
-        cls.render = base.render_deputy
-        cls.layout = base.layout_deputy
-        cls.layers: list[LayerBase] = base.render_deputy.layers
-
-    def __new__(cls, *args, **kwargs):
-        self = super(LayerBase, cls).__new__(cls)
-        self.level = 0
-        self.layers.append(self)
-        self.layers.sort(key=lambda layer: layer.level, reverse=False)
-        return self
-
-    def __init__(self):
+    def __init__(self, canvas):
+        self.data = None
+        self.canvas = canvas
+        self.state = canvas.event_deputy
+        self.render = canvas.render_deputy
+        self.layout = canvas.layout_deputy
+        self.layers: list[LayerBase] = canvas.layer_list
         self.level = 0
         self.xps_tag = ""
         self.visible = True
-
-    def __del__(self):
-        self.render.layers.remove(self)
 
     def set_level(self, level: int):
         """调整层级关系"""
@@ -38,16 +23,7 @@ class LayerBase:
         """全局更新时调用"""
         return False
 
-    def force_restage(self):
-        """用于主动更新"""
-        self.render.mark_need_restage()
-        self.base.update()
-
-    def force_repaint(self):
-        """用于主动刷新"""
-        self.base.update()
-
-    def update(self, data):
+    def adjust(self, data):
         """局部更新时调用"""
         return False
 
@@ -59,6 +35,15 @@ class LayerBase:
         """重绘时自动调用"""
         return False
 
+    def force_restage(self):
+        """用于主动更新"""
+        self.render.mark_need_restage()
+        self.canvas.update()
+
+    def force_repaint(self):
+        """用于主动刷新"""
+        self.canvas.update()
+
     def show(self):
         self.visible = True
         self.force_restage()
@@ -66,5 +51,3 @@ class LayerBase:
     def hide(self):
         self.visible = False
         self.force_restage()
-
-

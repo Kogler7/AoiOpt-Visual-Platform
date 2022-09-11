@@ -1,5 +1,5 @@
 {
-  "built-in": [
+  "builtin": [
     {
       "tag": "aoi",
       "xps_tag": "APS",
@@ -22,7 +22,7 @@
       "mouse_triggered": false
     },
     {
-      "tag": "grid",
+      "tag": "grids",
       "level": 1,
       "visible": true,
       "mouse_triggered": true

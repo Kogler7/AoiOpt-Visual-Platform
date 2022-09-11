@@ -1,12 +1,11 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.global_proxy.color_proxy import ColorProxy
 
 
 class ScaleLayer(LayerBase):
-    def __init__(self):
-        super(ScaleLayer, self).__init__()
-        self.level = 2
+    def __init__(self, canvas):
+        super(ScaleLayer, self).__init__(canvas)
         self.enable_crd_mark = True  # 是否标记逻辑坐标
         self.enable_geo_mark = True  # 是否标记地理坐标
 
@@ -14,7 +13,7 @@ class ScaleLayer(LayerBase):
         """标记坐标"""
         layout = self.layout
         size = layout.size
-        pen = QPen(ColorSet.named["LightDark"])
+        pen = QPen(ColorProxy.named["LightDark"])
         pen.setWidth(3)
         with QPainter(device) as painter:
             painter.setPen(pen)

@@ -1,5 +1,5 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.utility.static.custom_2d import *
+from visual_plat.shared.static.custom_2d import *
 from visual_plat.global_proxy.async_proxy import *
 
 

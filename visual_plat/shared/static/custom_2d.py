@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 from PySide6.QtCore import QPointF, QPoint, QRect, QSize
+# import taichi as ti
 
 inf_int = int(10e8)
 
@@ -93,6 +94,7 @@ def point_azimuth(p: QPointF):
     return math.atan2(-p.y(), p.x()) + 2 * math.pi
 
 
+# @ti.func
 def masked_rect2list(src_r: QRect, ctr_r: QRect, mask: QRect = QRect()):
     """
     将矩形中的点按照一定规则进行序列化
@@ -213,28 +215,28 @@ class Matrix2D:
 
 
 if __name__ == "__main__":
-    from visual_plat.utility.entity.xps_checker import XPSChecker
+    from visual_plat.shared.utility.xps_checker import XPSChecker
 
-    rect = QRect(1, 1, 6, 6)
+    rect = QRect(1, 1, 100, 100)
     ctr_r = QRect(2, 2, 4, 4)
     mask = QRect(2, 2, 6, 4)
 
     xps = XPSChecker()
     xps.start()
-    p = QPointF(1, 0)
-    ro = Rotation2D(-math.pi / 4)
-    for i in range(100000):
-        p = ro.trans(p)
-    print(p)
-    xps.check("rotate")
-    for i in range(100000):
-        point_azimuth(p)
-    xps.check("azi")
-    for i in range(100000):
-        ctr_rect_cdist(rect, p)
-    xps.check("dist")
+    # p = QPointF(1, 0)
+    # ro = Rotation2D(-math.pi / 4)
+    # for i in range(100000):
+    #     p = ro.trans(p)
+    # print(p)
+    # xps.check("rotate")
+    # for i in range(100000):
+    #     point_azimuth(p)
+    # xps.check("azi")
+    # for i in range(100000):
+    #     ctr_rect_cdist(rect, p)
+    # xps.check("dist")
 
-    # lst = masked_rect2list(rect, ctr_r, mask)
-    print(rects_intersection(rect, mask))
+    lst = masked_rect2list(rect, ctr_r, mask)
+    # print(rects_intersection(rect, mask))
     xps.check("over")
     # print(lst)

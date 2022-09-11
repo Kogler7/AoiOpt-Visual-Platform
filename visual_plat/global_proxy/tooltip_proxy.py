@@ -1,6 +1,6 @@
 from PySide6.QtCore import QPointF, QPoint, QSize
 from PySide6.QtWidgets import QWidget
-from visual_plat.utility.entity.anchor_tip import AnchorTip, AnchorLocate
+from visual_plat.shared.utility.anchor_tip import AnchorTip, AnchorLocate
 
 
 class TooltipProxy:

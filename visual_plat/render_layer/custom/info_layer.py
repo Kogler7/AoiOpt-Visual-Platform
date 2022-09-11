@@ -1,10 +1,10 @@
 from visual_plat.render_layer.auto.async_layer import *
-from visual_plat.utility.entity.anchor_tip import AnchorTip, AnchorLocate
+from visual_plat.shared.utility.anchor_tip import AnchorTip, AnchorLocate
 
 
 class InfoLayer(LayerBase):
-    def __init__(self):
-        super(InfoLayer, self).__init__()
+    def __init__(self, canvas):
+        super(InfoLayer, self).__init__(canvas)
         self.tooltip = AnchorTip(anchor=AnchorLocate.top_lft, locate=QPoint(90, 100))
         self.action = (0, 0, 0)
         self.reward = (0, 0, 0)
@@ -12,6 +12,7 @@ class InfoLayer(LayerBase):
         self.dir_lst = ['↑', '↓', '←', '→', '*']
 
     def reload(self, data):
+        self.data = data
         self.action = data[1]
         self.reward = data[2]
         self.time = data[3]  # epoch, step

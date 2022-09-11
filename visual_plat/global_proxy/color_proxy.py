@@ -1,8 +1,8 @@
 from PySide6.QtGui import QColor
-import json
+from visual_plat.global_proxy.config_proxy import ConfigProxy
 
 
-class ColorSet:
+class ColorProxy:
     global_count = 0
     normal_cnt = 0
     dark_cnt = 0
@@ -22,12 +22,11 @@ class ColorSet:
 
     @classmethod
     def init(cls):
-        with open("./visual_plat/builtin_config/colors.json") as f:
-            color_dict: dict = json.load(f)
-            for cate, colors in color_dict.items():
-                for c_str in colors:
-                    color = cls.hex_to_rgb(c_str)
-                    cls.color_dict[cate].append(QColor(color[0], color[1], color[2]))
+        color_dict: dict = ConfigProxy.get("colors")
+        for cate, colors in color_dict.items():
+            for c_str in colors:
+                color = cls.hex_to_rgb(c_str)
+                cls.color_dict[cate].append(QColor(color[0], color[1], color[2]))
 
     @classmethod
     def new_color(cls, c_type: str = "light"):

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from visual_plat.utility.static.custom_2d import *
+from visual_plat.shared.static.custom_2d import *
 
 
 @dataclass

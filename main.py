@@ -23,7 +23,7 @@ class LearnWorker(AsyncWorker):
 
 
 def world_config(world: VisualCanvas):
-    world.aoi_layer.reload("./data/aoi/AOI_20_grid.npy")
+    # world.aoi_layer.reload("./output/aoi/AOI_20_grid.npy")
     # world.trace_layer.agent.auto_read("./data/trace/trace_1.npy")
     # world.parcel_layer.agent.auto_read("./data/parcels/parcels_n.npy")
 
@@ -39,9 +39,9 @@ def world_config(world: VisualCanvas):
 
 if __name__ == '__main__':
     app = QApplication([])
-    grid_world = VisualCanvas()
+    canvas = VisualCanvas()
 
-    world_config(grid_world)
+    world_config(canvas)
 
-    grid_world.show()
+    canvas.show()
     sys.exit(app.exec())

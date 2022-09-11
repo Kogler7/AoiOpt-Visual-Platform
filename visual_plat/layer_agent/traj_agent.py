@@ -5,9 +5,9 @@ from collections import defaultdict
 
 from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QColor
-from visual_plat.utility.static.custom_2d import area_of_points
-from visual_plat.utility.static.color_set import ColorSet
-from visual_plat.utility.static.txt_reader import TxtReader
+from visual_plat.shared.static.custom_2d import area_of_points
+from visual_plat.global_proxy.color_proxy import ColorProxy
+from visual_plat.shared.static.txt_reader import TxtReader
 
 
 @dataclass
@@ -72,7 +72,7 @@ class TrajAgent:
         with trange(len(lst)) as t:
             t.set_description_str(f"Processing traces")
             for i in t:
-                self.add_trace(lst[i], i, ColorSet.idx_color(i, "normal"))
+                self.add_trace(lst[i], i, ColorProxy.idx_color(i, "normal"))
 
     def get_idx_list(self):
         return self.traj_dict.keys()

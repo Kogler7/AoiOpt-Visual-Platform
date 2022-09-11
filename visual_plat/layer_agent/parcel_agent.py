@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QPoint, QRect
 from PySide6.QtGui import QColor
-from visual_plat.utility.static.custom_2d import area_of_points, area_of_array
-from visual_plat.utility.static.color_set import ColorSet
-from visual_plat.utility.static.txt_reader import TxtReader
+from visual_plat.shared.static.custom_2d import area_of_points, area_of_array
+from visual_plat.global_proxy.color_proxy import ColorProxy
+from visual_plat.shared.static.txt_reader import TxtReader
 
 
 @dataclass
@@ -52,14 +52,14 @@ class ParcelAgent:
             t.set_description_str(f"Reading parcels")
             for i in t:
                 area = area_of_array(arr[i])
-                info = ParcelInfo(area, i, ColorSet.idx_color(i), [])
+                info = ParcelInfo(area, i, ColorProxy.idx_color(i), [])
                 for p in arr[i]:
                     info.p_lst.append(QPoint(p[1], p[0]))
                 self.parcels_dict[i] = info
 
     def read_lst(self, lst: list[list[QPoint]]):
         for i in range(len(lst)):
-            self.add_parcels(lst[i], i, ColorSet.idx_color(i, "dark"))
+            self.add_parcels(lst[i], i, ColorProxy.idx_color(i, "dark"))
 
     def get_idx_list(self):
         return self.parcels_dict.keys()

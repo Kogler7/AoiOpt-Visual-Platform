@@ -1,4 +1,5 @@
 import time
+from importlib import import_module
 
 from PySide6.QtCore import *
 from PySide6.QtWidgets import *
@@ -7,22 +8,18 @@ import warnings
 
 from visual_plat.canvas_deputy.layout_deputy import LayoutDeputy, GeographyInfo
 from visual_plat.canvas_deputy.menu_deputy import MenuDeputy
-from visual_plat.canvas_deputy.data_deputy import DataDeputy
-from visual_plat.canvas_deputy.render_deputy import RenderDeputy
 from visual_plat.canvas_deputy.state_deputy import StateDeputy
+from visual_plat.canvas_deputy.render_deputy import RenderDeputy
+from visual_plat.canvas_deputy.event_deputy import EventDeputy
 
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.static.bezier_curves import *
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.shared.static.bezier_curves import *
 
+from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
-from visual_plat.render_layer.layer_base import LayerBase
 
+from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
-from visual_plat.render_layer.builtin.traj_layer import TrajLayer
-from visual_plat.render_layer.builtin.parcel_layer import ParcelLayer
-from visual_plat.render_layer.builtin.grids_layer import GridsLayer
-from visual_plat.render_layer.builtin.scale_layer import ScaleLayer
-from visual_plat.render_layer.builtin.focus_layer import FocusLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -31,9 +28,17 @@ class VisualCanvas(QWidget):
     def __init__(self):
         super(VisualCanvas, self).__init__()
         self.resize(1000, 800)
+        # 载入配置信息
+        ConfigProxy.load()
+
+        # Layers
+        self.layer_dict: dict[str] = {}
+        self.layer_list: list[LayerBase] = []
 
         # Deputies
-        self.data_deputy = DataDeputy()
+        self.state_deputy = StateDeputy(layers=self.layer_dict)
+        self.event_deputy = EventDeputy(self.zooming_slot, self.dragging_slot)
+        self.render_deputy = RenderDeputy(self, layers=self.layer_list)
         self.layout_deputy = LayoutDeputy(
             size=self.size(),
             pos_bias=QPoint(-50, -50),
@@ -43,21 +48,15 @@ class VisualCanvas(QWidget):
                 southern=False
             )
         )
-        self.state_deputy = StateDeputy(self.zooming_slot, self.dragging_slot)
-        self.render_deputy = RenderDeputy(self)
         self.menu_deputy = MenuDeputy(self, tooltip=self.render_deputy.tooltip_proxy.tooltip_ft)
 
-        self.state_deputy.dragging_signal.connect(self.dragging_slot)
-        self.state_deputy.zooming_signal.connect(self.zooming_slot)
+        self.event_deputy.dragging_signal.connect(self.dragging_slot)
+        self.event_deputy.zooming_signal.connect(self.zooming_slot)
 
-        # Layers
-        LayerBase.bind(self)
-        self.aoi_layer = AoiLayer()
-        self.trace_layer = TrajLayer()
-        self.parcel_layer = ParcelLayer()
-        self.gird_layer = GridsLayer()
-        self.scale_layer = ScaleLayer()
-        self.focus_layer = FocusLayer()
+        # Layers 载入，需要在 Deputy 声明后完成
+        layers_config = ConfigProxy.get("layers")
+        self.load_layers(layers_config)
+        self.aoi_layer: AoiLayer = self.layer_dict["aoi"]
 
         # TooltipProxy
         self.tooltip_proxy = self.render_deputy.tooltip_proxy
@@ -69,6 +68,30 @@ class VisualCanvas(QWidget):
         # Teleport
         self.animate2center()
 
+    def load_layers(self, layers_cfg: dict):
+        pth_base = "visual_plat.render_layer."
+        mod_back = "_layer"
+        nme_back = "Layer"
+        for cls, layers in layers_cfg.items():
+            mod_base = pth_base + cls + '.'
+            for layer_info in layers:
+                tag: str = layer_info["tag"]
+                module = mod_base + tag + mod_back
+                mod = import_module(module)
+                name = tag.capitalize() + nme_back
+                layer_cls = getattr(mod, name)
+                layer_obj = layer_cls(self)
+                if "level" in layer_info.keys():
+                    layer_obj.level = layer_info["level"]
+                if "xps_tag" in layer_info.keys():
+                    layer_obj.xps_tag = layer_info["xps_tag"]
+                if "visible" in layer_info.keys():
+                    layer_obj.visible = layer_info["visible"]
+                self.layer_dict[tag] = layer_obj
+                self.layer_list.append(layer_obj)
+        # 根据层级排序
+        self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
+
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
         self.render_deputy.render()
@@ -76,12 +99,12 @@ class VisualCanvas(QWidget):
     def mousePressEvent(self, event):
         """鼠标按下时调用"""
         event = self.layout_deputy.wrap_event(event)
-        self.state_deputy.on_mouse_press(event)
+        self.event_deputy.on_mouse_press(event)
 
-        if self.state_deputy.on_sliding:
+        if self.event_deputy.on_sliding:
             self.setCursor(Qt.SizeAllCursor)
             AsyncProxy.run(self.on_sliding)
-        elif not self.state_deputy.on_dragging:
+        elif not self.event_deputy.on_dragging:
             self.setCursor(Qt.ArrowCursor)
 
         self.tooltip_proxy.tooltip_ft.show()
@@ -92,8 +115,8 @@ class VisualCanvas(QWidget):
 
     def on_sliding(self):
         """中键滑动"""
-        while self.state_deputy.on_sliding:
-            delt = -(self.state_deputy.start_sliding_pos - self.state_deputy.last_mouse_pos) / 20
+        while self.event_deputy.on_sliding:
+            delt = -(self.event_deputy.start_sliding_pos - self.event_deputy.last_mouse_pos) / 20
             self.layout_deputy.translate(delt)
             self.render_deputy.mark_need_restage()
             self.update()
@@ -125,17 +148,17 @@ class VisualCanvas(QWidget):
         if event.button() == Qt.MiddleButton:
             """滑动回原点"""
             self.setCursor(Qt.ArrowCursor)
-            self.state_deputy.on_sliding = False
+            self.event_deputy.on_sliding = False
             self.animate2center()
 
     def mouseMoveEvent(self, event):
         """鼠标移动时调用"""
-        if self.state_deputy.on_dragging:
-            self.layout_deputy.translate(self.state_deputy.last_mouse_pos - event.pos())
+        if self.event_deputy.on_dragging:
+            self.layout_deputy.translate(self.event_deputy.last_mouse_pos - event.pos())
             self.render_deputy.mark_need_restage()
 
         event = self.layout_deputy.wrap_event(event)
-        self.state_deputy.on_mouse_move(event)
+        self.event_deputy.on_mouse_move(event)
 
         self.render_deputy.tooltip_proxy.tooltip_ft.hide()
         self.render_deputy.tooltip_proxy.tooltip_bl.set("CRD", f"({event.crd.x()}, {event.crd.y()})")
@@ -145,7 +168,7 @@ class VisualCanvas(QWidget):
 
     def mouseReleaseEvent(self, event):
         """鼠标释放时调用"""
-        self.state_deputy.on_mouse_release()
+        self.event_deputy.on_mouse_release()
 
         self.tooltip_proxy.tooltip_bl.set("POS")
         self.tooltip_proxy.tooltip_tl.set("FPS")
@@ -154,8 +177,8 @@ class VisualCanvas(QWidget):
 
     def wheelEvent(self, event):
         """滚动鼠标滚轮时调用"""
-        self.state_deputy.on_mouse_wheel()
-        self.layout_deputy.zoom_at(event.angleDelta().y(), self.state_deputy.last_mouse_pos)
+        self.event_deputy.on_mouse_wheel()
+        self.layout_deputy.zoom_at(event.angleDelta().y(), self.event_deputy.last_mouse_pos)
 
         self.tooltip_proxy.tooltip_br.set("LEVEL", str(self.layout_deputy.grid_level))
 

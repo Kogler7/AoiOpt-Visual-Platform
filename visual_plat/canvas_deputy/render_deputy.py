@@ -1,19 +1,19 @@
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import *
 
-from visual_plat.utility.static.color_set import ColorSet
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.entity.xps_checker import XPSChecker
+from visual_plat.global_proxy.color_proxy import ColorProxy
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.shared.utility.xps_checker import XPSChecker
 from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.global_proxy.tooltip_proxy import TooltipProxy
 
 
 class RenderDeputy:
-    def __init__(self, device: QWidget):
+    def __init__(self, device: QWidget, layers: list[LayerBase]):
         self.device = device
 
         # Layers
-        self.layers: list[LayerBase] = []
+        self.layers: list[LayerBase] = layers
 
         # 视图缓冲图层
         self.buff_map: QPixmap = QPixmap(self.device.size())
@@ -37,7 +37,7 @@ class RenderDeputy:
             # 绘制视图缓冲图层
             self.need_restage = False
             self.buff_map = QPixmap(self.device.size())
-            self.buff_map.fill(ColorSet.named["Background"])
+            self.buff_map.fill(ColorProxy.named["Background"])
             self.xps.check("BINI")
             for layer in self.layers:
                 if layer.visible:

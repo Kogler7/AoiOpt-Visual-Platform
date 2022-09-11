@@ -1,26 +1,24 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.static.color_set import ColorSet
-from visual_plat.data_agent.traj_agent import TrajAgent
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.global_proxy.color_proxy import ColorProxy
+from visual_plat.layer_agent.traj_agent import TrajAgent
 from tqdm import tqdm
 
 
 class TrajLayer(LayerBase):
-    def __init__(self):
-        super(TrajLayer, self).__init__()
-        self.level = -2
-        self.xps_tag = "TPS"
+    def __init__(self, canvas):
+        super(TrajLayer, self).__init__(canvas)
         self.agent = TrajAgent()
-        self.traj_indexes = []
+        self.data = []  # traj_indexes
         self.trace_maps: dict[int, QPixmap] = {}
         self.trace_area_dict: dict[int, QRect] = {}
         self.enable_dot_line = True  # 是否使用点线绘制轨迹
-        self.dot_back_line_pen = QPen(ColorSet.named["LightGrey"])
+        self.dot_back_line_pen = QPen(ColorProxy.named["LightGrey"])
         """初始化轨迹图层"""
         self.reload()
 
     def set_indexes(self, indexes):
-        self.traj_indexes = indexes
+        self.data = indexes
         self.reload()
 
     def draw_dot_line(self, painter: QPainter, fst: QPoint, sec: QPoint):
@@ -37,9 +35,9 @@ class TrajLayer(LayerBase):
 
     def reload(self, data=None):
         if data:
-            self.traj_indexes: list[int] = data
-        if self.traj_indexes:
-            lst = self.agent.get_trace(self.traj_indexes)
+            self.data: list[int] = data
+        if self.data:
+            lst = self.agent.get_trace(self.data)
             with tqdm(total=len(lst)) as t:
                 for trace in lst:
                     t.update()
@@ -74,8 +72,8 @@ class TrajLayer(LayerBase):
             layout = self.layout
             painter.setWindow(mul_rect(layout.window, 15))
             painter.setViewport(layout.viewport)
-            if self.traj_indexes != [-1]:
-                for i in self.traj_indexes:
+            if self.data != [-1]:
+                for i in self.data:
                     if i in self.trace_maps.keys():
                         draw_trace_at(i)
             else:

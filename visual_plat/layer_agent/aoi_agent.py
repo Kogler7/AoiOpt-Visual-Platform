@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from PySide6.QtCore import QPoint, QSize
 from PySide6.QtGui import QColor, QImage
-from visual_plat.utility.static.color_set import ColorSet
+from visual_plat.global_proxy.color_proxy import ColorProxy
 
 
 @dataclass
@@ -78,7 +78,7 @@ class AoiAgent:
     def append(self, crd: QPoint, aoi: int):
         if crd not in self.crd_dict.keys():
             if aoi not in self.aoi_dict.keys():
-                self.add_aoi(index=aoi, color=ColorSet.new_color())
+                self.add_aoi(index=aoi, color=ColorProxy.new_color())
             self.aoi_dict[aoi].crd_set.add(crd)
             self.crd_dict[crd] = aoi
             self.crd_count += 1
@@ -129,7 +129,7 @@ class AoiAgent:
         self.color_map = QImage(shape[1], shape[0], QImage.Format_BGR888)
         for y in range(shape[0]):
             for x in range(shape[1]):
-                self.color_map.setPixelColor(QPoint(x, y), ColorSet.idx_color(arr[y][x]))
+                self.color_map.setPixelColor(QPoint(x, y), ColorProxy.idx_color(arr[y][x]))
         self.aoi_size = self.color_map.size()
 
     def get_aoi_map(self, idx: int = -1):

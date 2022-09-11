@@ -1,32 +1,30 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.utility.static.custom_2d import *
-from visual_plat.utility.static.color_set import ColorSet
-from visual_plat.data_agent.parcel_agent import ParcelAgent
+from visual_plat.shared.static.custom_2d import *
+from visual_plat.global_proxy.color_proxy import ColorProxy
+from visual_plat.layer_agent.parcel_agent import ParcelAgent
 from tqdm import tqdm
 
 
 class ParcelLayer(LayerBase):
-    def __init__(self):
-        super(ParcelLayer, self).__init__()
-        self.level = -1
-        self.xps_tag = "PPS"
+    def __init__(self, canvas):
+        super(ParcelLayer, self).__init__(canvas)
         self.agent = ParcelAgent()
-        self.parcels_indexes = []
+        self.data = []  # parcels_indexes
         self.parcels_maps: dict[int, QPixmap] = {}
         self.parcels_area_dict: dict[int, QRect] = {}
         """初始化包裹图层"""
         self.reload()
 
     def set_indexes(self, indexes):
-        self.parcels_indexes = indexes
+        self.data = indexes
         self.reload()
 
     def reload(self, data=None):
         if data:
-            self.parcels_indexes: list[int] = data
-        if self.parcels_indexes:
-            lst = self.agent.get_parcels(self.parcels_indexes)
-            brush_bk = QBrush(ColorSet.named["LightGrey"])
+            self.data: list[int] = data
+        if self.data:
+            lst = self.agent.get_parcels(self.data)
+            brush_bk = QBrush(ColorProxy.named["LightGrey"])
             step_p = QPoint(1, 1)
             step_s = QSize(-2, -2)
             with tqdm(total=len(lst)) as t:
@@ -65,8 +63,8 @@ class ParcelLayer(LayerBase):
             layout = self.layout
             painter.setWindow(mul_rect(layout.window, 10))
             painter.setViewport(layout.viewport)
-            if self.parcels_indexes != [-1]:
-                for i in self.parcels_indexes:
+            if self.data != [-1]:
+                for i in self.data:
                     if i in self.parcels_maps.keys():
                         draw_parcels_at(i)
             else:
