@@ -1,27 +1,25 @@
 from dataclasses import dataclass
 from visual_plat.shared.static.custom_2d import *
-
-
-@dataclass
-class GeographyInfo:
-    locate: QPointF
-    eastern: bool
-    southern: bool
+from visual_plat.global_proxy.config_proxy import ConfigProxy
 
 
 class LayoutDeputy:
-    def __init__(self, size: QSize, pos_bias: QPoint, geo_info: GeographyInfo):
+    def __init__(self, size: QSize):
         # 基础参数
         self.size = size  # Device Size
-        self.zoom_step = 1  # 每级缩放增加的方格数量
-        self.precision = 0.001  # 地理坐标精度，即每个方格对应的经纬度变化量
+        self.zoom_step = ConfigProxy.layout("zoom_step")  # 每级缩放增加的方格数量
+        self.precision = ConfigProxy.layout("precision")  # 地理坐标精度，即每个方格对应的经纬度变化量
 
         # 基础偏移量
-        self.geo_info = geo_info  # 地理坐标相对逻辑坐标偏移
-        self.pos_bias: QPoint = pos_bias  # 物理坐标相对逻辑坐标偏移
+        self.geo_info = ConfigProxy.canvas("geo_info")  # 地理坐标相对逻辑坐标偏移
+        self.geo_locate = QPointF(self.geo_info["locate"][0], self.geo_info["locate"][1])
+        self.geo_eastern = self.geo_info["eastern"]
+        self.geo_southern = self.geo_info["southern"]
+        self.pos_bias: QPoint = QPoint()  # 物理坐标相对逻辑坐标偏移
 
         # 逻辑视窗
-        self.window_size = 30  # 逻辑视窗所能容纳的最大方格数量
+        self.window_size = ConfigProxy.layout("init_window_size")  # 逻辑视窗所能容纳的最大方格数量
+        self.min_window_size = ConfigProxy.layout("min_window_size")  # 最小尺寸
         self.window = QRect(0, 0, self.window_size, self.window_size)
 
         # 逻辑偏移量
@@ -41,9 +39,10 @@ class LayoutDeputy:
 
         # 栅格参数
         self.grid_level = 0  # 栅格缩放等级
-        self.grid_cov_fac = 5  # 基础栅格和定位栅格的换算因子
-        self.grid_lvl_fac = 5 ** self.grid_level  # 栅格间距的换算因子
-        self.grid_gap_min = 20  # 栅格最小间距
+        self.grid_lvl_max = ConfigProxy.layout("max_grid_level")
+        self.grid_cov_fac = ConfigProxy.layout("grid_convert_factor")  # 基础栅格和定位栅格的换算因子
+        self.grid_lvl_fac = self.grid_cov_fac ** self.grid_level  # 栅格间距的换算因子
+        self.grid_gap_min = ConfigProxy.layout("min_grid_gap")  # 栅格最小间距
         self.grid_gap_max = self.grid_gap_min * self.grid_cov_fac  # 栅格最大间距
         self.grid_gap = self.win2view_factor * self.grid_lvl_fac  # 基础栅格间距
 
@@ -73,18 +72,18 @@ class LayoutDeputy:
     def crd2geo(self, crd: QPoint):
         """逻辑坐标转地理坐标"""
         _crd = crd.__copy__()
-        if not self.geo_info.eastern:
+        if not self.geo_eastern:
             _crd.setX(-crd.x())
-        if not self.geo_info.southern:
+        if not self.geo_southern:
             _crd.setY(-crd.y())
-        return QPointF(_crd) * self.precision + self.geo_info.locate
+        return QPointF(_crd) * self.precision + self.geo_locate
 
     def geo2crd(self, geo: QPointF):
         """地理坐标转逻辑坐标"""
-        crd = (geo - self.geo_info.locate) / self.precision
-        if not self.geo_info.eastern:
+        crd = (geo - self.geo_locate) / self.precision
+        if not self.geo_eastern:
             crd.setX(-crd.x())
-        if not self.geo_info.southern:
+        if not self.geo_southern:
             crd.setY(-crd.y())
         return crd
 
@@ -106,7 +105,8 @@ class LayoutDeputy:
         delt = -angle / 120 * self.grid_lvl_fac
 
         # 限制缩放区间以免影响视觉效果甚至溢出
-        if (delt > 0 and self.grid_gap > 10) or (delt < 0 and self.window_size > 5):
+        if (delt > 0 and self.grid_gap > self.grid_lvl_max) or \
+                (delt < 0 and self.window_size > self.min_window_size):
             # 高精度计算缩放量，并更新相关参数
             p_loc = self.pos2crd_f(QPointF(point))
             self.window_size += delt
@@ -121,12 +121,12 @@ class LayoutDeputy:
 
             # 更新栅格参数，level取值范围为 [0, 10]，level 小于0时无意义，而超过10时会溢出
             if self.grid_gap < self.grid_gap_min:
-                if self.grid_level < 10:
+                if self.grid_level < self.grid_lvl_max:
                     self.grid_level += 1
             elif self.grid_gap > self.grid_gap_max:
                 if self.grid_level > 0:
                     self.grid_level -= 1
-            self.grid_lvl_fac = 5 ** self.grid_level
+            self.grid_lvl_fac = self.grid_cov_fac ** self.grid_level
             self.grid_gap = self.win2view_factor * self.grid_lvl_fac
 
     def resize(self, size=QSize()):
@@ -169,4 +169,3 @@ class LayoutDeputy:
         h = math.ceil(self.size.height() * self.view2win_factor)
         w = math.ceil(self.size.width() * self.view2win_factor)
         return QSize(w, h)
-

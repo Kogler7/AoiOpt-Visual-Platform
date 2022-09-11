@@ -6,7 +6,7 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import warnings
 
-from visual_plat.canvas_deputy.layout_deputy import LayoutDeputy, GeographyInfo
+from visual_plat.canvas_deputy.layout_deputy import LayoutDeputy
 from visual_plat.canvas_deputy.menu_deputy import MenuDeputy
 from visual_plat.canvas_deputy.state_deputy import StateDeputy
 from visual_plat.canvas_deputy.render_deputy import RenderDeputy
@@ -27,9 +27,10 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 class VisualCanvas(QWidget):
     def __init__(self):
         super(VisualCanvas, self).__init__()
-        self.resize(1000, 800)
         # 载入配置信息
         ConfigProxy.load()
+        init_size = ConfigProxy.canvas("init_size")
+        self.resize(init_size[0], init_size[1])
 
         # Layers
         self.layer_dict: dict[str] = {}
@@ -39,15 +40,7 @@ class VisualCanvas(QWidget):
         self.state_deputy = StateDeputy(layers=self.layer_dict)
         self.event_deputy = EventDeputy(self.zooming_slot, self.dragging_slot)
         self.render_deputy = RenderDeputy(self, layers=self.layer_list)
-        self.layout_deputy = LayoutDeputy(
-            size=self.size(),
-            pos_bias=QPoint(-50, -50),
-            geo_info=GeographyInfo(
-                locate=QPointF(116.400, 39.910),
-                eastern=True,
-                southern=False
-            )
-        )
+        self.layout_deputy = LayoutDeputy(size=self.size())
         self.menu_deputy = MenuDeputy(self, tooltip=self.render_deputy.tooltip_proxy.tooltip_ft)
 
         self.event_deputy.dragging_signal.connect(self.dragging_slot)

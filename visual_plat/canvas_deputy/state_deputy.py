@@ -44,14 +44,14 @@ class StateDeputy:
             self.layers[layer_tag].reload(data)
             if self.recording:
                 self.record.updates.append(RecordUnit(layer_tag, RecordType.reload, data))
-            while self.blocked:
-                pass  # 尚未完成
+        return self.blocked
 
     def adjust(self, layer_tag: str, data=None):
         if not self.suspended:
             self.layers[layer_tag].adjust(data)
             if self.recording:
                 self.record.updates.append(RecordUnit(layer_tag, RecordType.adjust, data))
+        return self.blocked
 
     @staticmethod
     def load_record(path):

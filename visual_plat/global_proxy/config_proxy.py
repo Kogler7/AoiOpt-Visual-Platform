@@ -22,4 +22,17 @@ class ConfigProxy:
 
     @staticmethod
     def path(name):
-        return ConfigProxy.config["path"][name]
+        if "paths" in ConfigProxy.config.keys():
+            return ConfigProxy.config["paths"][name]
+
+    @staticmethod
+    def canvas(name):
+        return ConfigProxy.config["canvas"][name]
+
+    @staticmethod
+    def layout(name):
+        return ConfigProxy.config["canvas"]["layout"][name]
+
+    @staticmethod
+    def render(name):
+        return ConfigProxy.config["canvas"]["render"][name]
