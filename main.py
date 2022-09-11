@@ -1,3 +1,4 @@
+import datetime
 import sys
 import numpy as np
 import time
@@ -6,19 +7,18 @@ from PySide6.QtCore import *
 from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
 from visual_plat.global_proxy.async_proxy import AsyncProxy, AsyncWorker
+from visual_plat.global_proxy.update_proxy import UpdateProxy
 
 
 class LearnWorker(AsyncWorker):
-    update_signal = Signal(np.ndarray)
 
     def __init__(self, aoi_slot):
         super().__init__()
-        self.update_signal.connect(aoi_slot)
 
     def runner(self):
         while True:
             data = np.random.randint(20, size=(100, 100))
-            self.update_signal.emit(data)
+            UpdateProxy.reload("aoi", data)
             time.sleep(0.5)
 
 

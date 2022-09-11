@@ -1,5 +1,6 @@
 import datetime
 import pickle
+import time
 from dataclasses import dataclass
 from enum import Enum
 
@@ -26,7 +27,7 @@ class Record:
 
 
 class StateDeputy:
-    record_path = ConfigProxy.path("record")
+    record_path = ""
 
     def __init__(self, layers: dict[str, LayerBase]):
         self.layers = layers
@@ -35,8 +36,9 @@ class StateDeputy:
         self.suspended = False
         self.recording = False
         self.replaying = False
+        StateDeputy.record_path = ConfigProxy.path("record")
 
-    def block_up(self):
+    def block(self):
         self.blocked = not self.blocked
 
     def reload(self, layer_tag: str, data=None):
@@ -61,23 +63,28 @@ class StateDeputy:
 
     @staticmethod
     def save_record(record: Record):
-        rcd_name = str(datetime.datetime.now())
+        rcd_name = time.strftime(
+            '%Y%m%d-%H%M%S',
+            time.localtime(time.time())
+        )
         with open(StateDeputy.record_path + rcd_name + ".rcd", 'wb') as rcd:
             pickle.dump(record, rcd)
+        print(f"Record saved as {rcd_name}.rcd")
 
     def snapshot(self):
         record = Record([], [])
-        for tag, layer in self.layers:
+        for tag, layer in self.layers.items():
             record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
         self.save_record(record)
 
     def start_record(self):
-        self.record = Record([], [])
-        for tag, layer in self.layers:
-            self.record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
-        self.recording = True
+        if not self.recording:
+            self.record = Record([], [])
+            for tag, layer in self.layers:
+                self.record.initial.append(RecordUnit(tag, RecordType.reload, layer.aoi_map))
+            self.recording = True
 
-    def start_replay(self):
+    def start_replay(self, record: Record):
         pass
 
     def pause(self):

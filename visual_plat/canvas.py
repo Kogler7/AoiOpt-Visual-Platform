@@ -17,6 +17,7 @@ from visual_plat.shared.static.bezier_curves import *
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
+from visual_plat.global_proxy.update_proxy import UpdateProxy
 
 from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
@@ -29,6 +30,7 @@ class VisualCanvas(QWidget):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
         ConfigProxy.load()
+
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
 
@@ -60,6 +62,9 @@ class VisualCanvas(QWidget):
 
         # Teleport
         self.animate2center()
+
+        # 在StateDeputy之后
+        UpdateProxy.set_canvas(self)
 
     def load_layers(self, layers_cfg: dict):
         pth_base = "visual_plat.render_layer."
@@ -177,6 +182,17 @@ class VisualCanvas(QWidget):
 
         self.render_deputy.mark_need_restage()
         self.update()
+
+    def keyPressEvent(self, event: QKeyEvent):
+        # Space 暂停
+        if event.key() == Qt.Key_Space:
+            self.state_deputy.pause()
+        # Ctrl+Space 阻塞
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:
+            self.state_deputy.block()
+        # Ctrl+S 截图
+        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
+            self.state_deputy.snapshot()
 
     def resizeEvent(self, event):
         """改变窗口大小时调用"""
