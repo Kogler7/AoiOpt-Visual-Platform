@@ -5,7 +5,7 @@ import time
 from PySide6.QtCore import *
 from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
-from visual_plat.proxy.async_proxy import AsyncProxy, AsyncWorker
+from visual_plat.global_proxy.async_proxy import AsyncProxy, AsyncWorker
 
 
 class LearnWorker(AsyncWorker):
@@ -23,11 +23,9 @@ class LearnWorker(AsyncWorker):
 
 
 def world_config(world: VisualCanvas):
-    world.data_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
-    world.aoi_layer.reload()
-    # world.data_deputy.read_aoi("./data/images/2.jpg")
-    # world.data_deputy.read_traces("./data/trace/trace_1.npy")
-    # world.data_deputy.read_parcels("./data/parcels/parcels_n.npy")
+    # world.aoi_layer.reload("./output/aoi/AOI_20_grid.npy")
+    # world.trace_layer.agent.auto_read("./data/trace/trace_1.npy")
+    # world.parcel_layer.agent.auto_read("./data/parcels/parcels_n.npy")
 
     indexes = range(10)
     bias = 1
@@ -41,9 +39,9 @@ def world_config(world: VisualCanvas):
 
 if __name__ == '__main__':
     app = QApplication([])
-    grid_world = VisualCanvas()
+    canvas = VisualCanvas()
 
-    world_config(grid_world)
+    world_config(canvas)
 
-    grid_world.show()
+    canvas.show()
     sys.exit(app.exec())

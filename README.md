@@ -62,12 +62,12 @@ world = GridWorld() # 创建GridWorld实例
 > GridWorld配置阶段可以进行一些简单的设置。可以通过GridWorld实例来获取其中的代理对象或图层对象。
 
 ```python
-world.data_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
+world.state_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
 world.aoi_layer.reload()
 
-world.data_deputy.read_aoi("./data/images/2.jpg")
-world.data_deputy.read_traces("./data/trace/trace_1.npy")
-world.data_deputy.read_parcels("./data/parcels/parcels_n.npy")
+world.state_deputy.read_aoi("./data/images/2.jpg")
+world.state_deputy.read_traces("./data/trace/trace_1.npy")
+world.state_deputy.read_parcels("./data/parcels/parcels_n.npy")
 
 indexes = range(10)
 world.trace_layer.set_indexes(indexes)
