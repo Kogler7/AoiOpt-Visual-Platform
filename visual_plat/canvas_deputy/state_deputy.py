@@ -94,15 +94,17 @@ class StateDeputy:
 
     def start_replay(self, record: Record):
         print("start")
-        self.replaying = True
-        self.suspended = True  # 不再接受外部更新
         initial = record.initial
         for r in initial:
             self.reload(r.layer_tag, r.record_data)
         self.play_record = record
         self.play_index = 0
         self.play_range = range(len(record.updates))
-        AsyncProxy.run(self.async_replay)
+        if record.updates:
+            # 避免在刷新snapshot时设置为悬置状态
+            self.replaying = True
+            self.suspended = True  # 不再接受外部更新
+            AsyncProxy.run(self.async_replay)
 
     def replay_by_index(self):
         self.play_mutex.lock()
@@ -120,14 +122,14 @@ class StateDeputy:
         self.play_mutex.unlock()
 
     def async_replay(self):
-        while self.play_index in self.play_range:
+        while self.replaying:
             while self.pausing:
                 time.sleep(0.5)
             self.replay_by_index()
             self.play_index += 1
+            if self.play_index > self.play_range[-1]:
+                self.play_index = 0
             time.sleep(1)
-        self.replaying = False
-        self.suspended = False
 
     def fast_forward(self):
         if self.replaying and self.pausing:
@@ -153,7 +155,9 @@ class StateDeputy:
         if self.recording:
             self.recording = False
             self.save_record(self.record)
+            print("Recording terminated.")
         if self.replaying:
             self.replaying = False
             self.suspended = False
             self.play_index = self.play_range[-1]
+            print("Replaying terminated.")
