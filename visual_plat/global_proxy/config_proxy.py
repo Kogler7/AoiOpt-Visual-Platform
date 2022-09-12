@@ -4,7 +4,7 @@ from glob import glob
 
 
 class ConfigProxy:
-    config_path = ".\\visual_plat\\builtin_config\\*.json"
+    config_path = os.path.abspath(".\\visual_plat\\builtin_config\\*.json")
     config: dict[str, dict] = {}
 
     @staticmethod
@@ -33,5 +33,5 @@ class ConfigProxy:
         return ConfigProxy.config["canvas"]["layout"][name]
 
     @staticmethod
-    def render(name):
-        return ConfigProxy.config["canvas"]["render"][name]
+    def tooltip(name):
+        return ConfigProxy.config["canvas"]["tooltip"][name]

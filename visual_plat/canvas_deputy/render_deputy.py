@@ -6,42 +6,37 @@ from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.utility.xps_checker import XPSChecker
 from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
-from visual_plat.global_proxy.config_proxy import ConfigProxy
 
 
 class RenderDeputy:
-    def __init__(self, device: QWidget, layers: list[LayerBase]):
-        self.device = device
+    def __init__(self, canvas: QWidget, layers: list[LayerBase], tooltip: TooltipDeputy):
+        self.canvas = canvas
 
         # Layers
         self.layers: list[LayerBase] = layers
 
         # 视图缓冲图层
-        self.buff_map: QPixmap = QPixmap(self.device.size())
+        self.buff_map: QPixmap = QPixmap(self.canvas.size())
 
         # 是否需要重绘缓冲图层
         self.need_restage = True
 
-        # 提示工具
-        anchor_bias = ConfigProxy.render("anchor_bias")
-        self.tooltip_proxy = TooltipDeputy(
-            self.device,
-            anchor_bias=QPointF(anchor_bias[0], anchor_bias[1])
-        )
+        # TooltipDeputy
+        self.tooltip_deputy = tooltip
 
         # 性能测算工具
-        self.xps = XPSChecker(self.tooltip_proxy.tooltip_tl)
+        self.xps = XPSChecker(self.tooltip_deputy.anchor_tips["top_lft"])
 
     def render(self):
         """用于全部更新"""
-        self.tooltip_proxy.relocate(self.device.size())
-        self.xps.set_tooltip(self.tooltip_proxy.tooltip_tl)
+        self.tooltip_deputy.relocate(self.canvas.size())
+        self.xps.set_anchor_tip(self.tooltip_deputy.anchor_tips["top_lft"])
         self.xps.start()
 
         if self.need_restage:
             # 绘制视图缓冲图层
             self.need_restage = False
-            self.buff_map = QPixmap(self.device.size())
+            self.buff_map = QPixmap(self.canvas.size())
             self.buff_map.fill(ColorProxy.named["Background"])
             self.xps.check("BINI")
             for layer in self.layers:
@@ -50,21 +45,20 @@ class RenderDeputy:
                     if res and layer.xps_tag != "":
                         self.xps.check(layer.xps_tag)
 
-        self.xps.set_tooltip(self.tooltip_proxy.tooltip_tr)
+        self.xps.set_anchor_tip(self.tooltip_deputy.anchor_tips["top_rgt"])
 
         # 将缓冲图层绘制到屏幕
-        with QPainter(self.device) as painter:
+        with QPainter(self.canvas) as painter:
             painter.drawPixmap(QPoint(0, 0), self.buff_map)
 
         # 将视图图层绘制到屏幕
         self.xps.check("DPS")
         for layer in self.layers:
             if layer.visible:
-                res = layer.on_paint(device=self.device)
+                res = layer.on_paint(device=self.canvas)
                 if res and layer.xps_tag != "":
                     self.xps.check(layer.xps_tag)
 
-        self.tooltip_proxy.draw()  # 绘制提示
         self.xps.check("FPS", dif_from="")
 
     def mark_need_restage(self):

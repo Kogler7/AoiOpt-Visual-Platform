@@ -1,3 +1,4 @@
+import os
 import pickle
 import time
 from enum import Enum
@@ -25,7 +26,7 @@ class RecordUnit:
 @dataclass
 class Record:
     initial: list[RecordUnit]
-    updates: list[RecordUnit]
+    updates: list[list[RecordUnit]]
 
 
 class StateDeputy:
@@ -44,22 +45,30 @@ class StateDeputy:
         self.play_record = None
         self.play_mutex = QMutex()
         StateDeputy.record_path = ConfigProxy.path("record")
+        if not os.path.exists(StateDeputy.record_path):
+            os.mkdir(StateDeputy.record_path)
 
     def block(self):
         """切换阻塞状态"""
         self.blocked = not self.blocked
 
-    def reload(self, layer_tag: str, data=None):
+    def reload(self, layer_tag: str, data=None, new_step=True):
         """重载某个图层"""
         self.layers[layer_tag].reload(data)
+        record = RecordUnit(layer_tag, RecordType.reload, data)
         if self.recording:
-            self.record.updates.append(RecordUnit(layer_tag, RecordType.reload, data))
+            if new_step:
+                self.record.updates.append([])
+            self.record.updates[-1].append(record)
 
-    def adjust(self, layer_tag: str, data=None):
+    def adjust(self, layer_tag: str, data=None, new_step=True):
         """调整某个图层"""
         self.layers[layer_tag].adjust(data)
+        record = RecordUnit(layer_tag, RecordType.adjust, data)
         if self.recording:
-            self.record.updates.append(RecordUnit(layer_tag, RecordType.adjust, data))
+            if new_step:
+                self.record.updates.append([])
+            self.record.updates[-1].append(record)
 
     @staticmethod
     def load_record(path):
@@ -118,14 +127,14 @@ class StateDeputy:
         updates = self.play_record.updates
         if self.play_index in self.play_range:
             print(f"playing {self.play_index}/{len(updates) - 1}")
-            upd = updates[self.play_index]
-            if upd.record_type == RecordType.reload:
-                self.reload(upd.layer_tag, upd.record_data)
-            elif upd.record_type == RecordType.adjust:
-                self.adjust(upd.layer_tag, upd.record_data)
-                print("Warning: Adjustment not yet well supported.")
-            else:
-                raise
+            for upd in updates[self.play_index]:
+                if upd.record_type == RecordType.reload:
+                    self.reload(upd.layer_tag, upd.record_data)
+                elif upd.record_type == RecordType.adjust:
+                    self.adjust(upd.layer_tag, upd.record_data)
+                    print("Warning: Adjustment not yet well supported.")
+                else:
+                    raise
         self.play_mutex.unlock()
 
     def async_replay(self):
@@ -145,7 +154,6 @@ class StateDeputy:
             if self.play_index + 1 in self.play_range:
                 self.play_index += 1
                 self.replay_by_index()
-                print(self.play_index)
 
     def back_forward(self):
         """倒退"""
@@ -153,7 +161,6 @@ class StateDeputy:
             if self.play_index - 1 in self.play_range:
                 self.play_index -= 1
                 self.replay_by_index()
-                print(self.play_index)
 
     def pause(self):
         """暂停"""

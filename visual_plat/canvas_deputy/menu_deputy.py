@@ -5,26 +5,26 @@ from visual_plat.shared.utility.anchor_tip import AnchorTip
 
 
 class MenuDeputy:
-    def __init__(self, host: QWidget, tooltip: AnchorTip):
+    def __init__(self, canvas: QWidget, tooltip: AnchorTip):
         self.allow_menu = False
-        self.host = host
+        self.canvas = canvas
         self.set_style()
         self.tooltip = tooltip
-        self.host.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.host.customContextMenuRequested.connect(self.pop_menu)
-        self.pop_menu = QMenu(host)
+        self.canvas.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.canvas.customContextMenuRequested.connect(self.pop_menu)
+        self.pop_menu = QMenu(canvas)
         self.pop_menu.setWindowOpacity(0)
-        self.pop_menu.addAction(QAction('切换至 AOI >', host))
-        self.pop_menu.addAction(QAction('选择并高亮 >', host))
+        self.pop_menu.addAction(QAction('切换至 AOI >', canvas))
+        self.pop_menu.addAction(QAction('选择并高亮 >', canvas))
         self.pop_menu.addSeparator()
-        self.pop_menu.addAction(QAction('绘制模式 >', host))
+        self.pop_menu.addAction(QAction('绘制模式 >', canvas))
 
     def pop_menu(self, point: QPoint):
         if self.allow_menu:
-            self.pop_menu.exec(self.host.mapToGlobal(point))
+            self.pop_menu.exec(self.canvas.mapToGlobal(point))
 
     def set_style(self):
-        self.host.setStyleSheet(
+        self.canvas.setStyleSheet(
             "QMenu{background:#F5F5F5;}"  # 选项背景颜色
             "QMenu{border:none;}"  # 设置整个菜单框的边界高亮厚度
 
