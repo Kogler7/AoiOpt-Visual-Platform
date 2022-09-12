@@ -12,7 +12,7 @@ class AsyncProxy:
     pool = QThreadPool.globalInstance()
 
     def __new__(cls, *args, **kwargs):
-        cls.pool.setMaxThreadCount(5)
+        cls.pool.setMaxThreadCount(10)
         return cls.pool
 
     @staticmethod
@@ -21,9 +21,9 @@ class AsyncProxy:
         AsyncProxy.pool.start(worker.runner)
 
     @staticmethod
-    def run(runner, *args, **kwargs):
+    def run(runner):
         """获取线程执行函数"""
-        AsyncProxy.pool.start(runner, *args, **kwargs)
+        AsyncProxy.pool.start(runner)
 
     def redirect(self):
         pass

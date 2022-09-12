@@ -59,6 +59,7 @@ class VisualCanvas(QWidget):
 
         # Other
         self.setMouseTracking(True)  # 开启鼠标追踪
+        self.setAcceptDrops(True)  # 接受拖拽
 
         # Teleport
         self.animate2center()
@@ -184,15 +185,40 @@ class VisualCanvas(QWidget):
         self.update()
 
     def keyPressEvent(self, event: QKeyEvent):
-        # Space 暂停
         if event.key() == Qt.Key_Space:
-            self.state_deputy.pause()
-        # Ctrl+Space 阻塞
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_Space:
-            self.state_deputy.block()
+            if event.modifiers() == Qt.ControlModifier:
+                self.state_deputy.block()  # Ctrl+Space 阻塞
+            else:
+                self.state_deputy.pause()  # Space 暂停
         # Ctrl+S 截图
-        if event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
             self.state_deputy.snapshot()
+        # Ctrl+R 录制
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_R:
+            self.state_deputy.start_record()
+        # Escape 终止
+        elif event.key() == Qt.Key_Escape:
+            self.state_deputy.terminate()
+        # Left 快退
+        elif event.key() == Qt.Key_Left:
+            self.state_deputy.back_forward()
+        # Right 快进
+        elif event.key() == Qt.Key_Right:
+            self.state_deputy.fast_forward()
+
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        """检测是否拖拽rcd文件进入窗口"""
+        if event.mimeData().hasUrls():
+            tp = event.mimeData().urls().pop().toLocalFile()[-4:]
+            if tp == ".rcd":
+                event.accept()
+
+    def dropEvent(self, event: QDropEvent):
+        """放下rcd文件时触发"""
+        url = event.mimeData().urls()
+        rcd_path = url.pop().toLocalFile()
+        rcd = self.state_deputy.load_record(rcd_path)
+        self.state_deputy.start_replay(rcd)
 
     def resizeEvent(self, event):
         """改变窗口大小时调用"""

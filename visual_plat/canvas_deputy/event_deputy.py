@@ -1,8 +1,8 @@
-import time
 from PySide6.QtGui import *
 from PySide6.QtCore import *
 from visual_plat.shared.static.custom_2d import *
-from visual_plat.global_proxy.async_proxy import AsyncProxy, AsyncWorker
+from visual_plat.global_proxy.async_proxy import AsyncProxy
+from visual_plat.shared.utility.count_down import CountDownWorker
 
 
 class EventDeputy(QObject):
@@ -32,7 +32,7 @@ class EventDeputy(QObject):
         self.start_framing_crd: QPoint = QPoint()
         self.start_sliding_pos: QPoint = QPoint()
 
-        self.cnt_worker = CountDownWorker(slot=self.cnt_finished)
+        self.cnt_worker = CountDownWorker(finished=self.cnt_finished)
         self.counting = False
         self.cnt_finished_signal.connect(self.cnt_finished)
 
@@ -87,22 +87,3 @@ class EventDeputy(QObject):
         else:
             AsyncProxy.start(self.cnt_worker)
             self.counting = True
-
-
-class CountDownWorker(AsyncWorker):
-    total_time = 8
-    finished = Signal()
-
-    def __init__(self, slot):
-        super(CountDownWorker, self).__init__()
-        self.remaining_time = self.total_time
-        self.finished.connect(slot)
-
-    def reset(self, total: int = total_time):
-        self.remaining_time = total
-
-    def runner(self):
-        while self.remaining_time > 0:
-            self.remaining_time -= 1
-            time.sleep(0.02)
-        self.finished.emit()

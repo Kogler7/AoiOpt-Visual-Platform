@@ -14,12 +14,16 @@ class LearnWorker(AsyncWorker):
 
     def __init__(self, aoi_slot):
         super().__init__()
+        self.index = 1
 
     def runner(self):
         while True:
-            data = np.random.randint(20, size=(100, 100))
+            data = np.random.randint(self.index, size=(100, 100))
             UpdateProxy.reload("aoi", data)
-            time.sleep(0.5)
+            self.index += 1
+            if self.index > 2:
+                self.index = 1
+            time.sleep(1)
 
 
 def world_config(world: VisualCanvas):
