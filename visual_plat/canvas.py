@@ -17,6 +17,7 @@ from visual_plat.shared.static.bezier_curves import *
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
+from visual_plat.global_proxy.update_proxy import UpdateProxy
 
 from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
@@ -25,10 +26,12 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class VisualCanvas(QWidget):
-    def __init__(self):
+    def __init__(self, pre_processor=None):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
         ConfigProxy.load()
+        self.setWindowTitle("AoiOpt Visual Platform")
+
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
 
@@ -57,9 +60,20 @@ class VisualCanvas(QWidget):
 
         # Other
         self.setMouseTracking(True)  # 开启鼠标追踪
+        self.setAcceptDrops(True)  # 接受拖拽
+
+        # 预处理
+        if pre_processor:
+            pre_processor(self)
 
         # Teleport
         self.animate2center()
+
+        # 在StateDeputy之后
+        UpdateProxy.set_canvas(self)
+
+        # 新窗口
+        self.new_canvas = None
 
     def load_layers(self, layers_cfg: dict):
         pth_base = "visual_plat.render_layer."
@@ -177,6 +191,59 @@ class VisualCanvas(QWidget):
 
         self.render_deputy.mark_need_restage()
         self.update()
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() == Qt.Key_Space:
+            if event.modifiers() == Qt.ControlModifier:
+                self.state_deputy.block()  # Ctrl+Space 阻塞
+            else:
+                self.state_deputy.pause()  # Space 暂停
+        # Ctrl+N 创建新窗口
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_N:
+            self.new_canvas = VisualCanvas()
+            self.new_canvas.setWindowTitle("New Canvas")
+            self.new_canvas.show()
+        # Ctrl+Shift+N 截图并创建新窗口
+        elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
+            path = self.state_deputy.snapshot()
+
+            def pre_setter(canvas: VisualCanvas):
+                rcd = canvas.state_deputy.load_record(path)
+                canvas.state_deputy.start_replay(rcd)
+
+            self.new_canvas = VisualCanvas(pre_processor=pre_setter)
+            self.new_canvas.setWindowTitle("New Canvas")
+            self.new_canvas.show()
+        # Ctrl+S 截图
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
+            self.state_deputy.snapshot()
+        # Ctrl+R 录制
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_R:
+            self.state_deputy.start_record()
+        # Escape 终止
+        elif event.key() == Qt.Key_Escape:
+            self.state_deputy.terminate()
+        # Left 快退
+        elif event.key() == Qt.Key_Left:
+            self.state_deputy.back_forward()
+        # Right 快进
+        elif event.key() == Qt.Key_Right:
+            self.state_deputy.fast_forward()
+
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        """检测是否拖拽rcd文件进入窗口"""
+        if event.mimeData().hasUrls():
+            tp = event.mimeData().urls().pop().toLocalFile()[-4:]
+            if tp == ".rcd":
+                event.accept()
+
+    def dropEvent(self, event: QDropEvent):
+        """放下rcd文件时触发"""
+        url = event.mimeData().urls()
+        rcd_path = url.pop().toLocalFile()
+        rcd = self.state_deputy.load_record(rcd_path)
+        self.state_deputy.start_replay(rcd)
+        self.animate2center()
 
     def resizeEvent(self, event):
         """改变窗口大小时调用"""

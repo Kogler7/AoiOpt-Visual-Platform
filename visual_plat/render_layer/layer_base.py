@@ -4,7 +4,7 @@ from PySide6.QtGui import *
 
 class LayerBase:
     def __init__(self, canvas):
-        self.data = None
+        self.aoi_map = None
         self.canvas = canvas
         self.state = canvas.event_deputy
         self.render = canvas.render_deputy
@@ -13,6 +13,7 @@ class LayerBase:
         self.level = 0
         self.xps_tag = ""
         self.visible = True
+        self.data = None
 
     def set_level(self, level: int):
         """调整层级关系"""

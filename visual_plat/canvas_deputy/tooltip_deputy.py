@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 from visual_plat.shared.utility.anchor_tip import AnchorTip, AnchorLocate
 
 
-class TooltipProxy:
+class TooltipDeputy:
     def __init__(self, device: QWidget, anchor_bias: QPoint = QPoint(100, 50)):
         self.device = device
         self.size = device.size()

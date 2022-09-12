@@ -5,7 +5,7 @@ from visual_plat.global_proxy.color_proxy import ColorProxy
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.utility.xps_checker import XPSChecker
 from visual_plat.render_layer.layer_base import LayerBase
-from visual_plat.global_proxy.tooltip_proxy import TooltipProxy
+from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 
 
@@ -24,7 +24,7 @@ class RenderDeputy:
 
         # 提示工具
         anchor_bias = ConfigProxy.render("anchor_bias")
-        self.tooltip_proxy = TooltipProxy(
+        self.tooltip_proxy = TooltipDeputy(
             self.device,
             anchor_bias=QPointF(anchor_bias[0], anchor_bias[1])
         )
