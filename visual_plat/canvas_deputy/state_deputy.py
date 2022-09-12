@@ -69,9 +69,9 @@ class StateDeputy:
     @staticmethod
     def save_record(record: Record):
         rcd_name = time.strftime(
-            '%Y%m%d-%H%M%S',
+            '%y%m%d-%H%M%S',
             time.localtime(time.time())
-        )
+        ) + f"-{len(record.updates) + 1}"
         path = StateDeputy.record_path + rcd_name + ".rcd"
         with open(path, 'wb') as rcd:
             pickle.dump(record, rcd)
@@ -130,14 +130,14 @@ class StateDeputy:
         self.suspended = False
 
     def fast_forward(self):
-        if self.replaying:
+        if self.replaying and self.pausing:
             if self.play_index + 1 in self.play_range:
                 self.play_index += 1
                 self.replay_by_index()
                 print(self.play_index)
 
     def back_forward(self):
-        if self.replaying:
+        if self.replaying and self.pausing:
             if self.play_index - 1 in self.play_range:
                 self.play_index -= 1
                 self.replay_by_index()

@@ -26,10 +26,11 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class VisualCanvas(QWidget):
-    def __init__(self):
+    def __init__(self, pre_processor=None):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
         ConfigProxy.load()
+        self.setWindowTitle("AoiOpt Visual Platform")
 
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
@@ -60,6 +61,10 @@ class VisualCanvas(QWidget):
         # Other
         self.setMouseTracking(True)  # 开启鼠标追踪
         self.setAcceptDrops(True)  # 接受拖拽
+
+        # 预处理
+        if pre_processor:
+            pre_processor(self)
 
         # Teleport
         self.animate2center()
@@ -196,13 +201,18 @@ class VisualCanvas(QWidget):
         # Ctrl+N 创建新窗口
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_N:
             self.new_canvas = VisualCanvas()
+            self.new_canvas.setWindowTitle("New Canvas")
             self.new_canvas.show()
         # Ctrl+Shift+N 截图并创建新窗口
         elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
             path = self.state_deputy.snapshot()
-            self.new_canvas = VisualCanvas()
-            rcd = self.new_canvas.state_deputy.load_record(path)
-            self.new_canvas.state_deputy.start_replay(rcd)
+
+            def pre_setter(canvas: VisualCanvas):
+                rcd = canvas.state_deputy.load_record(path)
+                canvas.state_deputy.start_replay(rcd)
+
+            self.new_canvas = VisualCanvas(pre_processor=pre_setter)
+            self.new_canvas.setWindowTitle("New Canvas")
             self.new_canvas.show()
         # Ctrl+S 截图
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:

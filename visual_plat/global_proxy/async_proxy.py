@@ -12,7 +12,7 @@ class AsyncProxy:
     pool = QThreadPool.globalInstance()
 
     def __new__(cls, *args, **kwargs):
-        cls.pool.setMaxThreadCount(10)
+        cls.pool.setMaxThreadCount(20)
         return cls.pool
 
     @staticmethod

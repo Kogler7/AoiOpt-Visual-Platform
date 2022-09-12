@@ -1,1 +1,5 @@
-"""3.0"""
+
+
+class FloatingTip:
+    def __init__(self):
+        pass
