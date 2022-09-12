@@ -243,6 +243,7 @@ class VisualCanvas(QWidget):
         rcd_path = url.pop().toLocalFile()
         rcd = self.state_deputy.load_record(rcd_path)
         self.state_deputy.start_replay(rcd)
+        self.animate2center()
 
     def resizeEvent(self, event):
         """改变窗口大小时调用"""

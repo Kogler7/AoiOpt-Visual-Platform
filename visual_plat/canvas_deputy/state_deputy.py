@@ -1,7 +1,7 @@
 import pickle
 import time
-from dataclasses import dataclass
 from enum import Enum
+from dataclasses import dataclass
 
 from PySide6.QtCore import QMutex
 
@@ -46,15 +46,18 @@ class StateDeputy:
         StateDeputy.record_path = ConfigProxy.path("record")
 
     def block(self):
+        """切换阻塞状态"""
         self.blocked = not self.blocked
 
     def reload(self, layer_tag: str, data=None):
+        """重载某个图层"""
         self.layers[layer_tag].reload(data)
         if self.recording:
             self.record.updates.append(RecordUnit(layer_tag, RecordType.reload, data))
         return self.blocked
 
     def adjust(self, layer_tag: str, data=None):
+        """调整某个图层"""
         self.layers[layer_tag].adjust(data)
         if self.recording:
             self.record.updates.append(RecordUnit(layer_tag, RecordType.adjust, data))
@@ -62,12 +65,14 @@ class StateDeputy:
 
     @staticmethod
     def load_record(path):
+        """解析记录"""
         with open(path, 'rb') as rcd:
             res = pickle.load(rcd)
         return res
 
     @staticmethod
     def save_record(record: Record):
+        """保存记录"""
         rcd_name = time.strftime(
             '%y%m%d-%H%M%S',
             time.localtime(time.time())
@@ -79,12 +84,14 @@ class StateDeputy:
         return path
 
     def snapshot(self):
+        """截图并保存"""
         record = Record([], [])
         for tag, layer in self.layers.items():
             record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
         return self.save_record(record)
 
     def start_record(self):
+        """开始录制"""
         if not self.recording:
             print("Recording")
             self.record = Record([], [])
@@ -93,6 +100,7 @@ class StateDeputy:
             self.recording = True
 
     def start_replay(self, record: Record):
+        """开始播放"""
         print("start")
         initial = record.initial
         for r in initial:
@@ -107,6 +115,7 @@ class StateDeputy:
             AsyncProxy.run(self.async_replay)
 
     def replay_by_index(self):
+        """播放某一帧"""
         self.play_mutex.lock()
         updates = self.play_record.updates
         if self.play_index in self.play_range:
@@ -122,6 +131,7 @@ class StateDeputy:
         self.play_mutex.unlock()
 
     def async_replay(self):
+        """异步播放控制"""
         while self.replaying:
             while self.pausing:
                 time.sleep(0.5)
@@ -132,6 +142,7 @@ class StateDeputy:
             time.sleep(1)
 
     def fast_forward(self):
+        """快进"""
         if self.replaying and self.pausing:
             if self.play_index + 1 in self.play_range:
                 self.play_index += 1
@@ -139,6 +150,7 @@ class StateDeputy:
                 print(self.play_index)
 
     def back_forward(self):
+        """倒退"""
         if self.replaying and self.pausing:
             if self.play_index - 1 in self.play_range:
                 self.play_index -= 1
@@ -146,18 +158,20 @@ class StateDeputy:
                 print(self.play_index)
 
     def pause(self):
+        """暂停"""
         if self.replaying:
             self.pausing = not self.pausing
         else:
             self.suspended = not self.suspended
 
     def terminate(self):
-        if self.recording:
-            self.recording = False
-            self.save_record(self.record)
-            print("Recording terminated.")
+        """终止（优先终止播放，再次触发会终止录制）"""
         if self.replaying:
             self.replaying = False
             self.suspended = False
             self.play_index = self.play_range[-1]
             print("Replaying terminated.")
+        elif self.recording:
+            self.recording = False
+            self.save_record(self.record)
+            print("Recording terminated.")
