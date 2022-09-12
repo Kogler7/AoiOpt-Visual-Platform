@@ -5,7 +5,7 @@ import timeit
 
 class XPSChecker:
     def __init__(self, tooltip: AnchorTip = None):
-        self.tooltip = tooltip
+        self.anchor_tip = tooltip
         self.cache = defaultdict(float)
         self.last_head = ""
 
@@ -14,8 +14,8 @@ class XPSChecker:
         self.last_head = ""
         self.cache[""] = timeit.default_timer()
 
-    def set_tooltip(self, tip: AnchorTip):
-        self.tooltip = tip
+    def set_anchor_tip(self, tip: AnchorTip):
+        self.anchor_tip = tip
 
     def check(self, head: str, tail: str = "", dif_from: str = "-1", factor: int = 1, no_tooltip: bool = False):
         self.cache[head] = timeit.default_timer()
@@ -23,8 +23,8 @@ class XPSChecker:
             dif_from = self.last_head
         diff = self.cache[head] - self.cache[dif_from]
         xps = int(1 / diff * factor)
-        if self.tooltip is not None and not no_tooltip:
-            self.tooltip.set(head, str(xps) + tail)
+        if self.anchor_tip is not None and not no_tooltip:
+            self.anchor_tip.set(head, str(xps) + tail)
         else:
             print(f"{head}: {str(xps)}{tail}")
         self.last_head = head

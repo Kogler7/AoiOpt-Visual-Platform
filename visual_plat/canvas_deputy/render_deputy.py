@@ -25,12 +25,12 @@ class RenderDeputy:
         self.tooltip_deputy = tooltip
 
         # 性能测算工具
-        self.xps = XPSChecker(self.tooltip_deputy.tooltip_tl)
+        self.xps = XPSChecker(self.tooltip_deputy.anchor_tips["top_lft"])
 
     def render(self):
         """用于全部更新"""
         self.tooltip_deputy.relocate(self.canvas.size())
-        self.xps.set_tooltip(self.tooltip_deputy.tooltip_tl)
+        self.xps.set_anchor_tip(self.tooltip_deputy.anchor_tips["top_lft"])
         self.xps.start()
 
         if self.need_restage:
@@ -45,7 +45,7 @@ class RenderDeputy:
                     if res and layer.xps_tag != "":
                         self.xps.check(layer.xps_tag)
 
-        self.xps.set_tooltip(self.tooltip_deputy.tooltip_tr)
+        self.xps.set_anchor_tip(self.tooltip_deputy.anchor_tips["top_rgt"])
 
         # 将缓冲图层绘制到屏幕
         with QPainter(self.canvas) as painter:
@@ -59,7 +59,6 @@ class RenderDeputy:
                 if res and layer.xps_tag != "":
                     self.xps.check(layer.xps_tag)
 
-        self.tooltip_deputy.draw()  # 绘制提示
         self.xps.check("FPS", dif_from="")
 
     def mark_need_restage(self):

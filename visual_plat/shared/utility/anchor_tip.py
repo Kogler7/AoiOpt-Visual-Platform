@@ -14,15 +14,38 @@ class AnchorLocate(Enum):
 
 
 class AnchorTip:
-    def __init__(self, anchor=AnchorLocate.top_lft, locate=QPoint(0, 0)):
+    def __init__(
+            self,
+            anchor: AnchorLocate = AnchorLocate.top_lft,
+            anchor_bias: QPoint = QPoint(100, 50),
+            device_size: QSize = QSize(1000, 800)
+    ):
         self.visible = True
         self.anchor = anchor
-        self.locate = locate
+        self.anchor_bias = anchor_bias
+        self.locate = self.get_locate(anchor_bias, device_size)
         self.tips = defaultdict(str)
         self.text = ""
         self.back_height = 30
         self.text_pen = QPen(QColor(50, 50, 50))
         self.text_pen.setWidth(3)
+
+    def get_locate(self, anchor_bias: QPoint, device_size: QSize):
+        if self.anchor is AnchorLocate.top_lft:
+            return anchor_bias
+        elif self.anchor is AnchorLocate.top_rgt:
+            return QPointF(device_size.width() - anchor_bias.x(), anchor_bias.y())
+        elif self.anchor is AnchorLocate.btm_lft:
+            return QPointF(anchor_bias.x(), device_size.height() - anchor_bias.y())
+        elif self.anchor is AnchorLocate.btm_rgt:
+            return QPointF(
+                device_size.width() - anchor_bias.x(), device_size.height() - anchor_bias.y()
+            )
+        else:
+            raise
+
+    def relocate(self, device_size: QSize):
+        self.locate = self.get_locate(self.anchor_bias, device_size)
 
     def get_rect(self, txt_len=0):
         if txt_len == 0:

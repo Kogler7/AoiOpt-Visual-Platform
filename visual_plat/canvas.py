@@ -48,7 +48,7 @@ class VisualCanvas(QWidget):
         self.event_deputy = EventDeputy(self.zooming_slot, self.dragging_slot)
         self.render_deputy = RenderDeputy(self, layers=self.layer_list, tooltip=self.tooltip_deputy)
         self.layout_deputy = LayoutDeputy(size=self.size())
-        self.menu_deputy = MenuDeputy(self, tooltip=self.render_deputy.tooltip_deputy.tooltip_ft)
+        self.menu_deputy = MenuDeputy(self, self.render_deputy.tooltip_deputy.anchor_tips["cursor"])
 
         self.event_deputy.dragging_signal.connect(self.dragging_slot)
         self.event_deputy.zooming_signal.connect(self.zooming_slot)
@@ -60,7 +60,7 @@ class VisualCanvas(QWidget):
 
         # TooltipProxy
         self.tooltip_proxy = self.render_deputy.tooltip_deputy
-        self.tooltip_proxy.tooltip_br.set("LEVEL", "0")
+        self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", "0")
 
         # Other
         self.setMouseTracking(True)  # 开启鼠标追踪
@@ -106,6 +106,7 @@ class VisualCanvas(QWidget):
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
         self.render_deputy.render()
+        self.tooltip_deputy.draw()
 
     def mousePressEvent(self, event):
         """鼠标按下时调用"""
@@ -118,9 +119,9 @@ class VisualCanvas(QWidget):
         elif not self.event_deputy.on_dragging:
             self.setCursor(Qt.ArrowCursor)
 
-        self.tooltip_proxy.tooltip_ft.show()
-        self.tooltip_proxy.tooltip_ft.move(event.pos + QPoint(10, -20))
-        self.tooltip_proxy.tooltip_ft.set("At", f"({event.crd.x()}, {event.crd.y()})")
+        self.tooltip_proxy.anchor_tips["cursor"].show()
+        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
+        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
 
         self.update()
 
@@ -171,9 +172,9 @@ class VisualCanvas(QWidget):
         event = self.layout_deputy.wrap_event(event)
         self.event_deputy.on_mouse_move(event)
 
-        self.render_deputy.tooltip_deputy.tooltip_ft.hide()
-        self.render_deputy.tooltip_deputy.tooltip_bl.set("CRD", f"({event.crd.x()}, {event.crd.y()})")
-        self.render_deputy.tooltip_deputy.tooltip_bl.set("POS", f"({event.pos.x()}, {event.pos.y()})")
+        self.render_deputy.tooltip_deputy.anchor_tips["cursor"].hide()
+        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set("CRD", f"({event.crd.x()}, {event.crd.y()})")
+        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set("POS", f"({event.pos.x()}, {event.pos.y()})")
 
         self.update()
 
@@ -181,8 +182,8 @@ class VisualCanvas(QWidget):
         """鼠标释放时调用"""
         self.event_deputy.on_mouse_release()
 
-        self.tooltip_proxy.tooltip_bl.set("POS")
-        self.tooltip_proxy.tooltip_tl.set("FPS")
+        self.tooltip_proxy.anchor_tips["btm_lft"].set("POS")
+        self.tooltip_proxy.anchor_tips["top_lft"].set("FPS")
 
         self.update()
 
@@ -191,7 +192,7 @@ class VisualCanvas(QWidget):
         self.event_deputy.on_mouse_wheel()
         self.layout_deputy.zoom_at(event.angleDelta().y(), self.event_deputy.last_mouse_pos)
 
-        self.tooltip_proxy.tooltip_br.set("LEVEL", str(self.layout_deputy.grid_level))
+        self.tooltip_proxy.anchor_tips["btm_lft"].set("LEVEL", str(self.layout_deputy.grid_level))
 
         self.render_deputy.mark_need_restage()
         self.update()

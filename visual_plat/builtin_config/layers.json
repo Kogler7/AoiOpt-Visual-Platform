@@ -41,5 +41,15 @@
     }
   ],
   "custom": [
+    {
+      "tag": "info",
+      "level": 0,
+      "visible": true
+    },
+    {
+      "tag": "weight",
+      "level": 0,
+      "visible": true
+    }
   ]
 }
