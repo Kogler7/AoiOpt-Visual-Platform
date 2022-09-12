@@ -17,15 +17,13 @@ class UpdateProxy:
     @staticmethod
     def reload(layer_tag: str, data=None):
         if not UpdateProxy.state_deputy.suspended:
-            blocked = UpdateProxy.state_deputy.reload(layer_tag=layer_tag, data=data)
-            while blocked:
+            UpdateProxy.state_deputy.reload(layer_tag=layer_tag, data=data)
+            while UpdateProxy.state_deputy.blocked:
                 time.sleep(0.2)
-                blocked = UpdateProxy.state_deputy.blocked
 
     @staticmethod
     def adjust(layer_tag: str, data=None):
         if not UpdateProxy.state_deputy.suspended:
-            blocked = UpdateProxy.state_deputy.adjust(layer_tag=layer_tag, data=data)
-            while blocked:
+            UpdateProxy.state_deputy.adjust(layer_tag=layer_tag, data=data)
+            while UpdateProxy.state_deputy.blocked:
                 time.sleep(0.2)
-                blocked = UpdateProxy.state_deputy.blocked
