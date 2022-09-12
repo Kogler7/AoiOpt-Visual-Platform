@@ -21,7 +21,7 @@ class LearnWorker(AsyncWorker):
             data = np.random.randint(self.index, size=(100, 100))
             UpdateProxy.reload("aoi", data)
             self.index += 1
-            if self.index > 2:
+            if self.index > 6:
                 self.index = 1
             time.sleep(1)
 

@@ -1,3 +1,4 @@
+import os
 import pickle
 import time
 from enum import Enum
@@ -44,6 +45,8 @@ class StateDeputy:
         self.play_record = None
         self.play_mutex = QMutex()
         StateDeputy.record_path = ConfigProxy.path("record")
+        if not os.path.exists(StateDeputy.record_path):
+            os.mkdir(StateDeputy.record_path)
 
     def block(self):
         """切换阻塞状态"""

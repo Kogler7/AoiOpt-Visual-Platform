@@ -11,6 +11,7 @@ from visual_plat.canvas_deputy.menu_deputy import MenuDeputy
 from visual_plat.canvas_deputy.state_deputy import StateDeputy
 from visual_plat.canvas_deputy.render_deputy import RenderDeputy
 from visual_plat.canvas_deputy.event_deputy import EventDeputy
+from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
 
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
@@ -30,7 +31,9 @@ class VisualCanvas(QWidget):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
         ConfigProxy.load()
-        self.setWindowTitle("AoiOpt Visual Platform")
+        version = str(ConfigProxy.canvas('version')) + "-pre" \
+            if not ConfigProxy.canvas("release") else ""
+        self.setWindowTitle(f"AoiOpt Visual Platform {version}")
 
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
@@ -40,11 +43,12 @@ class VisualCanvas(QWidget):
         self.layer_list: list[LayerBase] = []
 
         # Deputies
+        self.tooltip_deputy = TooltipDeputy(self)
         self.state_deputy = StateDeputy(layers=self.layer_dict)
         self.event_deputy = EventDeputy(self.zooming_slot, self.dragging_slot)
-        self.render_deputy = RenderDeputy(self, layers=self.layer_list)
+        self.render_deputy = RenderDeputy(self, layers=self.layer_list, tooltip=self.tooltip_deputy)
         self.layout_deputy = LayoutDeputy(size=self.size())
-        self.menu_deputy = MenuDeputy(self, tooltip=self.render_deputy.tooltip_proxy.tooltip_ft)
+        self.menu_deputy = MenuDeputy(self, tooltip=self.render_deputy.tooltip_deputy.tooltip_ft)
 
         self.event_deputy.dragging_signal.connect(self.dragging_slot)
         self.event_deputy.zooming_signal.connect(self.zooming_slot)
@@ -55,7 +59,7 @@ class VisualCanvas(QWidget):
         self.aoi_layer: AoiLayer = self.layer_dict["aoi"]
 
         # TooltipProxy
-        self.tooltip_proxy = self.render_deputy.tooltip_proxy
+        self.tooltip_proxy = self.render_deputy.tooltip_deputy
         self.tooltip_proxy.tooltip_br.set("LEVEL", "0")
 
         # Other
@@ -167,9 +171,9 @@ class VisualCanvas(QWidget):
         event = self.layout_deputy.wrap_event(event)
         self.event_deputy.on_mouse_move(event)
 
-        self.render_deputy.tooltip_proxy.tooltip_ft.hide()
-        self.render_deputy.tooltip_proxy.tooltip_bl.set("CRD", f"({event.crd.x()}, {event.crd.y()})")
-        self.render_deputy.tooltip_proxy.tooltip_bl.set("POS", f"({event.pos.x()}, {event.pos.y()})")
+        self.render_deputy.tooltip_deputy.tooltip_ft.hide()
+        self.render_deputy.tooltip_deputy.tooltip_bl.set("CRD", f"({event.crd.x()}, {event.crd.y()})")
+        self.render_deputy.tooltip_deputy.tooltip_bl.set("POS", f"({event.pos.x()}, {event.pos.y()})")
 
         self.update()
 

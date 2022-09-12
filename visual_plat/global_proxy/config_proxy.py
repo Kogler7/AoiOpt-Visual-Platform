@@ -33,5 +33,5 @@ class ConfigProxy:
         return ConfigProxy.config["canvas"]["layout"][name]
 
     @staticmethod
-    def render(name):
-        return ConfigProxy.config["canvas"]["render"][name]
+    def tooltip(name):
+        return ConfigProxy.config["canvas"]["tooltip"][name]
