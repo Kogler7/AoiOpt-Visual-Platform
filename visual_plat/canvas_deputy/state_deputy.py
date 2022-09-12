@@ -72,15 +72,17 @@ class StateDeputy:
             '%Y%m%d-%H%M%S',
             time.localtime(time.time())
         )
-        with open(StateDeputy.record_path + rcd_name + ".rcd", 'wb') as rcd:
+        path = StateDeputy.record_path + rcd_name + ".rcd"
+        with open(path, 'wb') as rcd:
             pickle.dump(record, rcd)
         print(f"Record saved as {rcd_name}.rcd")
+        return path
 
     def snapshot(self):
         record = Record([], [])
         for tag, layer in self.layers.items():
             record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
-        self.save_record(record)
+        return self.save_record(record)
 
     def start_record(self):
         if not self.recording:

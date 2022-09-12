@@ -67,6 +67,9 @@ class VisualCanvas(QWidget):
         # 在StateDeputy之后
         UpdateProxy.set_canvas(self)
 
+        # 新窗口
+        self.new_canvas = None
+
     def load_layers(self, layers_cfg: dict):
         pth_base = "visual_plat.render_layer."
         mod_back = "_layer"
@@ -190,6 +193,17 @@ class VisualCanvas(QWidget):
                 self.state_deputy.block()  # Ctrl+Space 阻塞
             else:
                 self.state_deputy.pause()  # Space 暂停
+        # Ctrl+N 创建新窗口
+        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_N:
+            self.new_canvas = VisualCanvas()
+            self.new_canvas.show()
+        # Ctrl+Shift+N 截图并创建新窗口
+        elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
+            path = self.state_deputy.snapshot()
+            self.new_canvas = VisualCanvas()
+            rcd = self.new_canvas.state_deputy.load_record(path)
+            self.new_canvas.state_deputy.start_replay(rcd)
+            self.new_canvas.show()
         # Ctrl+S 截图
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
             self.state_deputy.snapshot()
