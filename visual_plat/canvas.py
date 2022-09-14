@@ -32,8 +32,8 @@ class VisualCanvas(QWidget):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
         ConfigProxy.load()
-        version = str(ConfigProxy.canvas('version')) + "-pre" \
-            if not ConfigProxy.canvas("release") else ""
+        version = str(ConfigProxy.canvas('version')) \
+                  + ("-pre" if not ConfigProxy.canvas("release") else "")
         self.setWindowTitle(f"AoiOpt Visual Platform {version}")
 
         # status 在设置窗口标题之后
