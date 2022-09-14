@@ -15,9 +15,8 @@ class InfoLayer(LayerBase):
 
     def reload(self, data):
         self.data = data
-        self.action = data[0]
-        self.reward = data[1]
-        self.time = data[2]  # epoch, step
+        if data:
+            self.action, self.reward, self.time = data
 
     def on_paint(self, device: QWidget):
         if self.data and self.layout.win2view_factor > 10:

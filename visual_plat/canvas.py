@@ -214,6 +214,7 @@ class VisualCanvas(QWidget):
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_N:
             self.new_canvas = VisualCanvas()
             self.new_canvas.setWindowTitle("New Canvas")
+            self.new_canvas.status_bar.set_default("New Canvas")
             self.new_canvas.show()
         # Ctrl+Shift+N 截图并创建新窗口
         elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
@@ -222,6 +223,7 @@ class VisualCanvas(QWidget):
             def pre_setter(canvas: VisualCanvas):
                 rcd = canvas.state_deputy.load_record(path)
                 canvas.state_deputy.start_replay(rcd)
+                canvas.status_bar.set_default("New Canvas")
 
             self.new_canvas = VisualCanvas(pre_processor=pre_setter)
             self.new_canvas.setWindowTitle("New Canvas")
