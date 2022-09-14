@@ -1,0 +1,55 @@
+{
+  "builtin": [
+    {
+      "tag": "aoi",
+      "xps_tag": "APS",
+      "level": -3,
+      "visible": true,
+      "mouse_triggered": false
+    },
+    {
+      "tag": "traj",
+      "xps_tag": "TPS",
+      "level": -2,
+      "visible": true,
+      "mouse_triggered": false
+    },
+    {
+      "tag": "parcel",
+      "xps_tag": "PPS",
+      "level": -1,
+      "visible": true,
+      "mouse_triggered": false
+    },
+    {
+      "tag": "grids",
+      "level": 1,
+      "visible": true,
+      "mouse_triggered": true
+    },
+    {
+      "tag": "scale",
+      "level": 2,
+      "visible": true,
+      "mouse_triggered": true
+    },
+    {
+      "tag": "focus",
+      "level": 3,
+      "visible": true,
+      "mouse_triggered": true
+    }
+  ],
+  "custom": [
+    {
+      "tag": "info",
+      "level": 0,
+      "visible": true
+    },
+    {
+      "tag": "weight",
+      "level": 0,
+      "visible": true
+    }
+  ]
+}

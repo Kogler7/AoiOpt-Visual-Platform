@@ -1,0 +1,31 @@
+{
+  "version": 4.0,
+  "release": true,
+  "init_size": [
+    1000,
+    800
+  ],
+  "geo_info": {
+    "locate": [
+      116.400,
+      39.910
+    ],
+    "eastern": true,
+    "southern": false
+  },
+  "tooltip": {
+    "anchor_bias": [
+      90,
+      50
+    ]
+  },
+  "layout": {
+    "zoom_step": 1,
+    "precision": 0.01,
+    "init_window_size": 30,
+    "min_window_size": 10,
+    "min_grid_gap": 20,
+    "max_grid_level": 10,
+    "grid_convert_factor": 5
+  }
+}

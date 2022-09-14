@@ -1,4 +1,5 @@
 data/
+output/record/*rcd
 utils/
 .idea/
 __pycache__/
