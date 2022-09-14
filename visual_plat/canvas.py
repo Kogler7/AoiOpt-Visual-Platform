@@ -15,6 +15,7 @@ from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
 
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
+from visual_plat.shared.utility.status_bar import StatusBar
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
@@ -35,6 +36,9 @@ class VisualCanvas(QWidget):
             if not ConfigProxy.canvas("release") else ""
         self.setWindowTitle(f"AoiOpt Visual Platform {version}")
 
+        # status 在设置窗口标题之后
+        self.status_bar = StatusBar(self, self.set_window_title)
+
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
 
@@ -44,7 +48,7 @@ class VisualCanvas(QWidget):
 
         # Deputies
         self.tooltip_deputy = TooltipDeputy(self)
-        self.state_deputy = StateDeputy(layers=self.layer_dict)
+        self.state_deputy = StateDeputy(layers=self.layer_dict, status_bar=self.status_bar)
         self.event_deputy = EventDeputy(self.zooming_slot, self.dragging_slot)
         self.render_deputy = RenderDeputy(self, layers=self.layer_list, tooltip=self.tooltip_deputy)
         self.layout_deputy = LayoutDeputy(size=self.size())
@@ -78,6 +82,9 @@ class VisualCanvas(QWidget):
 
         # 新窗口
         self.new_canvas = None
+
+    def set_window_title(self, title: str):
+        self.setWindowTitle(title)
 
     def load_layers(self, layers_cfg: dict):
         pth_base = "visual_plat.render_layer."
@@ -192,7 +199,7 @@ class VisualCanvas(QWidget):
         self.event_deputy.on_mouse_wheel()
         self.layout_deputy.zoom_at(event.angleDelta().y(), self.event_deputy.last_mouse_pos)
 
-        self.tooltip_proxy.anchor_tips["btm_lft"].set("LEVEL", str(self.layout_deputy.grid_level))
+        self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", str(self.layout_deputy.grid_level))
 
         self.render_deputy.mark_need_restage()
         self.update()
@@ -207,6 +214,7 @@ class VisualCanvas(QWidget):
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_N:
             self.new_canvas = VisualCanvas()
             self.new_canvas.setWindowTitle("New Canvas")
+            self.new_canvas.status_bar.set_default("New Canvas")
             self.new_canvas.show()
         # Ctrl+Shift+N 截图并创建新窗口
         elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
@@ -215,6 +223,7 @@ class VisualCanvas(QWidget):
             def pre_setter(canvas: VisualCanvas):
                 rcd = canvas.state_deputy.load_record(path)
                 canvas.state_deputy.start_replay(rcd)
+                canvas.status_bar.set_default("New Canvas")
 
             self.new_canvas = VisualCanvas(pre_processor=pre_setter)
             self.new_canvas.setWindowTitle("New Canvas")
