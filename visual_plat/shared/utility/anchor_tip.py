@@ -26,6 +26,7 @@ class AnchorTip:
         self.locate = self.get_locate(anchor_bias, device_size)
         self.tips = defaultdict(str)
         self.text = ""
+        self.font = QFont("等线", 12, 3)
         self.back_height = 30
         self.text_pen = QPen(QColor(50, 50, 50))
         self.text_pen.setWidth(3)
@@ -47,10 +48,11 @@ class AnchorTip:
     def relocate(self, device_size: QSize):
         self.locate = self.get_locate(self.anchor_bias, device_size)
 
-    def get_rect(self, txt_len=0):
-        if txt_len == 0:
+    def get_rect(self):
+        if self.text == "":
             return QRect()
-        width = int(txt_len * 6.5) + 10
+        metrics = QFontMetrics(self.font)
+        width = metrics.horizontalAdvance(self.text) + 10
         height = self.back_height
         if self.anchor is AnchorLocate.top_lft:
             return QRect(int(self.locate.x()), int(self.locate.y()), width, height)
@@ -66,10 +68,10 @@ class AnchorTip:
     def draw(self, canvas: QWidget):
         if self.visible:
             painter = QPainter(canvas)
-            rect = self.get_rect(len(self.text))
+            rect = self.get_rect()
             painter.fillRect(rect, QColor(240, 240, 240))
             painter.setPen(self.text_pen)
-            painter.setFont(QFont("等线", 12, 3))
+            painter.setFont(self.font)
             painter.drawText(QPointF(rect.x() + 5, rect.y() + 20), self.text)
 
     def move(self, tgt=QPoint(0, 0)):
@@ -77,11 +79,7 @@ class AnchorTip:
 
     def set(self, key="", words=""):
         self.tips[key] = words
-        self.text = ""
-        for key, val in self.tips.items():
-            if val != "":
-                self.text += f"{str(key)}: {val} | "
-        self.text = self.text[:-2]
+        self.text = " | ".join([f"{str(k)}:{v}" for k, v in self.tips.items() if v != ""])
 
     def show(self):
         self.visible = True
