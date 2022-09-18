@@ -28,6 +28,7 @@ class RecordUnit:
 class Record:
     initial: list[RecordUnit]
     updates: list[list[RecordUnit]]
+    comp_idx: int  # 兼容编号
 
 
 class StateDeputy:
@@ -37,7 +38,7 @@ class StateDeputy:
         super().__init__()
         self.layers = layers
         self.status_bar = status_bar
-        self.record: Record = Record([], [])
+        self.record: Record = Record([], [], 0)
         self.record_len = 0
         self.pausing = False  # 播放暂停
         self.blocked = False  # 异步线程阻塞
@@ -49,6 +50,7 @@ class StateDeputy:
         self.replay_range = None
         self.replay_record = None
         self.replay_mutex = QMutex()
+        self.comp_idx = ConfigProxy.record("compatible_index")
         StateDeputy.record_path = ConfigProxy.path("record")
         if not os.path.exists(StateDeputy.record_path):
             os.mkdir(StateDeputy.record_path)
@@ -106,7 +108,7 @@ class StateDeputy:
 
     def snapshot(self):
         """截图并保存"""
-        record = Record([], [])
+        record = Record([], [], self.comp_idx)
         for tag, layer in self.layers.items():
             record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
         path, self.replay_name = self.save_record(record)
@@ -115,12 +117,13 @@ class StateDeputy:
     def start_record(self):
         """开始录制"""
         if not self.recording:
-            self.record = Record([], [])
+            self.record = Record([], [], self.comp_idx)
             self.record_len = 1
             for tag, layer in self.layers.items():
                 self.record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
             self.recording = True
             self.status_bar.set("Recording")
+            print("Recording started.")
 
     def start_replay(self, record: Record, name=""):
         """开始播放"""
@@ -130,10 +133,10 @@ class StateDeputy:
         self.replay_index = 0
         self.replay_range = len(record.updates)
         self.replay_record = record
+        print("Replaying [%s] started." % self.replay_name)
         self.replay_by_index()
         self.replaying = True
         self.suspended = True  # 不再接受外部更新
-        self.status_bar.set("Replaying [%s]" % self.replay_name)
         self.status_bar.set("Suspended")
         if record.updates:
             self.replay_index = 1
@@ -144,24 +147,26 @@ class StateDeputy:
 
     def replay_by_index(self):
         """播放某一帧"""
-        if self.replay_index == 0:
-            for r in self.replay_record.initial:
-                self.reload(r.layer_tag, r.record_data)
-                self.status_bar.set(
-                    "Replaying [%s]" % self.replay_name, f"1/{self.replay_range + 1}"
-                )
-        else:
-            updates = self.replay_record.updates
-            if 0 < self.replay_index <= self.replay_range:
-                self.status_bar.set(
-                    "Replaying [%s]" % self.replay_name, f"{self.replay_index + 1}/{self.replay_range + 1}"
-                )
-                for upd in updates[self.replay_index - 1]:
-                    if upd.record_type == RecordType.reload:
-                        self.reload(upd.layer_tag, upd.record_data)
-                    elif upd.record_type == RecordType.adjust:
-                        self.adjust(upd.layer_tag, upd.record_data)
-                        print("Warning: Adjustment not yet well supported.")
+        if self.replaying:
+            if self.replay_index == 0:
+                for r in self.replay_record.initial:
+                    self.reload(r.layer_tag, r.record_data)
+                    self.status_bar.set(
+                        "Replaying", f"[{self.replay_name}] 1/{self.replay_range + 1}"
+                    )
+            else:
+                updates = self.replay_record.updates
+                if 0 < self.replay_index <= self.replay_range:
+                    self.status_bar.set(
+                        "Replaying", f"[{self.replay_name}] "
+                                     f"{self.replay_index + 1}/{self.replay_range + 1}"
+                    )
+                    for upd in updates[self.replay_index - 1]:
+                        if upd.record_type == RecordType.reload:
+                            self.reload(upd.layer_tag, upd.record_data)
+                        elif upd.record_type == RecordType.adjust:
+                            self.adjust(upd.layer_tag, upd.record_data)
+                            print("Warning: Adjustment not yet well supported.")
 
     def async_replay(self):
         """异步播放控制"""
@@ -214,7 +219,7 @@ class StateDeputy:
         if self.replaying:
             self.replaying = False
             self.suspended = False
-            self.status_bar.reset("Replaying [%s]" % self.replay_name)
+            self.status_bar.reset("Replaying")
             self.status_bar.reset("Suspended")
             self.replay_index = self.replay_range = 0
             print("Replaying [%s] terminated." % self.replay_name)
