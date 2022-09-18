@@ -1,6 +1,6 @@
 {
   "version": "4.1.0",
-  "release": true,
+  "release": false,
   "init_size": [
     1000,
     800

@@ -231,9 +231,12 @@ class VisualCanvas(QWidget):
         # Ctrl+S 截图
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
             self.state_deputy.snapshot()
-        # Ctrl+R 录制
+        # Ctrl+R （取消）录制
         elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_R:
-            self.state_deputy.start_record()
+            if self.state_deputy.recording:
+                self.state_deputy.stop_record()
+            else:
+                self.state_deputy.start_record()
         # Escape 终止
         elif event.key() == Qt.Key_Escape:
             self.state_deputy.terminate()

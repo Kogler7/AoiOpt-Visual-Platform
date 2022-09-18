@@ -214,8 +214,16 @@ class StateDeputy:
             else:
                 self.status_bar.reset("Suspended")
 
-    def terminate(self):
-        """终止（优先终止播放，再次触发会终止录制）"""
+    def stop_record(self):
+        """停止录制"""
+        if self.recording:
+            self.recording = False
+            self.status_bar.reset("Recording")
+            self.save_record(self.record)
+            print("Recording terminated.")
+
+    def stop_replay(self):
+        """停止播放"""
         if self.replaying:
             self.replaying = False
             self.suspended = False
@@ -223,8 +231,10 @@ class StateDeputy:
             self.status_bar.reset("Suspended")
             self.replay_index = self.replay_range = 0
             print("Replaying [%s] terminated." % self.replay_name)
+
+    def terminate(self):
+        """终止（优先终止播放，再次触发会终止录制）"""
+        if self.replaying:
+            self.stop_replay()
         elif self.recording:
-            self.recording = False
-            self.status_bar.reset("Recording")
-            self.save_record(self.record)
-            print("Recording terminated.")
+            self.stop_record()
