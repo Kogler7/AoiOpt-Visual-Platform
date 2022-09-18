@@ -218,11 +218,11 @@ class VisualCanvas(QWidget):
             self.new_canvas.show()
         # Ctrl+Shift+N 截图并创建新窗口
         elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
-            path = self.state_deputy.snapshot()
+            path, name = self.state_deputy.snapshot()
 
             def pre_setter(canvas: VisualCanvas):
                 rcd = canvas.state_deputy.load_record(path)
-                canvas.state_deputy.start_replay(rcd)
+                canvas.state_deputy.start_replay(rcd, name)
                 canvas.status_bar.set_default("New Canvas")
 
             self.new_canvas = VisualCanvas(pre_processor=pre_setter)
@@ -257,8 +257,14 @@ class VisualCanvas(QWidget):
         rcd_path = url.pop().toLocalFile()
         rcd_name = rcd_path.split("/")[-1][:-4]
         rcd = self.state_deputy.load_record(rcd_path)
-        self.state_deputy.start_replay(rcd, rcd_name)
-        self.animate2center()
+        if not hasattr(rcd, 'comp_idx'):
+            print("RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
+        elif rcd.comp_idx != ConfigProxy.record("compatible_index"):
+            print(f"The RECORD is not COMPATIBLE with this VERSION of canvas. "
+                  f"[{rcd.comp_idx} != {ConfigProxy.record('compatible_index')}]")
+        else:
+            self.state_deputy.start_replay(rcd, rcd_name)
+            self.animate2center()
 
     def resizeEvent(self, event):
         """改变窗口大小时调用"""
