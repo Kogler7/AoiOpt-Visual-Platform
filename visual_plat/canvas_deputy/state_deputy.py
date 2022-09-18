@@ -134,16 +134,13 @@ class StateDeputy:
         self.replay_range = len(record.updates)
         self.replay_record = record
         print("Replaying [%s] started." % self.replay_name)
-        self.replay_by_index()
         self.replaying = True
         self.suspended = True  # 不再接受外部更新
+        self.replay_by_index()
         self.status_bar.set("Suspended")
         if record.updates:
             self.replay_index = 1
             AsyncProxy.run(self.async_replay)
-        else:
-            self.terminate()
-            self.pause()
 
     def replay_by_index(self):
         """播放某一帧"""
