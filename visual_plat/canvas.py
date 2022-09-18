@@ -218,11 +218,11 @@ class VisualCanvas(QWidget):
             self.new_canvas.show()
         # Ctrl+Shift+N 截图并创建新窗口
         elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
-            path, name = self.state_deputy.snapshot()
+            path, _ = self.state_deputy.snapshot()
 
             def pre_setter(canvas: VisualCanvas):
                 rcd = canvas.state_deputy.load_record(path)
-                canvas.state_deputy.start_replay(rcd, name)
+                canvas.state_deputy.apply_snapshot(rcd)
                 canvas.status_bar.set_default("New Canvas")
 
             self.new_canvas = VisualCanvas(pre_processor=pre_setter)

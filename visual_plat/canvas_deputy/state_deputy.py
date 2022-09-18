@@ -142,6 +142,12 @@ class StateDeputy:
             self.replay_index = 1
             AsyncProxy.run(self.async_replay)
 
+    def apply_snapshot(self, record: Record):
+        """应用快照"""
+        for unit in record.initial:
+            self.reload(unit.layer_tag, unit.record_data, False)
+        print("Snapshot applied.")
+
     def replay_by_index(self):
         """播放某一帧"""
         if self.replaying:
