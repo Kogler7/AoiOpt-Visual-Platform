@@ -102,14 +102,15 @@ class StateDeputy:
         with open(path, 'wb') as rcd:
             pickle.dump(record, rcd)
         print(f"Record saved as {rcd_name}.rcd")
-        return path
+        return path, rcd_name
 
     def snapshot(self):
         """截图并保存"""
         record = Record([], [])
         for tag, layer in self.layers.items():
             record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
-        return self.save_record(record)
+        path, self.replay_name = self.save_record(record)
+        return path, self.replay_name
 
     def start_record(self):
         """开始录制"""
