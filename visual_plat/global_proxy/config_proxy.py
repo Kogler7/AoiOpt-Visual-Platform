@@ -35,3 +35,7 @@ class ConfigProxy:
     @staticmethod
     def tooltip(name):
         return ConfigProxy.config["canvas"]["tooltip"][name]
+
+    @staticmethod
+    def record(name):
+        return ConfigProxy.config["canvas"]["record"][name]
