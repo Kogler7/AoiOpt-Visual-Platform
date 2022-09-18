@@ -255,8 +255,9 @@ class VisualCanvas(QWidget):
         """放下rcd文件时触发"""
         url = event.mimeData().urls()
         rcd_path = url.pop().toLocalFile()
+        rcd_name = rcd_path.split("/")[-1][:-4]
         rcd = self.state_deputy.load_record(rcd_path)
-        self.state_deputy.start_replay(rcd)
+        self.state_deputy.start_replay(rcd, rcd_name)
         self.animate2center()
 
     def resizeEvent(self, event):
