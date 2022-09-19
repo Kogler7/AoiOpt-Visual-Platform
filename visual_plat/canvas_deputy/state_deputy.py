@@ -3,7 +3,9 @@ import pickle
 import time
 from enum import Enum
 from dataclasses import dataclass
+from copy import deepcopy
 
+import numpy as np
 from PySide6.QtCore import QMutex
 
 from visual_plat.render_layer.layer_base import LayerBase
@@ -65,7 +67,8 @@ class StateDeputy:
 
     def append_record(self, record_type: RecordType, layer_tag: str, data, new_step: bool):
         """追加记录"""
-        record = RecordUnit(layer_tag, record_type, data)
+        rcd_data = deepcopy(data)  # 深拷贝，以防出错
+        record = RecordUnit(layer_tag, record_type, rcd_data)
         if new_step:
             self.record.updates.append([])
             self.record_len += 1
