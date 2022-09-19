@@ -3,7 +3,9 @@ import pickle
 import time
 from enum import Enum
 from dataclasses import dataclass
+from copy import deepcopy
 
+import numpy as np
 from PySide6.QtCore import QMutex
 
 from visual_plat.render_layer.layer_base import LayerBase
@@ -65,7 +67,8 @@ class StateDeputy:
 
     def append_record(self, record_type: RecordType, layer_tag: str, data, new_step: bool):
         """追加记录"""
-        record = RecordUnit(layer_tag, record_type, data)
+        rcd_data = deepcopy(data)  # 深拷贝，以防出错
+        record = RecordUnit(layer_tag, record_type, rcd_data)
         if new_step:
             self.record.updates.append([])
             self.record_len += 1
@@ -134,16 +137,19 @@ class StateDeputy:
         self.replay_range = len(record.updates)
         self.replay_record = record
         print("Replaying [%s] started." % self.replay_name)
-        self.replay_by_index()
         self.replaying = True
         self.suspended = True  # 不再接受外部更新
+        self.replay_by_index()
         self.status_bar.set("Suspended")
         if record.updates:
             self.replay_index = 1
             AsyncProxy.run(self.async_replay)
-        else:
-            self.terminate()
-            self.pause()
+
+    def apply_snapshot(self, record: Record):
+        """应用快照"""
+        for unit in record.initial:
+            self.reload(unit.layer_tag, unit.record_data, False)
+        print("Snapshot applied.")
 
     def replay_by_index(self):
         """播放某一帧"""
@@ -214,8 +220,16 @@ class StateDeputy:
             else:
                 self.status_bar.reset("Suspended")
 
-    def terminate(self):
-        """终止（优先终止播放，再次触发会终止录制）"""
+    def stop_record(self):
+        """停止录制"""
+        if self.recording:
+            self.recording = False
+            self.status_bar.reset("Recording")
+            self.save_record(self.record)
+            print("Recording terminated.")
+
+    def stop_replay(self):
+        """停止播放"""
         if self.replaying:
             self.replaying = False
             self.suspended = False
@@ -223,8 +237,10 @@ class StateDeputy:
             self.status_bar.reset("Suspended")
             self.replay_index = self.replay_range = 0
             print("Replaying [%s] terminated." % self.replay_name)
+
+    def terminate(self):
+        """终止（优先终止播放，再次触发会终止录制）"""
+        if self.replaying:
+            self.stop_replay()
         elif self.recording:
-            self.recording = False
-            self.status_bar.reset("Recording")
-            self.save_record(self.record)
-            print("Recording terminated.")
+            self.stop_record()
