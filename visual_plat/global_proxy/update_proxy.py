@@ -41,3 +41,11 @@ class UpdateProxy:
         for i in range(len(tags)):
             UpdateProxy.adjust(tags[i], data[i], new_step=new_step)
             new_step = False
+
+    @staticmethod
+    def start_record():
+        UpdateProxy.state_deputy.start_record()
+
+    @staticmethod
+    def stop_record():
+        UpdateProxy.state_deputy.stop_record()
