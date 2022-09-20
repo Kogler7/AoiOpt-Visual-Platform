@@ -13,13 +13,13 @@ class ParcelLayer(LayerBase):
         self.parcels_maps: dict[int, QPixmap] = {}
         self.parcels_area_dict: dict[int, QRect] = {}
         """初始化包裹图层"""
-        self.reload()
+        self.on_reload()
 
     def set_indexes(self, indexes):
         self.data = indexes
-        self.reload()
+        self.on_reload()
 
-    def reload(self, data=None):
+    def on_reload(self, data=None):
         if data:
             self.data: list[int] = data
         if self.data:

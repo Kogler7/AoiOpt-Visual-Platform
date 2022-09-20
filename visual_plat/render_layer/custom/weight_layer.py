@@ -7,13 +7,17 @@ class WeightLayer(LayerBase):
         super(WeightLayer, self).__init__(canvas)
         self.data = None
 
+    def on_reload(self, data):
+        self.data = data
+        self.force_restage()
+
     def on_stage(self, device: QPixmap):
         if self.layout.win2view_factor < 30:
             # 太小了看不清不要了
             return False
         with QPainter(device) as painter:
             factor = self.layout.win2view_factor
-            if self.data:
+            if self.data is not None:
                 for y in range(self.data.shape[0]):
                     for x in range(self.data.shape[1]):
                         loc = self.layout.crd2pos(QPoint(x, y))

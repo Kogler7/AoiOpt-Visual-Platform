@@ -1,0 +1,11 @@
+{
+  "key": {
+    "snapshot": "ctrl+shift+s",
+    "start_record": "ctrl+r",
+    "stop_record": "ctrl+shift+r",
+    "terminate": "escape",
+    "fast_forward": "right",
+    "back_forward": "left",
+    "pause": "space"
+  }
+}

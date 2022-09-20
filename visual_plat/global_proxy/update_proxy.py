@@ -16,10 +16,13 @@ class UpdateProxy:
 
     @staticmethod
     def reload(layer_tag: str, data=None, new_step=True):
-        if not UpdateProxy.state_deputy.suspended:
-            UpdateProxy.state_deputy.reload(layer_tag=layer_tag, data=data, new_step=new_step)
-            while UpdateProxy.state_deputy.blocked:
-                time.sleep(0.2)
+        if UpdateProxy.canvas:
+            if not UpdateProxy.state_deputy.suspended:
+                UpdateProxy.state_deputy.reload(layer_tag=layer_tag, data=data, new_step=new_step)
+                while UpdateProxy.state_deputy.blocked:
+                    time.sleep(0.2)
+        else:
+            print("Canvas is not set.")
 
     @staticmethod
     def batched_reload(tags: list[str], data: list):
@@ -30,10 +33,13 @@ class UpdateProxy:
 
     @staticmethod
     def adjust(layer_tag: str, data=None, new_step=True):
-        if not UpdateProxy.state_deputy.suspended:
-            UpdateProxy.state_deputy.adjust(layer_tag=layer_tag, data=data, new_step=new_step)
-            while UpdateProxy.state_deputy.blocked:
-                time.sleep(0.2)
+        if UpdateProxy.canvas:
+            if not UpdateProxy.state_deputy.suspended:
+                UpdateProxy.state_deputy.adjust(layer_tag=layer_tag, data=data, new_step=new_step)
+                while UpdateProxy.state_deputy.blocked:
+                    time.sleep(0.2)
+        else:
+            print("Canvas is not set.")
 
     @staticmethod
     def batched_adjust(tags: list[str], data: list):

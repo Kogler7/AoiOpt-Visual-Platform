@@ -13,29 +13,33 @@ class ConfigProxy:
         config_paths = glob(path)
         for pth in config_paths:
             with open(pth) as f:
-                name = pth.split('\\')[-1][:-5]
-                ConfigProxy.config[name] = json.load(f)
+                tag = pth.split('\\')[-1][:-5]
+                ConfigProxy.config[tag] = json.load(f)
 
     @staticmethod
-    def get(name):
-        return ConfigProxy.config[name]
+    def get(tag):
+        return ConfigProxy.config[tag]
 
     @staticmethod
-    def path(name):
-        return ConfigProxy.config["paths"][name]
+    def path(tag):
+        return ConfigProxy.config["paths"][tag]
 
     @staticmethod
-    def canvas(name):
-        return ConfigProxy.config["canvas"][name]
+    def canvas(tag):
+        return ConfigProxy.config["canvas"][tag]
 
     @staticmethod
-    def layout(name):
-        return ConfigProxy.config["canvas"]["layout"][name]
+    def event(tag):
+        return ConfigProxy.config["events"][tag]
 
     @staticmethod
-    def tooltip(name):
-        return ConfigProxy.config["canvas"]["tooltip"][name]
+    def layout(tag):
+        return ConfigProxy.config["canvas"]["layout"][tag]
 
     @staticmethod
-    def record(name):
-        return ConfigProxy.config["canvas"]["record"][name]
+    def tooltip(tag):
+        return ConfigProxy.config["canvas"]["tooltip"][tag]
+
+    @staticmethod
+    def record(tag):
+        return ConfigProxy.config["canvas"]["record"][tag]

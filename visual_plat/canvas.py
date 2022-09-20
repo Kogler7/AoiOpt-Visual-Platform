@@ -28,6 +28,17 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class VisualCanvas(QWidget):
+    instance_list: list = []
+
+    def __new__(cls, *args, **kwargs):
+        instance = super(VisualCanvas, cls).__new__(cls)
+        cls.instance_list.append(instance)
+        return instance
+
+    @staticmethod
+    def of(idx: int):
+        return VisualCanvas.instance_list[idx]
+
     def __init__(self, pre_processor=None):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
@@ -92,8 +103,7 @@ class VisualCanvas(QWidget):
         nme_back = "Layer"
         for cls, layers in layers_cfg.items():
             mod_base = pth_base + cls + '.'
-            for layer_info in layers:
-                tag: str = layer_info["tag"]
+            for tag, layer_info in layers.items():
                 module = mod_base + tag + mod_back
                 mod = import_module(module)
                 name = tag.capitalize() + nme_back

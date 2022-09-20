@@ -4,7 +4,6 @@ from PySide6.QtGui import *
 
 class LayerBase:
     def __init__(self, canvas):
-        self.aoi_map = None
         self.canvas = canvas
         self.state = canvas.event_deputy
         self.render = canvas.render_deputy
@@ -20,13 +19,21 @@ class LayerBase:
         self.level = level
         self.layers.sort(key=lambda layer: layer.level, reverse=False)
 
-    def reload(self, data):
+    """
+    由StateDeputy自动调用
+    """
+
+    def on_reload(self, data: any):
         """全局更新时调用"""
         return False
 
-    def adjust(self, data):
+    def on_adjust(self, data: any):
         """局部更新时调用"""
         return False
+
+    """
+    由RenderDeputy自动调用
+    """
 
     def on_stage(self, device: QPixmap):
         """重绘buff图层时自动调用"""
@@ -35,6 +42,20 @@ class LayerBase:
     def on_paint(self, device: QWidget):
         """重绘时自动调用"""
         return False
+
+    """
+    由EventDeputy自动调用
+    """
+
+    def on_layout_event(self, e_tag: str):
+        pass
+
+    def on_key_event(self, e_tag: str):
+        pass
+
+    """
+    主动调用以更新状态
+    """
 
     def force_restage(self):
         """用于主动更新"""

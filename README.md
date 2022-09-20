@@ -63,7 +63,7 @@ world = GridWorld() # 创建GridWorld实例
 
 ```python
 world.state_deputy.read_aoi("./data/aoi/AOI_20_grid.npy")
-world.aoi_layer.reload()
+world.aoi_layer.on_reload()
 
 world.state_deputy.read_aoi("./data/images/2.jpg")
 world.state_deputy.read_traces("./data/trace/trace_1.npy")
@@ -100,22 +100,22 @@ AsyncProxy.start(worker)
 
 ```python
 class LearnWorker(AsyncWorker):
-    signal = Signal(tuple) # 必须声明为类变量，可在括号内指定需要传输的数据类型
+    signal = Signal(tuple)  # 必须声明为类变量，可在括号内指定需要传输的数据类型
 
     def __init__(self, world: GridWorld, info: InfoLayer):
         super(LearnWorker, self).__init__()
-        self.aoi_learning = PolicyGradientRL() # 在init阶段声明的变量为实例变量，不可在此定义Signal
-        self.signal.connect(self.update) # 使用connect方法与槽绑定，当信号发出消息时，update函数会被调用
+        self.aoi_learning = PolicyGradientRL()  # 在init阶段声明的变量为实例变量，不可在此定义Signal
+        self.signal.connect(self.update)  # 使用connect方法与槽绑定，当信号发出消息时，update函数会被调用
         self.world = world
         self.info = info
 
-    def update(self, data): # 异步任务拿到信号并随时发送消息，主线程收到后根据得到的数据更新可视化内容
+    def update(self, data):  # 异步任务拿到信号并随时发送消息，主线程收到后根据得到的数据更新可视化内容
         aoi_map = data[0]
-        self.world.aoi_layer.reload(aoi_map)
-        self.info.reload(data)
+        self.world.aoi_layer.on_reload(aoi_map)
+        self.info.on_reload(data)
 
-    def runner(self): # 子线程主要执行的任务，即启动深度学习
-        self.aoi_learning.execute(self.signal) # 将signal传给异步任务
+    def runner(self):  # 子线程主要执行的任务，即启动深度学习
+        self.aoi_learning.execute(self.signal)  # 将signal传给异步任务
 ```
 
   - 动态申请线程
