@@ -1,4 +1,7 @@
 {
+  "setting": {
+    "mouse_listening": false
+  },
   "key": {
     "space": "state_deputy.pause",
     "control+space": "state_deputy.block",

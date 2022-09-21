@@ -44,16 +44,6 @@ class LayerBase:
         return False
 
     """
-    由EventDeputy自动调用
-    """
-
-    def on_layout_event(self, e_tag: str):
-        pass
-
-    def on_key_event(self, e_tag: str):
-        pass
-
-    """
     主动调用以更新状态
     """
 

@@ -35,6 +35,10 @@ class ConfigProxy:
         return ConfigProxy.config["events"]["key"]
 
     @staticmethod
+    def event_setting():
+        return ConfigProxy.config["events"]["setting"]
+
+    @staticmethod
     def layout(tag):
         return ConfigProxy.config["canvas"]["layout"][tag]
 

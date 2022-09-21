@@ -16,7 +16,7 @@ from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
 from visual_plat.shared.utility.status_bar import StatusBar
-from visual_plat.shared.utility.key_notifier import KeyEventNotifier
+from visual_plat.shared.utility.notifier.key_notifier import KeyEventNotifier
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
@@ -62,13 +62,10 @@ class VisualCanvas(QWidget):
         # Deputies
         self.tooltip_deputy = TooltipDeputy(self)
         self.state_deputy = StateDeputy(layers=self.layer_dict, status_bar=self.status_bar)
-        self.event_deputy = EventDeputy(self.zooming_slot, self.dragging_slot)
+        self.event_deputy = EventDeputy(self)
         self.render_deputy = RenderDeputy(self, layers=self.layer_list, tooltip=self.tooltip_deputy)
         self.layout_deputy = LayoutDeputy(size=self.size())
         self.menu_deputy = MenuDeputy(self, self.render_deputy.tooltip_deputy.anchor_tips["cursor"])
-
-        self.event_deputy.dragging_signal.connect(self.dragging_slot)
-        self.event_deputy.zooming_signal.connect(self.zooming_slot)
 
         # Layers 载入，需要在 Deputy 声明后完成
         layers_config = ConfigProxy.get("layers")
@@ -122,7 +119,7 @@ class VisualCanvas(QWidget):
                 if "visible" in layer_info.keys():
                     layer_obj.visible = layer_info["visible"]
                 if "event" in layer_info.keys():
-                    self.event_deputy.add_layer(layer_obj, layer_info["event"])
+                    self.event_deputy.bind_layer_event(layer_obj, layer_info["event"])
                 self.layer_dict[tag] = layer_obj
                 self.layer_list.append(layer_obj)
         # 根据层级排序
@@ -205,7 +202,7 @@ class VisualCanvas(QWidget):
 
     def mouseReleaseEvent(self, event):
         """鼠标释放时调用"""
-        self.event_deputy.on_mouse_release()
+        self.event_deputy.on_mouse_release(event)
 
         self.tooltip_proxy.anchor_tips["btm_lft"].set("POS")
         self.tooltip_proxy.anchor_tips["top_lft"].set("FPS")
@@ -214,7 +211,7 @@ class VisualCanvas(QWidget):
 
     def wheelEvent(self, event):
         """滚动鼠标滚轮时调用"""
-        self.event_deputy.on_mouse_wheel()
+        self.event_deputy.on_mouse_wheel(event)
         self.layout_deputy.zoom_at(event.angleDelta().y(), self.event_deputy.last_mouse_pos)
 
         self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", str(self.layout_deputy.grid_level))
@@ -251,6 +248,7 @@ class VisualCanvas(QWidget):
 
     def keyPressEvent(self, event: QKeyEvent):
         self.key_notifier.invoke(event.modifiers(), event.key())
+        self.event_deputy.on_key_pressed(event)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         """检测是否拖拽rcd文件进入窗口"""
@@ -279,20 +277,6 @@ class VisualCanvas(QWidget):
         self.layout_deputy.resize(event.size())
         self.render_deputy.mark_need_restage()
         self.update()
-
-    def dragging_slot(self, on_drag: bool):
-        """Drag回调函数"""
-        if on_drag:
-            self.setCursor(Qt.OpenHandCursor)
-        else:
-            self.setCursor(Qt.ArrowCursor)
-            self.render_deputy.mark_need_restage()
-
-    def zooming_slot(self, on_zoom: bool):
-        """Zoom回调函数"""
-        if not on_zoom:
-            self.render_deputy.mark_need_restage()
-            self.update()
 
     def last_load(self):
         """在最后执行，以等待类的所有属性方法载入完毕"""

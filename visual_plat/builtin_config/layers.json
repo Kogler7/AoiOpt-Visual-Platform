@@ -3,58 +3,59 @@
     "aoi": {
       "level": -3,
       "visible": true,
-      "xps_tag": "APS",
-      "event": {
-        "mouse": {
-          "press": "on_press",
-          "release": "on_release",
-          "move": "on_move"
-        },
-        "key": {
-          "save": "ctrl+shift+a"
-        },
-        "layout": {
-          "move": "begin",
-          "zoom": "begin-end"
-        }
-      }
+      "xps_tag": "APS"
     },
     "traj": {
       "level": -2,
       "visible": true,
-      "xps_tag": "TPS",
-      "mouse_triggered": false
+      "xps_tag": "TPS"
     },
     "parcel": {
       "level": -1,
       "visible": true,
-      "xps_tag": "PPS",
-      "mouse_triggered": false
+      "xps_tag": "PPS"
     },
     "grids": {
       "level": 1,
       "visible": true,
-      "mouse_triggered": true
+      "event": {
+        "view": {
+          "zoom_begin": "disable_base_lines",
+          "zoom_end": "enable_base_lines",
+          "drag_begin": "disable_base_lines",
+          "drag_end": "enable_base_lines"
+        }
+      }
     },
     "scale": {
       "level": 2,
-      "visible": true,
-      "mouse_triggered": true
+      "visible": true
     },
     "focus": {
       "level": 3,
-      "visible": true,
-      "mouse_triggered": true
+      "visible": true
     }
   },
   "custom": {
     "info": {
       "level": 0,
-      "visible": true
+      "visible": true,
+      "event": {
+        "key": {
+          "shift+s": "show",
+          "shift+h": "hide"
+        }
+      }
     },
     "weight": {
       "level": 0,
-      "visible": true
+      "visible": true,
+      "event": {
+        "key": {
+          "shift+s": "show",
+          "shift+h": "hide"
+        }
+      }
     }
   }
 }

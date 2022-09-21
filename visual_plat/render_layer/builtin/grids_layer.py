@@ -6,13 +6,26 @@ from visual_plat.global_proxy.color_proxy import ColorProxy
 class GridsLayer(LayerBase):
     def __init__(self, canvas):
         super(GridsLayer, self).__init__(canvas)
-        self.enable_base_lines = True  # 是否绘制基础栅格
+        self.show_base_lines = True  # 是否绘制基础栅格
+
+    def enable_base_lines(self):
+        self.show_base_lines = True
+        self.force_restage()
+
+    def disable_base_lines(self):
+        self.show_base_lines = False
+
+    def draw_grids(self, bias, step, size, painter: QPainter):
+        layout = self.layout
+        loc = bias
+        while loc.x() < layout.viewport_size or loc.y() < layout.viewport_size:
+            painter.drawLine(QPoint(0, loc.y()), QPoint(size, loc.y()))
+            painter.drawLine(QPoint(loc.x(), 0), QPoint(loc.x(), size))
+            loc += QPointF(step, step)
 
     def on_stage(self, device: QWidget):
         """绘制栅格"""
-        state = self.state
         layout = self.layout
-        self.enable_base_lines = not (state.on_dragging or state.on_zooming)
 
         size = int(layout.viewport_size)
         step = layout.grid_gap
@@ -23,13 +36,9 @@ class GridsLayer(LayerBase):
             painter.setPen(pen)
 
             # 绘制基础栅格
-            if self.enable_base_lines:  # 优化性能
+            if self.show_base_lines:  # 优化性能
                 bias = -mod_2d(layout.window_bias, layout.grid_lvl_fac) * layout.win2view_factor
-                loc = bias
-                while loc.x() < layout.viewport_size or loc.y() < layout.viewport_size:
-                    painter.drawLine(QPoint(0, loc.y()), QPoint(size, loc.y()))
-                    painter.drawLine(QPoint(loc.x(), 0), QPoint(loc.x(), size))
-                    loc += QPointF(step, step)
+                self.draw_grids(bias, step, size, painter)
 
             # 绘制定位栅格
             pen.setWidth(2)
@@ -37,10 +46,6 @@ class GridsLayer(LayerBase):
             step *= layout.grid_cov_fac
             win_bias = -mod_2d(layout.window_bias, layout.grid_lvl_fac * layout.grid_cov_fac)
             bias = win_bias * layout.win2view_factor
-            loc = bias
-            while loc.x() < layout.viewport_size or loc.y() < layout.viewport_size:
-                painter.drawLine(QPoint(0, loc.y()), QPoint(size, loc.y()))
-                painter.drawLine(QPoint(loc.x(), 0), QPoint(loc.x(), size))
-                loc += QPointF(step, step)
+            self.draw_grids(bias, step, size, painter)
 
         return True
