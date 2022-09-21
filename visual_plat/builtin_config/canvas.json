@@ -17,7 +17,8 @@
     "anchor_bias": [
       90,
       50
-    ]
+    ],
+    "visible": true
   },
   "layout": {
     "zoom_step": 1,

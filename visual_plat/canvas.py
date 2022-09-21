@@ -79,6 +79,7 @@ class VisualCanvas(QWidget):
         # Other
         self.setMouseTracking(True)  # 开启鼠标追踪
         self.setAcceptDrops(True)  # 接受拖拽
+        self.show_tooltips = ConfigProxy.tooltip("visible")
 
         # 预处理
         if pre_processor:
@@ -128,7 +129,8 @@ class VisualCanvas(QWidget):
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
         self.render_deputy.render()
-        self.tooltip_deputy.draw()
+        if self.show_tooltips:
+            self.tooltip_deputy.draw()
 
     def mousePressEvent(self, event):
         """鼠标按下时调用"""
