@@ -16,6 +16,7 @@ from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
 from visual_plat.shared.utility.status_bar import StatusBar
+from visual_plat.shared.utility.key_notifier import KeyEventNotifier
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
@@ -31,6 +32,8 @@ class VisualCanvas(QWidget):
     instance_list: list = []
 
     def __new__(cls, *args, **kwargs):
+        if not ConfigProxy.loaded:
+            ConfigProxy.load()
         instance = super(VisualCanvas, cls).__new__(cls)
         cls.instance_list.append(instance)
         return instance
@@ -42,7 +45,6 @@ class VisualCanvas(QWidget):
     def __init__(self, pre_processor=None):
         super(VisualCanvas, self).__init__()
         # 载入配置信息
-        ConfigProxy.load()
         version = str(ConfigProxy.canvas('version')) \
                   + ("-pre" if not ConfigProxy.canvas("release") else "")
         self.setWindowTitle(f"AoiOpt Visual Platform {version}")
@@ -94,6 +96,10 @@ class VisualCanvas(QWidget):
         # 新窗口
         self.new_canvas = None
 
+        # 事件监听
+        self.key_notifier = KeyEventNotifier()
+        self.last_load()
+
     def set_window_title(self, title: str):
         self.setWindowTitle(title)
 
@@ -115,6 +121,8 @@ class VisualCanvas(QWidget):
                     layer_obj.xps_tag = layer_info["xps_tag"]
                 if "visible" in layer_info.keys():
                     layer_obj.visible = layer_info["visible"]
+                if "event" in layer_info.keys():
+                    self.event_deputy.add_layer(layer_obj, layer_info["event"])
                 self.layer_dict[tag] = layer_obj
                 self.layer_list.append(layer_obj)
         # 根据层级排序
@@ -214,48 +222,35 @@ class VisualCanvas(QWidget):
         self.render_deputy.mark_need_restage()
         self.update()
 
+    def create_new_canvas(self):
+        """创建新画布"""
+        self.new_canvas = VisualCanvas()
+        self.new_canvas.setWindowTitle("New Canvas")
+        self.new_canvas.status_bar.set_default("New Canvas")
+        self.new_canvas.show()
+
+    def snapshot_and_create_new_canvas(self):
+        """截图并创建新画布"""
+        path, _ = self.state_deputy.snapshot()
+
+        def pre_setter(canvas: VisualCanvas):
+            rcd = canvas.state_deputy.load_record(path)
+            canvas.state_deputy.apply_snapshot(rcd)
+            canvas.status_bar.set_default("New Canvas")
+
+        self.new_canvas = VisualCanvas(pre_processor=pre_setter)
+        self.new_canvas.setWindowTitle("New Canvas")
+        self.new_canvas.show()
+
+    def record(self):
+        """记录"""
+        if self.state_deputy.recording:
+            self.state_deputy.stop_record()
+        else:
+            self.state_deputy.start_record()
+
     def keyPressEvent(self, event: QKeyEvent):
-        if event.key() == Qt.Key_Space:
-            if event.modifiers() == Qt.ControlModifier:
-                self.state_deputy.block()  # Ctrl+Space 阻塞
-            else:
-                self.state_deputy.pause()  # Space 暂停
-        # Ctrl+N 创建新窗口
-        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_N:
-            self.new_canvas = VisualCanvas()
-            self.new_canvas.setWindowTitle("New Canvas")
-            self.new_canvas.status_bar.set_default("New Canvas")
-            self.new_canvas.show()
-        # Ctrl+Shift+N 截图并创建新窗口
-        elif event.modifiers() == Qt.ControlModifier | Qt.ShiftModifier and event.key() == Qt.Key_N:
-            path, _ = self.state_deputy.snapshot()
-
-            def pre_setter(canvas: VisualCanvas):
-                rcd = canvas.state_deputy.load_record(path)
-                canvas.state_deputy.apply_snapshot(rcd)
-                canvas.status_bar.set_default("New Canvas")
-
-            self.new_canvas = VisualCanvas(pre_processor=pre_setter)
-            self.new_canvas.setWindowTitle("New Canvas")
-            self.new_canvas.show()
-        # Ctrl+S 截图
-        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_S:
-            self.state_deputy.snapshot()
-        # Ctrl+R （取消）录制
-        elif event.modifiers() == Qt.ControlModifier and event.key() == Qt.Key_R:
-            if self.state_deputy.recording:
-                self.state_deputy.stop_record()
-            else:
-                self.state_deputy.start_record()
-        # Escape 终止
-        elif event.key() == Qt.Key_Escape:
-            self.state_deputy.terminate()
-        # Left 快退
-        elif event.key() == Qt.Key_Left:
-            self.state_deputy.back_forward()
-        # Right 快进
-        elif event.key() == Qt.Key_Right:
-            self.state_deputy.fast_forward()
+        self.key_notifier.invoke(event.modifiers(), event.key())
 
     def dragEnterEvent(self, event: QDragEnterEvent):
         """检测是否拖拽rcd文件进入窗口"""
@@ -298,3 +293,7 @@ class VisualCanvas(QWidget):
         if not on_zoom:
             self.render_deputy.mark_need_restage()
             self.update()
+
+    def last_load(self):
+        """在最后执行，以等待类的所有属性方法载入完毕"""
+        self.key_notifier.parse(ConfigProxy.event(), self)

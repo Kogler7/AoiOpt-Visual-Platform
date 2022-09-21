@@ -36,6 +36,9 @@ class EventDeputy(QObject):
         self.counting = False
         self.cnt_finished_signal.connect(self.cnt_finished)
 
+    def add_layer(self, layer, config):
+        pass
+
     def cnt_finished(self):
         self.counting = False
         self.cnt_worker.reset()

@@ -4,6 +4,7 @@ from glob import glob
 
 
 class ConfigProxy:
+    loaded = False
     config_path = os.path.abspath(".\\visual_plat\\builtin_config\\*.json")
     config: dict[str, dict] = {}
 
@@ -15,6 +16,7 @@ class ConfigProxy:
             with open(pth) as f:
                 tag = pth.split('\\')[-1][:-5]
                 ConfigProxy.config[tag] = json.load(f)
+        ConfigProxy.loaded = True
 
     @staticmethod
     def get(tag):
@@ -29,8 +31,8 @@ class ConfigProxy:
         return ConfigProxy.config["canvas"][tag]
 
     @staticmethod
-    def event(tag):
-        return ConfigProxy.config["events"][tag]
+    def event():
+        return ConfigProxy.config["events"]["key"]
 
     @staticmethod
     def layout(tag):
