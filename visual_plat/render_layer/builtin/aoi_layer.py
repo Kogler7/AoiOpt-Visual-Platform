@@ -11,7 +11,7 @@ class AoiLayer(LayerBase):
         self.aoi_map: QPixmap = QPixmap.fromImage(aoi_img)
         self.size = self.aoi_map.size()
 
-    def reload(self, data=None):
+    def on_reload(self, data=None):
         """更新AOI图层"""
         if data is not None:
             self.data = data
@@ -22,7 +22,7 @@ class AoiLayer(LayerBase):
         self.force_restage()
         return True
 
-    def adjust(self, data):
+    def on_adjust(self, data):
         pass
 
     def on_stage(self, device: QPixmap):

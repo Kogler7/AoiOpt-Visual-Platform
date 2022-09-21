@@ -1,55 +1,61 @@
 {
-  "builtin": [
-    {
-      "tag": "aoi",
-      "xps_tag": "APS",
+  "builtin": {
+    "aoi": {
       "level": -3,
       "visible": true,
-      "mouse_triggered": false
+      "xps_tag": "APS"
     },
-    {
-      "tag": "traj",
-      "xps_tag": "TPS",
+    "traj": {
       "level": -2,
       "visible": true,
-      "mouse_triggered": false
+      "xps_tag": "TPS"
     },
-    {
-      "tag": "parcel",
-      "xps_tag": "PPS",
+    "parcel": {
       "level": -1,
       "visible": true,
-      "mouse_triggered": false
+      "xps_tag": "PPS"
     },
-    {
-      "tag": "grids",
+    "grids": {
       "level": 1,
       "visible": true,
-      "mouse_triggered": true
+      "event": {
+        "view": {
+          "zoom_begin": "disable_base_lines",
+          "zoom_end": "enable_base_lines",
+          "drag_begin": "disable_base_lines",
+          "drag_end": "enable_base_lines"
+        }
+      }
     },
-    {
-      "tag": "scale",
+    "scale": {
       "level": 2,
-      "visible": true,
-      "mouse_triggered": true
+      "visible": true
     },
-    {
-      "tag": "focus",
+    "focus": {
       "level": 3,
+      "visible": true
+    }
+  },
+  "custom": {
+    "info": {
+      "level": 0,
       "visible": true,
-      "mouse_triggered": true
-    }
-  ],
-  "custom": [
-    {
-      "tag": "info",
-      "level": 0,
-      "visible": true
+      "event": {
+        "key": {
+          "shift+s": "show",
+          "shift+h": "hide"
+        }
+      }
     },
-    {
-      "tag": "weight",
+    "weight": {
       "level": 0,
-      "visible": true
+      "visible": true,
+      "event": {
+        "key": {
+          "shift+s": "show",
+          "shift+h": "hide"
+        }
+      }
     }
-  ]
+  }
 }

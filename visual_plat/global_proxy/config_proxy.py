@@ -4,6 +4,7 @@ from glob import glob
 
 
 class ConfigProxy:
+    loaded = False
     config_path = os.path.abspath(".\\visual_plat\\builtin_config\\*.json")
     config: dict[str, dict] = {}
 
@@ -13,29 +14,38 @@ class ConfigProxy:
         config_paths = glob(path)
         for pth in config_paths:
             with open(pth) as f:
-                name = pth.split('\\')[-1][:-5]
-                ConfigProxy.config[name] = json.load(f)
+                tag = pth.split('\\')[-1][:-5]
+                ConfigProxy.config[tag] = json.load(f)
+        ConfigProxy.loaded = True
 
     @staticmethod
-    def get(name):
-        return ConfigProxy.config[name]
+    def get(tag):
+        return ConfigProxy.config[tag]
 
     @staticmethod
-    def path(name):
-        return ConfigProxy.config["paths"][name]
+    def path(tag):
+        return ConfigProxy.config["paths"][tag]
 
     @staticmethod
-    def canvas(name):
-        return ConfigProxy.config["canvas"][name]
+    def canvas(tag):
+        return ConfigProxy.config["canvas"][tag]
 
     @staticmethod
-    def layout(name):
-        return ConfigProxy.config["canvas"]["layout"][name]
+    def event():
+        return ConfigProxy.config["events"]["key"]
 
     @staticmethod
-    def tooltip(name):
-        return ConfigProxy.config["canvas"]["tooltip"][name]
+    def event_setting():
+        return ConfigProxy.config["events"]["setting"]
 
     @staticmethod
-    def record(name):
-        return ConfigProxy.config["canvas"]["record"][name]
+    def layout(tag):
+        return ConfigProxy.config["canvas"]["layout"][tag]
+
+    @staticmethod
+    def tooltip(tag):
+        return ConfigProxy.config["canvas"]["tooltip"][tag]
+
+    @staticmethod
+    def record(tag):
+        return ConfigProxy.config["canvas"]["record"][tag]

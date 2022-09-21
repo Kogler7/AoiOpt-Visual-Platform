@@ -78,14 +78,14 @@ class StateDeputy:
     def reload(self, layer_tag: str, data=None, new_step=True):
         """重载某个图层"""
         if layer_tag in self.layers.keys():
-            self.layers[layer_tag].reload(data)
+            self.layers[layer_tag].on_reload(data)
             if self.recording:
                 self.append_record(RecordType.reload, layer_tag, data, new_step)
 
     def adjust(self, layer_tag: str, data=None, new_step=True):
         """调整某个图层"""
         if layer_tag in self.layers.keys():
-            self.layers[layer_tag].adjust(data)
+            self.layers[layer_tag].on_adjust(data)
             if self.recording:
                 self.append_record(RecordType.adjust, layer_tag, data, new_step)
 

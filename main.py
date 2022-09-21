@@ -17,20 +17,13 @@ class LearnWorker(AsyncWorker):
 
     def runner(self):
         while True:
-            # data = np.random.randint(self.index, size=(100, 100))
-            # UpdateProxy.reload("aoi", data)
-            # self.index += 1
-            # if self.index > 6:
-            #     self.index = 1
-            print("learn")
-            time.sleep(1)
             data = np.zeros((5, 5), dtype=np.int)
-            print(data)
             data[int(self.index / 5)][self.index % 5] = 1
             UpdateProxy.reload("aoi", data)
             self.index += 1
             if self.index >= 25:
                 self.index = 0
+            time.sleep(1)
 
 
 def world_config(world: VisualCanvas):

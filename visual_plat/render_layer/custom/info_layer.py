@@ -13,7 +13,7 @@ class InfoLayer(LayerBase):
         self.data = (self.action, self.reward, self.time)
         self.dir_lst = ['↑', '↓', '←', '→', '*']
 
-    def reload(self, data):
+    def on_reload(self, data):
         self.data = data
         if data:
             self.action, self.reward, self.time = data

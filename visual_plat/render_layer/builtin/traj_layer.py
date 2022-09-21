@@ -15,11 +15,11 @@ class TrajLayer(LayerBase):
         self.enable_dot_line = True  # 是否使用点线绘制轨迹
         self.dot_back_line_pen = QPen(ColorProxy.named["LightGrey"])
         """初始化轨迹图层"""
-        self.reload()
+        self.on_reload()
 
     def set_indexes(self, indexes):
         self.data = indexes
-        self.reload()
+        self.on_reload()
 
     def draw_dot_line(self, painter: QPainter, fst: QPoint, sec: QPoint):
         """绘制点线"""
@@ -33,7 +33,7 @@ class TrajLayer(LayerBase):
             painter.setPen(pen)
         painter.drawLine(fst, sec)
 
-    def reload(self, data=None):
+    def on_reload(self, data=None):
         if data:
             self.data: list[int] = data
         if self.data:

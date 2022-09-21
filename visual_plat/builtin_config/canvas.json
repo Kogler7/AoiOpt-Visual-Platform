@@ -1,6 +1,6 @@
 {
-  "version": "4.2.0",
-  "release": true,
+  "version": "4.3.0",
+  "release": false,
   "init_size": [
     1000,
     800
@@ -17,7 +17,8 @@
     "anchor_bias": [
       90,
       50
-    ]
+    ],
+    "visible": true
   },
   "layout": {
     "zoom_step": 1,
