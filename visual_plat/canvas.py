@@ -39,7 +39,7 @@ class VisualCanvas(QWidget):
         return instance
 
     @staticmethod
-    def of(idx: int):
+    def instance(idx: int = -1):
         return VisualCanvas.instance_list[idx]
 
     def __init__(self, pre_processor=None):
