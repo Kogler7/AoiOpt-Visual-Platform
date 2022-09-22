@@ -132,23 +132,6 @@ class VisualCanvas(QWidget):
         if self.show_tooltips:
             self.tooltip_deputy.draw()
 
-    def mousePressEvent(self, event):
-        """鼠标按下时调用"""
-        event = self.layout_deputy.wrap_event(event)
-        self.event_deputy.on_mouse_press(event)
-
-        if self.event_deputy.on_sliding:
-            self.setCursor(Qt.SizeAllCursor)
-            AsyncProxy.run(self.on_sliding)
-        elif not self.event_deputy.on_dragging:
-            self.setCursor(Qt.ArrowCursor)
-
-        self.tooltip_proxy.anchor_tips["cursor"].show()
-        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
-        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
-
-        self.update()
-
     def on_sliding(self):
         """中键滑动"""
         while self.event_deputy.on_sliding:
@@ -179,6 +162,23 @@ class VisualCanvas(QWidget):
         """滑动至中心"""
         target = self.layout_deputy.get_central_bias(self.aoi_layer.size)
         self.animate_to(-target)
+
+    def mousePressEvent(self, event):
+        """鼠标按下时调用"""
+        event = self.layout_deputy.wrap_event(event)
+        self.event_deputy.on_mouse_press(event)
+
+        if self.event_deputy.on_sliding:
+            self.setCursor(Qt.SizeAllCursor)
+            AsyncProxy.run(self.on_sliding)
+        elif not self.event_deputy.on_dragging:
+            self.setCursor(Qt.ArrowCursor)
+
+        self.tooltip_proxy.anchor_tips["cursor"].show()
+        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
+        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
+
+        self.update()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         if event.button() == Qt.MiddleButton:

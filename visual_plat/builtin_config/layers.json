@@ -44,6 +44,9 @@
         "key": {
           "shift+s": "show",
           "shift+h": "hide"
+        },
+        "view": {
+          "zooming": "on_drag"
         }
       }
     },

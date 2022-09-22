@@ -2,7 +2,6 @@ import math
 
 import numpy as np
 from PySide6.QtCore import QPointF, QPoint, QRect, QSize
-# import taichi as ti
 
 inf_int = int(10e8)
 
@@ -94,7 +93,6 @@ def point_azimuth(p: QPointF):
     return math.atan2(-p.y(), p.x()) + 2 * math.pi
 
 
-# @ti.func
 def masked_rect2list(src_r: QRect, ctr_r: QRect, mask: QRect = QRect()):
     """
     将矩形中的点按照一定规则进行序列化
@@ -240,3 +238,14 @@ if __name__ == "__main__":
     # print(rects_intersection(rect, mask))
     xps.check("over")
     # print(lst)
+
+    p1 = QPoint(0, 0)
+    p2 = QPoint(1, 1)
+    xps.start()
+    for i in range(1000000):
+        chebyshev_dist(p1, p2)
+    xps.check("chebyshev")
+    # test(1000000)
+    xps.check("chebyshev_h")
+    # test(100000000)
+    xps.check("chebyshev_hh")
