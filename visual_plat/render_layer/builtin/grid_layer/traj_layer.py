@@ -44,7 +44,7 @@ class TrajLayer(LayerBase):
                     t.set_description_str("Painting traces")
                     bias = rect_bias(trace.area)
                     self.trace_area_dict[trace.index] = trace.area
-                    pixmap = QPixmap(trace.area.size() * 15)
+                    pixmap = QPixmap(trace.area.aoi_size() * 15)
                     pixmap.fill(QColor(0, 0, 0, 0))
                     pen = QPen(trace.color)
                     with QPainter(pixmap) as painter:
@@ -64,7 +64,7 @@ class TrajLayer(LayerBase):
         with QPainter(device) as painter:
             def draw_trace_at(idx: int):
                 area = self.trace_area_dict[idx]
-                if rect_overlap(area, layout.sample):
+                if rect_overlap(area, layout.win_sample):
                     _map = self.trace_maps[idx]
                     _loc = - layout.window_bias + area.topLeft()
                     painter.drawPixmap(_loc * 15, _map)

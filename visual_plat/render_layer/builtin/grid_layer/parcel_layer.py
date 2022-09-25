@@ -33,7 +33,7 @@ class ParcelLayer(LayerBase):
                     t.set_description_str("Painting parcels")
                     bias = rect_bias(parcels.area)
                     self.parcels_area_dict[parcels.index] = parcels.area
-                    pixmap = QPixmap(parcels.area.size() * 10)
+                    pixmap = QPixmap(parcels.area.aoi_size() * 10)
                     pixmap.fill(QColor(0, 0, 0, 0))
                     color = parcels.color
                     brush_id = QBrush(color)
@@ -55,7 +55,7 @@ class ParcelLayer(LayerBase):
         with QPainter(device) as painter:
             def draw_parcels_at(idx: int):
                 area = self.parcels_area_dict[idx]
-                if rect_overlap(area, layout.sample):
+                if rect_overlap(area, layout.win_sample):
                     _map = self.parcels_maps[idx]
                     _loc = - layout.window_bias + area.topLeft()
                     painter.drawPixmap(_loc * 10, _map)

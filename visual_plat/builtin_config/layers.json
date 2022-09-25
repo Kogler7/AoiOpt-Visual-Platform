@@ -6,7 +6,14 @@
         "visible": true,
         "xps_tag": "APS",
         "save_image": true,
-        "save_path": "./output/images"
+        "save_path": "./output/images",
+        "auto_back": true,
+        "event": {
+          "view": {
+            "drag_end": "auto_back",
+            "zoom_end": "auto_back"
+          }
+        }
       },
       "traj": {
         "level": -2,

@@ -10,7 +10,7 @@ def update_task():
     index = 0
     xps = XPSChecker()
     while True:
-        data = np.zeros((5, 5), dtype=np.int)
+        data = np.zeros((100, 100), dtype=np.int)
         data[int(index / 5)][index % 5] = 1
         UpdateProxy.reload("aoi", data)
         index += 1

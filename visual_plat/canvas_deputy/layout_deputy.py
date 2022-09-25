@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 
@@ -26,8 +25,8 @@ class LayoutDeputy:
         self.window_bias: QPointF = QPointF(0, 0)  # 基坐标相对视窗逻辑坐标的偏移，单位：格
         self.win_bias_dec, self.win_bias_int = dec_int_2d(self.window_bias)
 
-        # 取样视窗
-        self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
+        # 取样视窗（窗口偏移版）
+        self.win_sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
 
         # 物理视窗
         self.viewport_size = max(self.size.width(), self.size.height())  # 尺寸（长宽最大值）
@@ -91,13 +90,13 @@ class LayoutDeputy:
         """平移视窗"""
         self.window_bias += QPointF(delt) * self.view2win_factor
         self.win_bias_dec, self.win_bias_int = dec_int_2d(self.window_bias)
-        self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
+        self.win_sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
 
     def teleport(self, target: QPoint):
         """传送视窗"""
         self.window_bias = target
         self.win_bias_dec, self.win_bias_int = dec_int_2d(self.window_bias)
-        self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
+        self.win_sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
 
     def zoom_at(self, angle: float, point: QPoint):
         """定点缩放"""
@@ -119,7 +118,7 @@ class LayoutDeputy:
             n_loc = self.pos2crd_f(QPointF(point))
             self.window_bias += p_loc - n_loc
             self.win_bias_dec, self.win_bias_int = dec_int_2d(self.window_bias)
-            self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
+            self.win_sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
 
             # 更新栅格参数，level取值范围为 [0, 10]，level 小于0时无意义，而超过10时会溢出
             if self.grid_gap < self.grid_gap_min:
@@ -147,7 +146,7 @@ class LayoutDeputy:
         # 计算更新其他受影响的参数
         self.window = QRect(0, 0, self.window_size, self.window_size)
         self.viewport = QRect(0, 0, self.viewport_size, self.viewport_size)
-        self.sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
+        self.win_sample = trans_rect(self.window, self.win_bias_int, QSize(1, 1))
 
     def get_central(self, crd=QPoint(0, 0)):
         """获取基准坐标所对应方格的中心屏幕坐标"""
