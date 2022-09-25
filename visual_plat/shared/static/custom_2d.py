@@ -34,6 +34,16 @@ def mod_2d(src: QPointF, op: float):
     return QPointF(_x, _y)
 
 
+def min_2d(p1: QPointF, p2: QPointF):
+    """二维点的最小值"""
+    return QPointF(min(p1.x(), p2.x()), min(p1.y(), p2.y()))
+
+
+def max_2d(p1: QPointF, p2: QPointF):
+    """二维点的最大值"""
+    return QPointF(max(p1.x(), p2.x()), max(p1.y(), p2.y()))
+
+
 def great_than_2d(op1: QPoint, op2: QPoint):
     """
     点的大小比较
@@ -71,8 +81,8 @@ def rects_intersection(r1: QRect, r2: QRect):
         br = QPoint(min(r1.right(), r2.right()), min(r1.bottom(), r2.bottom())) + QPoint(1, 1)
         return QRect(tl, br)
     else:
-        # 二者不存在交集时返回空值
-        return None
+        # 二者不存在交集时返回默认值
+        return QRect()
 
 
 def chebyshev_dist(p1: QPoint, p2: QPoint):
@@ -127,6 +137,11 @@ def size2point(size: QSize):
 def size2point_f(size: QSize):
     """Size转化为PointF"""
     return QPointF(size.width(), size.height())
+
+
+def size2rect(size: QSize):
+    """Size转化为Rect"""
+    return QRect(QPoint(0, 0), size)
 
 
 def mul_pot(p1: QPointF, p2: QPointF):

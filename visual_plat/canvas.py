@@ -81,20 +81,21 @@ class VisualCanvas(QWidget):
         def load_layers(pth_base: str, layers: dict):
             mod_back = "_layer"
             nme_back = "Layer"
-            for tag, layer_info in layers.items():
+            for tag, layer_cfg in layers.items():
+                ConfigProxy.load_layer(tag, layer_cfg)
                 module = pth_base + tag + mod_back
                 mod = import_module(module)
                 name = tag.capitalize() + nme_back
                 layer_cls = getattr(mod, name)
                 layer_obj = layer_cls(self)
-                if "level" in layer_info.keys():
-                    layer_obj.level = layer_info["level"]
-                if "xps_tag" in layer_info.keys():
-                    layer_obj.xps_tag = layer_info["xps_tag"]
-                if "visible" in layer_info.keys():
-                    layer_obj.visible = layer_info["visible"]
-                if "event" in layer_info.keys():
-                    self.event_deputy.bind_layer_event(layer_obj, layer_info["event"])
+                if "level" in layer_cfg.keys():
+                    layer_obj.level = layer_cfg["level"]
+                if "xps_tag" in layer_cfg.keys():
+                    layer_obj.xps_tag = layer_cfg["xps_tag"]
+                if "visible" in layer_cfg.keys():
+                    layer_obj.visible = layer_cfg["visible"]
+                if "event" in layer_cfg.keys():
+                    self.event_deputy.bind_layer_event(layer_obj, layer_cfg["event"])
                 self.layer_dict[tag] = layer_obj
                 self.layer_list.append(layer_obj)
 
@@ -140,7 +141,7 @@ class VisualCanvas(QWidget):
 
     def animate2center(self):
         """滑动至中心"""
-        target = self.layout_deputy.get_central_bias(self.aoi_layer.size)
+        target = self.layout_deputy.get_central_bias(self.aoi_layer.aoi_size)
         self.animate_to(-target)
 
     def mousePressEvent(self, event):

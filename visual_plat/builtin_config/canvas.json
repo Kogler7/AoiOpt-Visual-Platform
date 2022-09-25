@@ -23,7 +23,7 @@
   "layout": {
     "zoom_step": 1,
     "precision": 0.001,
-    "init_window_size": 30,
+    "init_window_size": 10,
     "min_window_size": 8,
     "min_grid_gap": 20,
     "max_grid_level": 10,

@@ -14,12 +14,16 @@ class VisualPlatform:
     canvas_list: list[VisualCanvas] = []
 
     @staticmethod
-    def launch(async_task: callable = None, init_finished: callable = None):
+    def launch(
+            async_task: callable = None,
+            canvas_init: callable = None,
+            canvas_config: callable = None
+    ):
         """
         启动可视化平台
         可附带执行一个异步任务
         请不要在重复调用此函数
-        也不要在此函数后再执行其他任务
+        也不要在此函数后再执行其他同步任务
         此函数全局仅允许被调用一次
         """
         if not ConfigProxy.loaded:
@@ -29,8 +33,10 @@ class VisualPlatform:
                       + ("-pre" if not ConfigProxy.canvas("release") else "")
             app_name = f"AoiOpt Visual Platform {version}"
             app.setApplicationName(app_name)
-            canvas = VisualPlatform.new_canvas(app_name, init_finished)
+            canvas = VisualPlatform.new_canvas(app_name, canvas_init)
             UpdateProxy.set_canvas(canvas)
+            if canvas_config is not None:
+                canvas_config(canvas)
             if async_task is not None:
                 AsyncProxy.run(async_task)
             app.exec()

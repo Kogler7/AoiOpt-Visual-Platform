@@ -7,6 +7,7 @@ class ConfigProxy:
     loaded = False
     config_path = os.path.abspath(".\\visual_plat\\builtin_config\\*.json")
     config: dict[str, dict] = {}
+    layer_config: dict[str, dict] = {}
 
     @staticmethod
     def load():
@@ -17,6 +18,15 @@ class ConfigProxy:
                 tag = pth.split('\\')[-1][:-5]
                 ConfigProxy.config[tag] = json.load(f)
         ConfigProxy.loaded = True
+
+    @staticmethod
+    def load_layer(tag: str, config: dict):
+        """载入图层配置（方便图层访问）"""
+        ConfigProxy.layer_config[tag] = config
+
+    @staticmethod
+    def layer(tag):
+        return ConfigProxy.layer_config[tag]
 
     @staticmethod
     def get(tag):

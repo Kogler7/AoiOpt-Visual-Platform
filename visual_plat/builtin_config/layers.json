@@ -4,7 +4,16 @@
       "aoi": {
         "level": -3,
         "visible": true,
-        "xps_tag": "APS"
+        "xps_tag": "APS",
+        "save_image": true,
+        "save_path": "./output/images",
+        "auto_back": true,
+        "event": {
+          "view": {
+            "drag_end": "auto_back",
+            "zoom_end": "auto_back"
+          }
+        }
       },
       "traj": {
         "level": -2,
@@ -61,9 +70,6 @@
         "key": {
           "shift+s": "show",
           "shift+h": "hide"
-        },
-        "view": {
-          "zooming": "on_drag"
         }
       }
     },

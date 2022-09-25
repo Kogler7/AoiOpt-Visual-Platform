@@ -1,7 +1,7 @@
 from visual_plat.render_layer.layer_base import *
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.global_proxy.color_proxy import ColorProxy
-from visual_plat.layer_agent.traj_agent import TrajAgent
+from visual_plat.data_service.grid_agent.traj_agent import TrajAgent
 from tqdm import tqdm
 
 
@@ -44,7 +44,7 @@ class TrajLayer(LayerBase):
                     t.set_description_str("Painting traces")
                     bias = rect_bias(trace.area)
                     self.trace_area_dict[trace.index] = trace.area
-                    pixmap = QPixmap(trace.area.size() * 15)
+                    pixmap = QPixmap(trace.area.aoi_size() * 15)
                     pixmap.fill(QColor(0, 0, 0, 0))
                     pen = QPen(trace.color)
                     with QPainter(pixmap) as painter:
@@ -64,7 +64,7 @@ class TrajLayer(LayerBase):
         with QPainter(device) as painter:
             def draw_trace_at(idx: int):
                 area = self.trace_area_dict[idx]
-                if rect_overlap(area, layout.sample):
+                if rect_overlap(area, layout.win_sample):
                     _map = self.trace_maps[idx]
                     _loc = - layout.window_bias + area.topLeft()
                     painter.drawPixmap(_loc * 15, _map)
