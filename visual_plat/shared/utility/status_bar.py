@@ -5,10 +5,10 @@ from PySide6.QtCore import QObject, Signal
 class StatusBar(QObject):
     update_signal: Signal = Signal(str)
 
-    def __init__(self, canvas: QWidget, slot=None):
+    def __init__(self, canvas: QWidget):
         super().__init__()
         self.canvas = canvas
-        self.update_signal.connect(slot)
+        self.update_signal.connect(canvas.setWindowTitle)
         self.default = canvas.windowTitle()
         self.status: dict[str, str] = {}
         self.text = ""

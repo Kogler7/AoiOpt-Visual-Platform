@@ -102,7 +102,9 @@ class LayoutDeputy:
     def zoom_at(self, angle: float, point: QPoint):
         """定点缩放"""
         # 乘以level因子以保证在不同level下有相同的缩放速率
-        delt = -angle / 120 * self.grid_lvl_fac
+        # 应保证delt为整数，否则会出现错位现象，暂时原因不明
+        div_fac = 120 if abs(angle) >= 120 else 10 if abs(angle) >= 10 else 3
+        delt = -int(angle / div_fac) * self.grid_lvl_fac
 
         # 限制缩放区间以免影响视觉效果甚至溢出
         if (delt > 0 and self.grid_gap > self.grid_lvl_max) or \

@@ -8,7 +8,7 @@ class FocusLayer(LayerBase):
         super(FocusLayer, self).__init__(canvas)
         self.focus_brush = QBrush(QColor(255, 255, 255, 100))
         self.focus_rect_pen = QPen(ColorProxy.named["LightGrey"])
-        self.focus_rect_pen.setWidth(3)
+        self.focus_rect_pen.setWidth(2)
 
     def on_paint(self, device: QWidget):
         """绘制聚焦框"""
@@ -20,7 +20,10 @@ class FocusLayer(LayerBase):
                 tl = self.layout.crd2pos(self.state.focus_point)
                 br = self.layout.crd2pos(self.state.focus_point + QPoint(1, 1))
             rect = QRect(tl, br)
-            painter.fillRect(rect, self.focus_brush)
+            path = QPainterPath()
+            painter.setRenderHint(QPainter.Antialiasing)
+            path.addRoundedRect(rect, 5, 5)
             painter.setPen(self.focus_rect_pen)
-            painter.drawRect(rect)
+            painter.drawPath(path)
+            painter.fillPath(path, self.focus_brush)
         return True

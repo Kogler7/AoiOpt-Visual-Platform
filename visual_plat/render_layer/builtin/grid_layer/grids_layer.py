@@ -7,13 +7,21 @@ class GridsLayer(LayerBase):
     def __init__(self, canvas):
         super(GridsLayer, self).__init__(canvas)
         self.show_base_lines = True  # 是否绘制基础栅格
+        self.banned_base_lines = False
 
     def enable_base_lines(self):
-        self.show_base_lines = True
-        self.force_restage()
+        if not self.banned_base_lines:
+            self.show_base_lines = True
+            self.force_restage()
 
     def disable_base_lines(self):
-        self.show_base_lines = False
+        if not self.banned_base_lines:
+            self.show_base_lines = False
+
+    def switch_to_base_lines(self):
+        self.banned_base_lines = not self.banned_base_lines
+        self.show_base_lines = not self.banned_base_lines
+        self.force_restage()
 
     def draw_grids(self, bias, step, size, painter: QPainter):
         layout = self.layout

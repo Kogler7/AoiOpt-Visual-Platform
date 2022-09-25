@@ -28,6 +28,8 @@ class AnchorTip:
         self.text = ""
         self.font = QFont("等线", 12, 3)
         self.back_height = 30
+        self.path_pen = QPen(QColor(255, 255, 255))
+        self.path_brush = QBrush(QColor(240, 240, 240))
         self.text_pen = QPen(QColor(50, 50, 50))
         self.text_pen.setWidth(3)
 
@@ -68,8 +70,12 @@ class AnchorTip:
     def draw(self, canvas: QWidget):
         if self.visible:
             painter = QPainter(canvas)
+            painter.setRenderHint(QPainter.Antialiasing)
             rect = self.get_rect()
-            painter.fillRect(rect, QColor(240, 240, 240))
+            path = QPainterPath()
+            path.addRoundedRect(rect, 5, 5)
+            painter.setPen(self.path_pen)
+            painter.fillPath(path, self.path_brush)
             painter.setPen(self.text_pen)
             painter.setFont(self.font)
             painter.drawText(QPointF(rect.x() + 5, rect.y() + 20), self.text)

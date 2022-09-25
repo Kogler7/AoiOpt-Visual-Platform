@@ -1,5 +1,5 @@
 {
-  "version": "4.3.0",
+  "version": "5.0.0",
   "release": false,
   "init_size": [
     1000,
@@ -22,9 +22,9 @@
   },
   "layout": {
     "zoom_step": 1,
-    "precision": 0.01,
+    "precision": 0.001,
     "init_window_size": 30,
-    "min_window_size": 10,
+    "min_window_size": 8,
     "min_grid_gap": 20,
     "max_grid_level": 10,
     "grid_convert_factor": 5

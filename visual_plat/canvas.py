@@ -6,6 +6,8 @@ from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 import warnings
 
+import visual_plat.platform as platform
+
 from visual_plat.canvas_deputy.layout_deputy import LayoutDeputy
 from visual_plat.canvas_deputy.menu_deputy import MenuDeputy
 from visual_plat.canvas_deputy.state_deputy import StateDeputy
@@ -20,37 +22,22 @@ from visual_plat.shared.utility.notifier.key_notifier import KeyEventNotifier
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
-from visual_plat.global_proxy.update_proxy import UpdateProxy
 
 from visual_plat.render_layer.layer_base import LayerBase
-from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
+from visual_plat.render_layer.builtin.grid_layer.aoi_layer import AoiLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 class VisualCanvas(QWidget):
-    instance_list: list = []
-
-    def __new__(cls, *args, **kwargs):
-        if not ConfigProxy.loaded:
-            ConfigProxy.load()
-        instance = super(VisualCanvas, cls).__new__(cls)
-        cls.instance_list.append(instance)
-        return instance
-
-    @staticmethod
-    def of(idx: int):
-        return VisualCanvas.instance_list[idx]
-
-    def __init__(self, pre_processor=None):
+    def __init__(self, on_init_finished=None):
         super(VisualCanvas, self).__init__()
-        # 载入配置信息
-        version = str(ConfigProxy.canvas('version')) \
-                  + ("-pre" if not ConfigProxy.canvas("release") else "")
-        self.setWindowTitle(f"AoiOpt Visual Platform {version}")
 
-        # status 在设置窗口标题之后
-        self.status_bar = StatusBar(self, self.set_window_title)
+        # status
+        self.status_bar = StatusBar(self)
+
+        # 事件监听
+        self.key_notifier = KeyEventNotifier()
 
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
@@ -69,7 +56,7 @@ class VisualCanvas(QWidget):
 
         # Layers 载入，需要在 Deputy 声明后完成
         layers_config = ConfigProxy.get("layers")
-        self.load_layers(layers_config)
+        self.load_layers_by_config(layers_config)
         self.aoi_layer: AoiLayer = self.layer_dict["aoi"]
 
         # TooltipProxy
@@ -82,33 +69,20 @@ class VisualCanvas(QWidget):
         self.show_tooltips = ConfigProxy.tooltip("visible")
 
         # 预处理
-        if pre_processor:
-            pre_processor(self)
+        if on_init_finished:
+            on_init_finished(self)
 
         # Teleport
         self.animate2center()
 
-        # 在StateDeputy之后
-        UpdateProxy.set_canvas(self)
+    def load_layers_by_config(self, layers_config: dict):
+        """根据配置文件载入图层"""
 
-        # 新窗口
-        self.new_canvas = None
-
-        # 事件监听
-        self.key_notifier = KeyEventNotifier()
-        self.last_load()
-
-    def set_window_title(self, title: str):
-        self.setWindowTitle(title)
-
-    def load_layers(self, layers_cfg: dict):
-        pth_base = "visual_plat.render_layer."
-        mod_back = "_layer"
-        nme_back = "Layer"
-        for cls, layers in layers_cfg.items():
-            mod_base = pth_base + cls + '.'
+        def load_layers(pth_base: str, layers: dict):
+            mod_back = "_layer"
+            nme_back = "Layer"
             for tag, layer_info in layers.items():
-                module = mod_base + tag + mod_back
+                module = pth_base + tag + mod_back
                 mod = import_module(module)
                 name = tag.capitalize() + nme_back
                 layer_cls = getattr(mod, name)
@@ -123,6 +97,12 @@ class VisualCanvas(QWidget):
                     self.event_deputy.bind_layer_event(layer_obj, layer_info["event"])
                 self.layer_dict[tag] = layer_obj
                 self.layer_list.append(layer_obj)
+
+        path_base = "visual_plat.render_layer."
+        load_layers(path_base + "builtin.geo_map.", layers_config["builtin"]["geo_map"])
+        load_layers(path_base + "builtin.grid_layer.", layers_config["builtin"]["grid_layer"])
+        load_layers(path_base + "custom.", layers_config["custom"])
+
         # 根据层级排序
         self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
 
@@ -131,23 +111,6 @@ class VisualCanvas(QWidget):
         self.render_deputy.render()
         if self.show_tooltips:
             self.tooltip_deputy.draw()
-
-    def mousePressEvent(self, event):
-        """鼠标按下时调用"""
-        event = self.layout_deputy.wrap_event(event)
-        self.event_deputy.on_mouse_press(event)
-
-        if self.event_deputy.on_sliding:
-            self.setCursor(Qt.SizeAllCursor)
-            AsyncProxy.run(self.on_sliding)
-        elif not self.event_deputy.on_dragging:
-            self.setCursor(Qt.ArrowCursor)
-
-        self.tooltip_proxy.anchor_tips["cursor"].show()
-        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
-        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
-
-        self.update()
 
     def on_sliding(self):
         """中键滑动"""
@@ -179,6 +142,23 @@ class VisualCanvas(QWidget):
         """滑动至中心"""
         target = self.layout_deputy.get_central_bias(self.aoi_layer.size)
         self.animate_to(-target)
+
+    def mousePressEvent(self, event):
+        """鼠标按下时调用"""
+        event = self.layout_deputy.wrap_event(event)
+        self.event_deputy.on_mouse_press(event)
+
+        if self.event_deputy.on_sliding:
+            self.setCursor(Qt.SizeAllCursor)
+            AsyncProxy.run(self.on_sliding)
+        elif not self.event_deputy.on_dragging:
+            self.setCursor(Qt.ArrowCursor)
+
+        self.tooltip_proxy.anchor_tips["cursor"].show()
+        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
+        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
+
+        self.update()
 
     def mouseDoubleClickEvent(self, event: QMouseEvent):
         if event.button() == Qt.MiddleButton:
@@ -221,12 +201,10 @@ class VisualCanvas(QWidget):
         self.render_deputy.mark_need_restage()
         self.update()
 
-    def create_new_canvas(self):
+    @staticmethod
+    def create_new_canvas():
         """创建新画布"""
-        self.new_canvas = VisualCanvas()
-        self.new_canvas.setWindowTitle("New Canvas")
-        self.new_canvas.status_bar.set_default("New Canvas")
-        self.new_canvas.show()
+        platform.VisualPlatform.new_canvas()
 
     def snapshot_and_create_new_canvas(self):
         """截图并创建新画布"""
@@ -235,11 +213,8 @@ class VisualCanvas(QWidget):
         def pre_setter(canvas: VisualCanvas):
             rcd = canvas.state_deputy.load_record(path)
             canvas.state_deputy.apply_snapshot(rcd)
-            canvas.status_bar.set_default("New Canvas")
 
-        self.new_canvas = VisualCanvas(pre_processor=pre_setter)
-        self.new_canvas.setWindowTitle("New Canvas")
-        self.new_canvas.show()
+        platform.VisualPlatform.new_canvas(on_init_finished=pre_setter)
 
     def record(self):
         """记录"""
@@ -279,7 +254,3 @@ class VisualCanvas(QWidget):
         self.layout_deputy.resize(event.size())
         self.render_deputy.mark_need_restage()
         self.update()
-
-    def last_load(self):
-        """在最后执行，以等待类的所有属性方法载入完毕"""
-        self.key_notifier.parse(ConfigProxy.event(), self)

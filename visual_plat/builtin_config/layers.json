@@ -1,39 +1,56 @@
 {
   "builtin": {
-    "aoi": {
-      "level": -3,
-      "visible": true,
-      "xps_tag": "APS"
-    },
-    "traj": {
-      "level": -2,
-      "visible": true,
-      "xps_tag": "TPS"
-    },
-    "parcel": {
-      "level": -1,
-      "visible": true,
-      "xps_tag": "PPS"
-    },
-    "grids": {
-      "level": 1,
-      "visible": true,
-      "event": {
-        "view": {
-          "zoom_begin": "disable_base_lines",
-          "zoom_end": "enable_base_lines",
-          "drag_begin": "disable_base_lines",
-          "drag_end": "enable_base_lines"
+    "grid_layer": {
+      "aoi": {
+        "level": -3,
+        "visible": true,
+        "xps_tag": "APS"
+      },
+      "traj": {
+        "level": -2,
+        "visible": true,
+        "xps_tag": "TPS"
+      },
+      "parcel": {
+        "level": -1,
+        "visible": true,
+        "xps_tag": "PPS"
+      },
+      "grids": {
+        "level": 1,
+        "visible": true,
+        "event": {
+          "key": {
+            "control+l": "switch_to_base_lines"
+          },
+          "view": {
+            "zoom_begin": "disable_base_lines",
+            "zoom_end": "enable_base_lines",
+            "drag_begin": "disable_base_lines",
+            "drag_end": "enable_base_lines"
+          }
         }
+      },
+      "scale": {
+        "level": 2,
+        "visible": true
+      },
+      "focus": {
+        "level": 3,
+        "visible": true
       }
     },
-    "scale": {
-      "level": 2,
-      "visible": true
-    },
-    "focus": {
-      "level": 3,
-      "visible": true
+    "geo_map": {
+      "route": {
+        "level": -4,
+        "visible": false,
+        "xps_tag": "RPS",
+        "event": {
+          "key": {
+            "control+shift+s": "trans_state"
+          }
+        }
+      }
     }
   },
   "custom": {
@@ -44,6 +61,9 @@
         "key": {
           "shift+s": "show",
           "shift+h": "hide"
+        },
+        "view": {
+          "zooming": "on_drag"
         }
       }
     },

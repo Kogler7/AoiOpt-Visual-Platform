@@ -105,7 +105,7 @@ class EventDeputy(QObject):
 
     def on_mouse_move(self, event):
         self.last_mouse_pos = event.pos
-        if self.mouse_listening and self.on_dragging:
+        if self.on_dragging:
             self.view_notifier.invoke("dragging")
         if not self.on_sliding:
             if self.on_framing:
@@ -134,14 +134,15 @@ class EventDeputy(QObject):
         self.mouse_notifier.invoke("release", event)
 
     def on_mouse_wheel(self, event):
-        if not self.on_zooming:
-            self.view_notifier.invoke("zoom_begin")
-        self.on_zooming = True
-        self.view_notifier.invoke("zooming")
-        if self.counting:
-            self.cnt_worker.reset()
-        else:
-            AsyncProxy.start(self.cnt_worker)
-            self.counting = True
-        # 分发事件
-        self.mouse_notifier.invoke("wheel", event)
+        if event.angleDelta().y():
+            if not self.on_zooming:
+                self.view_notifier.invoke("zoom_begin")
+            self.on_zooming = True
+            self.view_notifier.invoke("zooming")
+            if self.counting:
+                self.cnt_worker.reset()
+            else:
+                AsyncProxy.start(self.cnt_worker)
+                self.counting = True
+            # 分发事件
+            self.mouse_notifier.invoke("wheel", event)
