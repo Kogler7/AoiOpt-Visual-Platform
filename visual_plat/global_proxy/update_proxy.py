@@ -20,7 +20,7 @@ class UpdateProxy:
                 while UpdateProxy.state_deputy.blocked:
                     time.sleep(0.2)
         else:
-            print("Canvas is not set.")
+            print("UpdateProxy: Canvas is not yet set.")
 
     @staticmethod
     def batched_reload(tags: list[str], data: list):
@@ -37,7 +37,7 @@ class UpdateProxy:
                 while UpdateProxy.state_deputy.blocked:
                     time.sleep(0.2)
         else:
-            print("Canvas is not set.")
+            print("UpdateProxy: Canvas is not yet set.")
 
     @staticmethod
     def batched_adjust(tags: list[str], data: list):

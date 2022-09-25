@@ -5,7 +5,6 @@ from enum import Enum
 from dataclasses import dataclass
 from copy import deepcopy
 
-import numpy as np
 from PySide6.QtCore import QMutex
 
 from visual_plat.render_layer.layer_base import LayerBase
@@ -74,17 +73,17 @@ class StateDeputy:
         self.record.updates[-1].append(record)
         self.status_bar.set("Recording", str(self.record_len))
 
-    def reload(self, layer_tag: str, data=None, new_step=True):
+    def reload(self, layer_tag: str, data=None, new_step=True, deep_copy=True):
         """重载某个图层"""
-        rcd_data = deepcopy(data)  # 深拷贝，以防出错
+        rcd_data = deepcopy(data) if deep_copy else data  # 深拷贝，以防出错
         if layer_tag in self.layers.keys():
             self.layers[layer_tag].on_reload(rcd_data)
             if self.recording:
                 self.append_record(RecordType.reload, layer_tag, rcd_data, new_step)
 
-    def adjust(self, layer_tag: str, data=None, new_step=True):
+    def adjust(self, layer_tag: str, data=None, new_step=True, deep_copy=True):
         """调整某个图层"""
-        rcd_data = deepcopy(data)  # 深拷贝，以防出错
+        rcd_data = deepcopy(data) if deep_copy else data  # 深拷贝，以防出错
         if layer_tag in self.layers.keys():
             self.layers[layer_tag].on_adjust(rcd_data)
             if self.recording:
@@ -157,7 +156,7 @@ class StateDeputy:
         if self.replaying:
             if self.replay_index == 0:
                 for r in self.replay_record.initial:
-                    self.reload(r.layer_tag, r.record_data)
+                    self.reload(r.layer_tag, r.record_data, deep_copy=False)
                     self.status_bar.set(
                         "Replaying", f"[{self.replay_name}] 1/{self.replay_range + 1}"
                     )
@@ -170,9 +169,9 @@ class StateDeputy:
                     )
                     for upd in updates[self.replay_index - 1]:
                         if upd.record_type == RecordType.reload:
-                            self.reload(upd.layer_tag, upd.record_data)
+                            self.reload(upd.layer_tag, upd.record_data, deep_copy=False)
                         elif upd.record_type == RecordType.adjust:
-                            self.adjust(upd.layer_tag, upd.record_data)
+                            self.adjust(upd.layer_tag, upd.record_data, deep_copy=False)
                             print("Warning: Adjustment not yet well supported.")
 
     def async_replay(self):
