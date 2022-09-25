@@ -1,5 +1,5 @@
 from visual_plat.render_layer.layer_base import *
-from visual_plat.layer_agent.aoi_agent import AoiAgent
+from visual_plat.data_service.grid_agent.aoi_agent import AoiAgent
 
 
 class AoiLayer(LayerBase):

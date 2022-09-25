@@ -1,7 +1,7 @@
 from visual_plat.render_layer.layer_base import *
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.global_proxy.color_proxy import ColorProxy
-from visual_plat.layer_agent.traj_agent import TrajAgent
+from visual_plat.data_service.grid_agent.traj_agent import TrajAgent
 from tqdm import tqdm
 
 
