@@ -67,8 +67,7 @@ class StateDeputy:
 
     def append_record(self, record_type: RecordType, layer_tag: str, data, new_step: bool):
         """追加记录"""
-        rcd_data = deepcopy(data)  # 深拷贝，以防出错
-        record = RecordUnit(layer_tag, record_type, rcd_data)
+        record = RecordUnit(layer_tag, record_type, data)
         if new_step:
             self.record.updates.append([])
             self.record_len += 1
@@ -77,17 +76,19 @@ class StateDeputy:
 
     def reload(self, layer_tag: str, data=None, new_step=True):
         """重载某个图层"""
+        rcd_data = deepcopy(data)  # 深拷贝，以防出错
         if layer_tag in self.layers.keys():
-            self.layers[layer_tag].on_reload(data)
+            self.layers[layer_tag].on_reload(rcd_data)
             if self.recording:
-                self.append_record(RecordType.reload, layer_tag, data, new_step)
+                self.append_record(RecordType.reload, layer_tag, rcd_data, new_step)
 
     def adjust(self, layer_tag: str, data=None, new_step=True):
         """调整某个图层"""
+        rcd_data = deepcopy(data)  # 深拷贝，以防出错
         if layer_tag in self.layers.keys():
-            self.layers[layer_tag].on_adjust(data)
+            self.layers[layer_tag].on_adjust(rcd_data)
             if self.recording:
-                self.append_record(RecordType.adjust, layer_tag, data, new_step)
+                self.append_record(RecordType.adjust, layer_tag, rcd_data, new_step)
 
     @staticmethod
     def load_record(path):
