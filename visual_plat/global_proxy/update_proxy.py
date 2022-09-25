@@ -53,3 +53,19 @@ class UpdateProxy:
     @staticmethod
     def stop_record():
         UpdateProxy.state_deputy.stop_record()
+
+    @staticmethod
+    def pause():
+        UpdateProxy.state_deputy.pause()
+
+    @staticmethod
+    def block():
+        UpdateProxy.state_deputy.block()
+
+    @staticmethod
+    def snapshot():
+        return UpdateProxy.state_deputy.snapshot()
+
+    @staticmethod
+    def start_replay(record, name=""):
+        UpdateProxy.state_deputy.start_replay(record, name)

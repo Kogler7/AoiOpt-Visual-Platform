@@ -1,5 +1,4 @@
 from visual_plat.render_layer.auto.async_layer import *
-from utils.pre_cauculate import PreCalculate
 
 
 class WeightLayer(LayerBase):

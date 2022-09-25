@@ -49,3 +49,7 @@ class ConfigProxy:
     @staticmethod
     def record(tag):
         return ConfigProxy.config["canvas"]["record"][tag]
+
+    @staticmethod
+    def layer(tag):
+        return ConfigProxy.config["layers"][tag]
