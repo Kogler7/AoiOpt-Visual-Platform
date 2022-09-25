@@ -24,7 +24,7 @@ from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
 
 from visual_plat.render_layer.layer_base import LayerBase
-from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
+from visual_plat.render_layer.builtin.grid_layer.aoi_layer import AoiLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -56,7 +56,7 @@ class VisualCanvas(QWidget):
 
         # Layers 载入，需要在 Deputy 声明后完成
         layers_config = ConfigProxy.get("layers")
-        self.load_layers(layers_config)
+        self.load_layers_by_config(layers_config)
         self.aoi_layer: AoiLayer = self.layer_dict["aoi"]
 
         # TooltipProxy
@@ -75,14 +75,14 @@ class VisualCanvas(QWidget):
         # Teleport
         self.animate2center()
 
-    def load_layers(self, layers_cfg: dict):
-        pth_base = "visual_plat.render_layer."
-        mod_back = "_layer"
-        nme_back = "Layer"
-        for cls, layers in layers_cfg.items():
-            mod_base = pth_base + cls + '.'
+    def load_layers_by_config(self, layers_config: dict):
+        """根据配置文件载入图层"""
+
+        def load_layers(pth_base: str, layers: dict):
+            mod_back = "_layer"
+            nme_back = "Layer"
             for tag, layer_info in layers.items():
-                module = mod_base + tag + mod_back
+                module = pth_base + tag + mod_back
                 mod = import_module(module)
                 name = tag.capitalize() + nme_back
                 layer_cls = getattr(mod, name)
@@ -97,6 +97,12 @@ class VisualCanvas(QWidget):
                     self.event_deputy.bind_layer_event(layer_obj, layer_info["event"])
                 self.layer_dict[tag] = layer_obj
                 self.layer_list.append(layer_obj)
+
+        path_base = "visual_plat.render_layer."
+        load_layers(path_base + "builtin.geo_map.", layers_config["builtin"]["geo_map"])
+        load_layers(path_base + "builtin.grid_layer.", layers_config["builtin"]["grid_layer"])
+        load_layers(path_base + "custom.", layers_config["custom"])
+
         # 根据层级排序
         self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
 
