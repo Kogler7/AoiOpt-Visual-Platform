@@ -9,10 +9,8 @@ class UpdateProxy:
 
     @staticmethod
     def set_canvas(canvas):
-        """仅在第一次绑定时有效"""
-        if not UpdateProxy.canvas:
-            UpdateProxy.canvas = canvas
-            UpdateProxy.state_deputy = canvas.state_deputy
+        UpdateProxy.canvas = canvas
+        UpdateProxy.state_deputy = canvas.state_deputy
 
     @staticmethod
     def reload(layer_tag: str, data=None, new_step=True):

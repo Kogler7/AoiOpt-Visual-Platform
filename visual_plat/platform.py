@@ -2,10 +2,11 @@ from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
 from visual_plat.global_proxy.async_proxy import AsyncProxy
 from visual_plat.global_proxy.config_proxy import ConfigProxy
+from visual_plat.global_proxy.update_proxy import UpdateProxy
 
 """
 可视化服务平台
-提供一些常规的设置服务
+提供全局代理的初始设置服务
 """
 
 
@@ -26,8 +27,10 @@ class VisualPlatform:
             app = QApplication([])
             version = str(ConfigProxy.canvas('version')) \
                       + ("-pre" if not ConfigProxy.canvas("release") else "")
-            app.setApplicationName(f"AoiOpt Visual Platform {version}")
-            VisualPlatform.new_canvas(f"AoiOpt Visual Platform {version}", init_finished)
+            app_name = f"AoiOpt Visual Platform {version}"
+            app.setApplicationName(app_name)
+            canvas = VisualPlatform.new_canvas(app_name, init_finished)
+            UpdateProxy.set_canvas(canvas)
             if async_task is not None:
                 AsyncProxy.run(async_task)
             app.exec()
@@ -40,7 +43,9 @@ class VisualPlatform:
         VisualPlatform.canvas_list.append(canvas)
         canvas.setWindowTitle(title)
         canvas.status_bar.set_default(title)
+        canvas.key_notifier.parse(ConfigProxy.event(), canvas)
         canvas.show()
+        return canvas
 
     @staticmethod
     def get_canvas(index: int = 0):

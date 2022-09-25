@@ -22,7 +22,6 @@ from visual_plat.shared.utility.notifier.key_notifier import KeyEventNotifier
 
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.async_proxy import AsyncProxy
-from visual_plat.global_proxy.update_proxy import UpdateProxy
 
 from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.render_layer.builtin.aoi_layer import AoiLayer
@@ -36,6 +35,9 @@ class VisualCanvas(QWidget):
 
         # status
         self.status_bar = StatusBar(self)
+
+        # 事件监听
+        self.key_notifier = KeyEventNotifier()
 
         init_size = ConfigProxy.canvas("init_size")
         self.resize(init_size[0], init_size[1])
@@ -72,16 +74,6 @@ class VisualCanvas(QWidget):
 
         # Teleport
         self.animate2center()
-
-        # 在StateDeputy之后
-        UpdateProxy.set_canvas(self)
-
-        # 新窗口
-        self.new_canvas = None
-
-        # 事件监听
-        self.key_notifier = KeyEventNotifier()
-        self.last_load()
 
     def load_layers(self, layers_cfg: dict):
         pth_base = "visual_plat.render_layer."
@@ -256,7 +248,3 @@ class VisualCanvas(QWidget):
         self.layout_deputy.resize(event.size())
         self.render_deputy.mark_need_restage()
         self.update()
-
-    def last_load(self):
-        """在最后执行，以等待类的所有属性方法载入完毕"""
-        self.key_notifier.parse(ConfigProxy.event(), self)
