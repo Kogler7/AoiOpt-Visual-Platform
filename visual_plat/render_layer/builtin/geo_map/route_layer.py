@@ -7,14 +7,16 @@ class RouteLayer(LayerBase):
     def on_stage(self, device: QPixmap):
         return True
 
-    def move_up(self):
-        print("move_up")
+    def start_service(self):
+        self.show()
+        print("Route service started.")
 
-    def move_down(self):
-        print("move_down")
+    def stop_service(self):
+        self.hide()
+        print("Route service stopped.")
 
-    def move_left(self):
-        print("move_left")
-
-    def move_right(self):
-        print("move_right")
+    def trans_state(self):
+        if self.visible:
+            self.stop_service()
+        else:
+            self.start_service()

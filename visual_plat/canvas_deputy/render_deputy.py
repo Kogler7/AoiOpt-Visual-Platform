@@ -40,10 +40,14 @@ class RenderDeputy:
             self.buff_map.fill(ColorProxy.named["Background"])
             self.xps.check("BINI")
             for layer in self.layers:
+                rendered = False
                 if layer.visible:
-                    res = layer.on_stage(device=self.buff_map)
-                    if res and layer.xps_tag != "":
+                    rendered = layer.on_stage(device=self.buff_map)
+                if layer.xps_tag:
+                    if rendered:
                         self.xps.check(layer.xps_tag)
+                    else:
+                        self.tooltip_deputy.anchor_tips["top_lft"].set(layer.xps_tag)
 
         self.xps.set_anchor_tip(self.tooltip_deputy.anchor_tips["top_rgt"])
 
@@ -55,8 +59,8 @@ class RenderDeputy:
         self.xps.check("DPS")
         for layer in self.layers:
             if layer.visible:
-                res = layer.on_paint(device=self.canvas)
-                if res and layer.xps_tag != "":
+                rendered = layer.on_paint(device=self.canvas)
+                if rendered and layer.xps_tag != "":
                     self.xps.check(layer.xps_tag)
 
         self.xps.check("FPS", dif_from="")

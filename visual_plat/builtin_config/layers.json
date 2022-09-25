@@ -20,6 +20,9 @@
         "level": 1,
         "visible": true,
         "event": {
+          "key": {
+            "control+l": "switch_to_base_lines"
+          },
           "view": {
             "zoom_begin": "disable_base_lines",
             "zoom_end": "enable_base_lines",
@@ -40,14 +43,11 @@
     "geo_map": {
       "route": {
         "level": -4,
-        "visible": true,
+        "visible": false,
         "xps_tag": "RPS",
         "event": {
           "key": {
-            "up": "move_up",
-            "down": "move_down",
-            "left": "move_left",
-            "right": "move_right"
+            "control+shift+s": "trans_state"
           }
         }
       }
