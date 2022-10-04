@@ -58,6 +58,7 @@ class EventDeputy(QObject):
         self.key_notifier = KeyEventNotifier()
         self.mouse_notifier = EventNotifier()
         self.view_notifier = EventNotifier()
+        self.drag_notifier = EventNotifier()
 
         self.mouse_listening = ConfigProxy.event_setting()["mouse_listening"]
 
@@ -68,6 +69,8 @@ class EventDeputy(QObject):
             self.mouse_notifier.parse(config["mouse"], layer)
         if "view" in config.keys():
             self.view_notifier.parse(config["view"], layer)
+        if "drop" in config.keys():
+            self.drag_notifier.parse(config["drop"], layer)
 
     def on_key_pressed(self, event: QKeyEvent):
         self.key_notifier.invoke(event.modifiers(), event.key())

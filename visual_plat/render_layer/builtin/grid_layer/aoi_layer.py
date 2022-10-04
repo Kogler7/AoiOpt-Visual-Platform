@@ -1,4 +1,6 @@
 import os
+
+import numpy as np
 from PySide6.QtCore import QSize, QPoint, QRect
 
 from visual_plat.render_layer.layer_base import *
@@ -21,9 +23,25 @@ class AoiLayer(LayerBase):
         self.should_save = self.config["save_image"]
         self.save_path = self.config["save_path"]
         self.should_auto_back = self.config["auto_back"]
+        self.keep_color = self.config["keep_color"]
         if not os.path.exists(self.save_path):
             os.mkdir(self.save_path)
         self.index = 0
+        self.light_idx = 0
+
+    def load_npy(self, path):
+        arr = np.load(path)
+        if len(arr.shape) != 2:
+            print("AOI Layer: Invalid npy shape.", arr.shape)
+            arr = arr.squeeze()
+        self.agent.read_npy(arr, self.keep_color)
+        self.reload_img()
+
+    def load_img(self, path):
+        """加载图片"""
+        img = QImage(path)
+        self.agent.read_img(img)
+        self.reload_img()
 
     def save_img(self, img: QPixmap):
         """放大并保存图片"""
@@ -38,6 +56,35 @@ class AoiLayer(LayerBase):
     def auto_back(self):
         if self.should_auto_back and self.aoi_sample == QRect():
             self.canvas.animate2center()
+
+    def set_light(self):
+        print(f"AOI Layer: Set light to {self.light_idx}.")
+        img = self.agent.get_aoi_map().copy()
+        for x in range(img.width()):
+            for y in range(img.height()):
+                color = img.pixelColor(x, y)
+                cval = color.red()
+                val = min(255, int(cval * 2 ** self.light_idx))
+                img.setPixelColor(x, y, QColor(val, val, val))
+        self.aoi_map = QPixmap.fromImage(img)
+        self.force_restage()
+
+    def enlight(self):
+        self.light_idx += 1
+        self.set_light()
+
+    def delight(self):
+        self.light_idx -= 1
+        self.set_light()
+
+    def reload_img(self):
+        """设置AOI图层"""
+        self.aoi_map = QPixmap.fromImage(self.agent.get_aoi_map())
+        self.aoi_size = self.aoi_map.size()
+        self.aoi_rect = size2rect(self.aoi_size)
+        self.force_restage()
+        self.auto_back()
+        return True
 
     def on_reload(self, data=None):
         """更新AOI图层"""

@@ -10,6 +10,7 @@
     "escape": "state_deputy.terminate",
     "control+s": "state_deputy.snapshot",
     "control+r": "record",
+    "control+c": "animate2center",
     "control+n": "create_new_canvas",
     "control+shift+n": "snapshot_and_create_new_canvas"
   }

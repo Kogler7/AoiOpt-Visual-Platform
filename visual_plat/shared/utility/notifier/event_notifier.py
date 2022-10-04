@@ -2,6 +2,9 @@ class EventNotifier:
     def __init__(self):
         self.registered_dict = {}
 
+    def has_event(self, event: str):
+        return event in self.registered_dict.keys()
+
     def parse(self, config: dict, host):
         if host is not None:
             attrs = dir(host)

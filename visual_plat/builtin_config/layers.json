@@ -5,10 +5,20 @@
         "level": -3,
         "visible": true,
         "xps_tag": "APS",
-        "save_image": true,
+        "save_image": false,
         "save_path": "./output/images",
         "auto_back": true,
+        "keep_color": true,
         "event": {
+          "drop": {
+            ".npy": "load_npy",
+            ".png": "load_img",
+            ".jpg": "load_img"
+          },
+          "key": {
+            "control+up": "enlight",
+            "control+down": "delight"
+          },
           "view": {
             "drag_end": "auto_back",
             "zoom_end": "auto_back"

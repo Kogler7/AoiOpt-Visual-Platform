@@ -229,25 +229,34 @@ class VisualCanvas(QWidget):
         self.event_deputy.on_key_pressed(event)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
-        """检测是否拖拽rcd文件进入窗口"""
+        """检测是否拖拽文件进入窗口"""
         if event.mimeData().hasUrls():
             tp = event.mimeData().urls().pop().toLocalFile()[-4:]
             if tp == ".rcd":
                 event.accept()
+            if self.event_deputy.drag_notifier.has_event(tp):
+                event.accept()
 
     def dropEvent(self, event: QDropEvent):
-        """放下rcd文件时触发"""
+        """放下文件时触发"""
         url = event.mimeData().urls()
-        rcd_path = url.pop().toLocalFile()
-        rcd_name = rcd_path.split("/")[-1][:-4]
-        rcd = self.state_deputy.load_record(rcd_path)
+        drp_path = url.pop().toLocalFile()
+        drp_name = drp_path.split("/")[-1][:-4]
+        drp_type = drp_path[-4:]
+        if drp_type == ".rcd":
+            self.accept_record(drp_path, drp_name)
+        elif self.event_deputy.drag_notifier.has_event(drp_type):
+            self.event_deputy.drag_notifier.invoke(drp_type, drp_path)
+
+    def accept_record(self, drp_path: str, drp_name: str):
+        rcd = self.state_deputy.load_record(drp_path)
         if not hasattr(rcd, 'comp_idx'):
             print("RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
         elif rcd.comp_idx != ConfigProxy.record("compatible_index"):
             print(f"The RECORD is not COMPATIBLE with this VERSION of canvas. "
                   f"[{rcd.comp_idx} != {ConfigProxy.record('compatible_index')}]")
         else:
-            self.state_deputy.start_replay(rcd, rcd_name)
+            self.state_deputy.start_replay(rcd, drp_name)
             self.animate2center()
 
     def resizeEvent(self, event):
