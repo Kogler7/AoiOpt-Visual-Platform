@@ -1,12 +1,13 @@
 import os
 
 import numpy as np
-from PySide6.QtCore import QSize, QPoint, QRect
+from PySide6.QtCore import QSize, QPoint, QRect, QMutex
 
 from visual_plat.render_layer.layer_base import *
 from visual_plat.shared.static.custom_2d import rects_intersection, size2rect, max_2d
 from visual_plat.data_service.grid_agent.aoi_agent import AoiAgent
 from visual_plat.global_proxy.config_proxy import ConfigProxy
+from visual_plat.global_proxy.async_proxy import AsyncProxy
 
 
 class AoiLayer(LayerBase):
@@ -28,6 +29,7 @@ class AoiLayer(LayerBase):
             os.mkdir(self.save_path)
         self.index = 0
         self.light_idx = 0
+        self.light_mutex = QMutex()
 
     def load_npy(self, path):
         arr = np.load(path)
@@ -58,6 +60,7 @@ class AoiLayer(LayerBase):
             self.canvas.animate2center()
 
     def set_light(self):
+        self.light_mutex.lock()
         print(f"AOI Layer: Set light to {self.light_idx}.")
         img = self.agent.get_aoi_map().copy()
         for x in range(img.width()):
@@ -67,15 +70,16 @@ class AoiLayer(LayerBase):
                 val = min(255, int(cval * 2 ** self.light_idx))
                 img.setPixelColor(x, y, QColor(val, val, val))
         self.aoi_map = QPixmap.fromImage(img)
+        self.light_mutex.unlock()
         self.force_restage()
 
     def enlight(self):
         self.light_idx += 1
-        self.set_light()
+        AsyncProxy.run(self.set_light)
 
     def delight(self):
         self.light_idx -= 1
-        self.set_light()
+        AsyncProxy.run(self.set_light)
 
     def reload_img(self):
         """设置AOI图层"""
