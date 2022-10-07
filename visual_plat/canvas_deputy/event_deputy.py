@@ -26,6 +26,7 @@ from visual_plat.global_proxy.config_proxy import ConfigProxy
         - 视图缩放：zoom_begin; zoom_end; zooming
         - 视图拖拽：drag_begin; drag_end; dragging
         - 视图滑动：slide_begin; slide_end
+        - 视图更新：view_update_begin; view_update_end
     4. 文件拖放事件（drop）
         - 监听文件类型：.xxx
 """
@@ -64,6 +65,18 @@ class EventDeputy(QObject):
 
         self.mouse_listening = ConfigProxy.event_setting()["mouse_listening"]
 
+        self.view_updating = False
+
+    def try_start_view_update(self):
+        if not self.view_updating:
+            self.view_updating = True
+            self.view_notifier.invoke("update_begin")
+
+    def try_end_view_update(self):
+        if not self.on_zooming and not self.on_dragging and not self.on_sliding:
+            self.view_updating = False
+            self.view_notifier.invoke("update_end")
+
     def register(self, e_type: str, e_str: str, callback: callable):
         """主动动态注册事件"""
         if e_type == "mouse":
@@ -94,6 +107,7 @@ class EventDeputy(QObject):
         self.cnt_worker.reset()
         self.on_zooming = False
         self.view_notifier.invoke("zoom_end")
+        self.try_end_view_update()
 
     def on_mouse_press(self, event):
         self.last_mouse_pos = event.pos
@@ -109,12 +123,15 @@ class EventDeputy(QObject):
             if self.on_sliding:
                 self.start_sliding_pos = event.pos
                 self.view_notifier.invoke("slide_begin")
+                self.try_start_view_update()
             else:
                 self.view_notifier.invoke("slide_end")
+                self.try_end_view_update()
         elif event.button() == Qt.RightButton:
             if not self.on_sliding:
                 self.on_dragging = True
                 self.view_notifier.invoke("drag_begin")
+                self.try_start_view_update()
                 self.canvas.setCursor(Qt.OpenHandCursor)
                 self.allow_menu = True
         # 分发事件
@@ -142,6 +159,7 @@ class EventDeputy(QObject):
         if self.on_dragging:
             self.on_dragging = False
             self.view_notifier.invoke("drag_end")
+            self.try_end_view_update()
             self.canvas.setCursor(Qt.ArrowCursor)
             self.canvas.render_deputy.mark_need_restage()
         if self.on_framing:
@@ -154,6 +172,7 @@ class EventDeputy(QObject):
         if event.angleDelta().y():
             if not self.on_zooming:
                 self.view_notifier.invoke("zoom_begin")
+                self.try_start_view_update()
             self.on_zooming = True
             self.view_notifier.invoke("zooming")
             if self.counting:

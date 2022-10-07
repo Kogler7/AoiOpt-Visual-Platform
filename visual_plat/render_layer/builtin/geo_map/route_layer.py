@@ -12,10 +12,11 @@ class RouteLayer(LayerBase):
         self.buff_map.fill(Qt.transparent)
 
     def on_stage(self, device: QPixmap):
-        bound = self.layout.get_crd_rect(QPoint(0, 0))
         with QPainter(device) as painter:
             # painter.drawPixmap(QPoint(0, 0), self.buff_map)
-            self.svg_renderer.render(painter, bound)
+            for i in range(10):
+                for j in range(10):
+                    self.svg_renderer.render(painter, self.layout.get_crd_rect(QPoint(i, j)))
         return True
 
     def render_svg(self, path: str):

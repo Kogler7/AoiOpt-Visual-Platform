@@ -124,6 +124,9 @@ class VisualCanvas(QWidget):
 
     def animate_to(self, target: QPointF = QPointF(0, 0)):
         """滑动至（另起线程调用）"""
+        self.event_deputy.on_sliding = True
+        self.event_deputy.view_notifier.invoke("slide_begin")
+        self.event_deputy.try_start_view_update()
 
         def step():
             curve = BezierCurves.ease_in_out()
@@ -136,6 +139,9 @@ class VisualCanvas(QWidget):
                 self.render_deputy.mark_need_restage()
                 self.update()
                 time.sleep(0.01)
+            self.event_deputy.on_sliding = False
+            self.event_deputy.view_notifier.invoke("slide_end")
+            self.event_deputy.try_end_view_update()
 
         AsyncProxy.run(step)
 
@@ -194,13 +200,16 @@ class VisualCanvas(QWidget):
 
     def wheelEvent(self, event):
         """滚动鼠标滚轮时调用"""
-        self.event_deputy.on_mouse_wheel(event)
-        self.layout_deputy.zoom_at(event.angleDelta().y(), self.event_deputy.last_mouse_pos)
+        success = self.layout_deputy.zoom_at(
+            event.angleDelta().y(), self.event_deputy.last_mouse_pos
+        )
+        if success:
+            self.event_deputy.on_mouse_wheel(event)
 
-        self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", str(self.layout_deputy.grid_level))
+            self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", str(self.layout_deputy.grid_level))
 
-        self.render_deputy.mark_need_restage()
-        self.update()
+            self.render_deputy.mark_need_restage()
+            self.update()
 
     @staticmethod
     def create_new_canvas():

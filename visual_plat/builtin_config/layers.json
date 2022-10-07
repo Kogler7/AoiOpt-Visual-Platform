@@ -50,10 +50,8 @@
             "control+l": "switch_to_base_lines"
           },
           "view": {
-            "zoom_begin": "disable_base_lines",
-            "zoom_end": "enable_base_lines",
-            "drag_begin": "disable_base_lines",
-            "drag_end": "enable_base_lines"
+            "update_begin": "disable_base_lines",
+            "update_end": "enable_base_lines"
           }
         }
       },
@@ -77,6 +75,10 @@
           },
           "drop": {
             ".svg": "render_svg"
+          },
+          "view": {
+            "update_begin": "stop_service",
+            "update_end": "start_service"
           }
         }
       }
