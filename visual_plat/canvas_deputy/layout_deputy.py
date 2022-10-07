@@ -170,3 +170,10 @@ class LayoutDeputy:
         h = math.ceil(self.size.height() * self.view2win_factor)
         w = math.ceil(self.size.width() * self.view2win_factor)
         return QSize(w, h)
+
+    def get_crd_rect(self, crd: QPoint, scale: int = 1):
+        """返回指定逻辑坐标的矩形"""
+        pos = self.crd2pos(crd)
+        size = scale * self.win2view_factor
+        siz = QSize(size, size)
+        return QRect(pos, siz)

@@ -1,4 +1,4 @@
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import QPoint, QRect
 from PySide6.QtSvg import QSvgRenderer
 
 from visual_plat.render_layer.layer_base import *
@@ -12,8 +12,10 @@ class RouteLayer(LayerBase):
         self.buff_map.fill(Qt.transparent)
 
     def on_stage(self, device: QPixmap):
+        bound = self.layout.get_crd_rect(QPoint(0, 0))
         with QPainter(device) as painter:
-            painter.drawPixmap(QPoint(0, 0), self.buff_map)
+            # painter.drawPixmap(QPoint(0, 0), self.buff_map)
+            self.svg_renderer.render(painter, bound)
         return True
 
     def render_svg(self, path: str):
