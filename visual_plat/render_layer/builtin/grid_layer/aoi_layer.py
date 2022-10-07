@@ -21,15 +21,23 @@ class AoiLayer(LayerBase):
         self.aoi_size = self.aoi_map.size()
         self.aoi_rect = size2rect(self.aoi_size)
         self.config = ConfigProxy.layer("aoi")
-        self.should_save = self.config["save_image"]
-        self.save_path = self.config["save_path"]
+
         self.should_auto_back = self.config["auto_back"]
         self.keep_color = self.config["keep_color"]
-        if not os.path.exists(self.save_path):
-            os.mkdir(self.save_path)
+
         self.index = 0
         self.light_idx = 0
         self.light_mutex = QMutex()
+        # 图片保存设置
+        self.save_config = self.config["save_image"]
+        self.should_save = self.save_config["enable"]
+        self.sava_label = self.save_config["label"]
+        self.save_format = self.save_config["format"]
+        self.save_path = self.save_config["path"]
+        self.save_size = QSize(self.save_config["width"], self.save_config["height"])
+        self.max_count = self.save_config["max_count"]
+        if not os.path.exists(self.save_path):
+            os.mkdir(self.save_path)
 
     def load_npy(self, path):
         arr = np.load(path)
@@ -47,13 +55,14 @@ class AoiLayer(LayerBase):
 
     def save_img(self, img: QPixmap):
         """放大并保存图片"""
-        new_img = QPixmap(QSize(100, 100))
-        new_img.fill(Qt.white)
-        with QPainter(new_img) as painter:
-            painter.setWindow(self.aoi_rect)
-            painter.drawPixmap(QPoint(0, 0), img, self.aoi_rect)
-        new_img.save(f"{self.save_path}/test[{self.index}].png")
-        self.index += 1
+        if self.index <= self.max_count:
+            new_img = QPixmap(self.save_size)
+            new_img.fill(Qt.transparent)
+            with QPainter(new_img) as painter:
+                painter.setWindow(self.aoi_rect)
+                painter.drawPixmap(QPoint(0, 0), img, self.aoi_rect)
+            new_img.save(f"{self.save_path}/{self.sava_label}[{self.index}].{self.save_format}")
+            self.index += 1
 
     def auto_back(self):
         if self.should_auto_back and self.aoi_sample == QRect():
@@ -87,21 +96,19 @@ class AoiLayer(LayerBase):
         self.aoi_size = self.aoi_map.size()
         self.aoi_rect = size2rect(self.aoi_size)
         self.force_restage()
-        self.auto_back()
-        return True
+        self.canvas.animate2center()
 
     def on_reload(self, data=None):
         """更新AOI图层"""
         if data is not None:
             self.data = data
             self.agent.auto_read(data)
-        aoi_img = self.agent.get_aoi_map()
+        self.aoi_map: QPixmap = QPixmap.fromImage(self.agent.get_aoi_map())
         self.aoi_size = self.aoi_map.size()
         self.aoi_rect = size2rect(self.aoi_size)
-        self.force_restage()
-        self.aoi_map: QPixmap = QPixmap.fromImage(aoi_img)
         if self.should_save:
             self.save_img(self.aoi_map)
+        self.force_restage()
         return True
 
     def on_stage(self, device: QPixmap):

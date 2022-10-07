@@ -26,6 +26,8 @@ from visual_plat.global_proxy.config_proxy import ConfigProxy
         - 视图缩放：zoom_begin; zoom_end; zooming
         - 视图拖拽：drag_begin; drag_end; dragging
         - 视图滑动：slide_begin; slide_end
+    4. 文件拖放事件（drop）
+        - 监听文件类型：.xxx
 """
 
 
@@ -62,15 +64,27 @@ class EventDeputy(QObject):
 
         self.mouse_listening = ConfigProxy.event_setting()["mouse_listening"]
 
+    def register(self, e_type: str, e_str: str, callback: callable):
+        """主动动态注册事件"""
+        if e_type == "mouse":
+            self.mouse_notifier.register(e_str, callback)
+        elif e_type == "key":
+            self.key_notifier.register(e_str, callback)
+        elif e_type == "view":
+            self.view_notifier.register(e_str, callback)
+        elif e_type == "drop":
+            self.drag_notifier.register(e_str, callback)
+
     def bind_layer_event(self, layer: LayerBase, config: dict):
+        """绑定图层事件"""
         if "key" in config.keys():
-            self.key_notifier.parse(config["key"], layer)
+            self.key_notifier.parse_config(config["key"], layer)
         if "mouse" in config.keys():
-            self.mouse_notifier.parse(config["mouse"], layer)
+            self.mouse_notifier.parse_config(config["mouse"], layer)
         if "view" in config.keys():
-            self.view_notifier.parse(config["view"], layer)
+            self.view_notifier.parse_config(config["view"], layer)
         if "drop" in config.keys():
-            self.drag_notifier.parse(config["drop"], layer)
+            self.drag_notifier.parse_config(config["drop"], layer)
 
     def on_key_pressed(self, event: QKeyEvent):
         self.key_notifier.invoke(event.modifiers(), event.key())

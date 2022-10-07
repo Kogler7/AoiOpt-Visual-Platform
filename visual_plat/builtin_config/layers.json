@@ -5,8 +5,15 @@
         "level": -3,
         "visible": true,
         "xps_tag": "APS",
-        "save_image": false,
-        "save_path": "./output/images",
+        "save_image": {
+          "enable": false,
+          "width": 100,
+          "height": 100,
+          "max_count": 10,
+          "label": "aoi",
+          "format": "png",
+          "path": "./output/images"
+        },
         "auto_back": true,
         "keep_color": true,
         "event": {
@@ -62,11 +69,14 @@
     "geo_map": {
       "route": {
         "level": -4,
-        "visible": false,
+        "visible": true,
         "xps_tag": "RPS",
         "event": {
           "key": {
             "control+shift+s": "trans_state"
+          },
+          "drop": {
+            ".svg": "render_svg"
           }
         }
       }

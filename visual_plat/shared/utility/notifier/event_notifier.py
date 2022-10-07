@@ -2,10 +2,17 @@ class EventNotifier:
     def __init__(self):
         self.registered_dict = {}
 
+    def register(self, event: str, callback: callable):
+        """主动动态注册事件"""
+        if event not in self.registered_dict.keys():
+            self.registered_dict[event] = []
+        self.registered_dict[event].append(callback)
+
     def has_event(self, event: str):
         return event in self.registered_dict.keys()
 
-    def parse(self, config: dict, host):
+    def parse_config(self, config: dict, host):
+        """解析配置文件中的事件"""
         if host is not None:
             attrs = dir(host)
             for event, cbk_str in config.items():
@@ -22,6 +29,7 @@ class EventNotifier:
                         self.registered_dict[event].append(_obj)
 
     def invoke(self, event, data: any = None):
+        """触发事件"""
         if event in self.registered_dict.keys():
             for callback in self.registered_dict[event]:
                 if data is not None:

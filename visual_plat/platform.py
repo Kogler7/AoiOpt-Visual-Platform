@@ -49,7 +49,7 @@ class VisualPlatform:
         VisualPlatform.canvas_list.append(canvas)
         canvas.setWindowTitle(title)
         canvas.status_bar.set_default(title)
-        canvas.key_notifier.parse(ConfigProxy.event(), canvas)
+        canvas.key_notifier.parse_config(ConfigProxy.event(), canvas)
         canvas.show()
         return canvas
 
