@@ -47,7 +47,7 @@ class ColorProxy:
             return QColor(0, 0, 0)
         if not cls.color_dict[c_type]:
             cls.init()
-        return cls.color_dict[c_type][idx << 2 % len(cls.color_dict[c_type])]
+        return cls.color_dict[c_type][(idx << 2) % len(cls.color_dict[c_type])]
 
     @staticmethod
     def hex_to_rgb(value):

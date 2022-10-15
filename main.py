@@ -18,7 +18,7 @@ def update_task():
         index += 1
         if index >= 25:
             index = 0
-        time.sleep(0.1)
+        time.sleep(10)
 
 
 if __name__ == '__main__':

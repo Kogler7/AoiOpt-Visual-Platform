@@ -14,8 +14,8 @@
           "format": "png",
           "path": "./output/images"
         },
-        "auto_back": true,
-        "keep_color": true,
+        "auto_back": false,
+        "keep_color": false,
         "event": {
           "drop": {
             ".npy": "load_npy",
@@ -35,7 +35,12 @@
       "traj": {
         "level": -2,
         "visible": true,
-        "xps_tag": "TPS"
+        "xps_tag": "TPS",
+        "event": {
+          "drop": {
+            ".trj": "load_traj"
+          }
+        }
       },
       "parcel": {
         "level": -1,

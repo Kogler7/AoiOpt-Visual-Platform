@@ -1,3 +1,5 @@
+import numpy as np
+
 from visual_plat.render_layer.layer_base import *
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.global_proxy.color_proxy import ColorProxy
@@ -16,10 +18,20 @@ class TrajLayer(LayerBase):
         self.dot_back_line_pen = QPen(ColorProxy.named["LightGrey"])
         """初始化轨迹图层"""
         self.on_reload()
+        self.indexes_list = []
 
-    def set_indexes(self, indexes):
+    def set_indexes(self, indexes: list[int]):
         self.data = indexes
         self.on_reload()
+
+    def load_traj(self, path):
+        data = np.load(path, allow_pickle=True)
+        self.agent.read_npy(data)
+        self.indexes_list = self.agent.get_idx_list()
+        if len(self.indexes_list) > 10:
+            self.set_indexes([i for i in range(10)])
+        else:
+            self.set_indexes([-1])
 
     def draw_dot_line(self, painter: QPainter, fst: QPoint, sec: QPoint):
         """绘制点线"""
@@ -44,7 +56,7 @@ class TrajLayer(LayerBase):
                     t.set_description_str("Painting traces")
                     bias = rect_bias(trace.area)
                     self.trace_area_dict[trace.index] = trace.area
-                    pixmap = QPixmap(trace.area.aoi_size() * 15)
+                    pixmap = QPixmap(trace.area.size() * 15)
                     pixmap.fill(QColor(0, 0, 0, 0))
                     pen = QPen(trace.color)
                     with QPainter(pixmap) as painter:
