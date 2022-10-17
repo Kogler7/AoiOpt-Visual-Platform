@@ -240,8 +240,8 @@ class VisualCanvas(QWidget):
     def dragEnterEvent(self, event: QDragEnterEvent):
         """检测是否拖拽文件进入窗口"""
         if event.mimeData().hasUrls():
-            tp = event.mimeData().urls().pop().toLocalFile()[-4:]
-            if tp == ".rcd":
+            tp = event.mimeData().urls().pop().toLocalFile().split(".")[-1]
+            if tp == "rcd":
                 event.accept()
             if self.event_deputy.drag_notifier.has_event(tp):
                 event.accept()
@@ -250,12 +250,17 @@ class VisualCanvas(QWidget):
         """放下文件时触发"""
         url = event.mimeData().urls()
         drp_path = url.pop().toLocalFile()
-        drp_name = drp_path.split("/")[-1][:-4]
-        drp_type = drp_path[-4:]
-        if drp_type == ".rcd":
+        drp_full_name = drp_path.split("/")[-1].split(".")
+        print(drp_full_name)
+        drp_name = drp_full_name[0]
+        drp_type = drp_full_name[-1]
+        if drp_type == "rcd":
             self.accept_record(drp_path, drp_name)
+            self.status_bar.set(f"File loaded:", f"[{drp_name}] ({drp_type})")
         elif self.event_deputy.drag_notifier.has_event(drp_type):
-            self.event_deputy.drag_notifier.invoke(drp_type, drp_path)
+            success = self.event_deputy.drag_notifier.invoke(drp_type, drp_path)
+            if success:
+                self.status_bar.set(f"File loaded:", f"[{drp_name}] ({drp_type})")
 
     def accept_record(self, drp_path: str, drp_name: str):
         rcd = self.state_deputy.load_record(drp_path)

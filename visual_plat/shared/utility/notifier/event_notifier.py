@@ -36,3 +36,5 @@ class EventNotifier:
                     callback(data)
                 else:
                     callback()
+            return True
+        return False

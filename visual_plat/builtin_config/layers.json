@@ -18,9 +18,10 @@
         "keep_color": false,
         "event": {
           "drop": {
-            ".npy": "load_npy",
-            ".png": "load_img",
-            ".jpg": "load_img"
+            "npy": "load_npy",
+            "aoi": "load_npy",
+            "png": "load_img",
+            "jpg": "load_img"
           },
           "key": {
             "control+up": "enlight",
@@ -38,7 +39,7 @@
         "xps_tag": "TPS",
         "event": {
           "drop": {
-            ".trj": "load_traj"
+            "trj": "load_traj"
           }
         }
       },
@@ -48,7 +49,7 @@
         "xps_tag": "PPS",
         "event": {
           "drop": {
-            ".prc": "load_parcels"
+            "prc": "load_parcels"
           }
         }
       },
@@ -84,7 +85,7 @@
             "control+shift+s": "trans_state"
           },
           "drop": {
-            ".svg": "render_svg"
+            "svg": "render_svg"
           },
           "view": {
             "update_begin": "stop_service",

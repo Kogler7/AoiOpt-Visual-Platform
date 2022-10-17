@@ -158,14 +158,13 @@ class StateDeputy:
                 for r in self.replay_record.initial:
                     self.reload(r.layer_tag, r.record_data, deep_copy=False)
                     self.status_bar.set(
-                        "Replaying", f"[{self.replay_name}] 1/{self.replay_range + 1}"
+                        "Replaying", f"1/{self.replay_range + 1}"
                     )
             else:
                 updates = self.replay_record.updates
                 if 0 < self.replay_index <= self.replay_range:
                     self.status_bar.set(
-                        "Replaying", f"[{self.replay_name}] "
-                                     f"{self.replay_index + 1}/{self.replay_range + 1}"
+                        "Replaying", f"{self.replay_index + 1}/{self.replay_range + 1}"
                     )
                     for upd in updates[self.replay_index - 1]:
                         if upd.record_type == RecordType.reload:
