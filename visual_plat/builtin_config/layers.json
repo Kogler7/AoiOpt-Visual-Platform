@@ -45,7 +45,12 @@
       "parcel": {
         "level": -1,
         "visible": true,
-        "xps_tag": "PPS"
+        "xps_tag": "PPS",
+        "event": {
+          "drop": {
+            ".prc": "load_parcels"
+          }
+        }
       },
       "grids": {
         "level": 1,

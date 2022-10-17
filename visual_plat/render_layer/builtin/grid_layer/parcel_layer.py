@@ -14,10 +14,20 @@ class ParcelLayer(LayerBase):
         self.parcels_area_dict: dict[int, QRect] = {}
         """初始化包裹图层"""
         self.on_reload()
+        self.indexes_list = []
 
     def set_indexes(self, indexes):
         self.data = indexes
         self.on_reload()
+
+    def load_parcels(self, path):
+        data = np.load(path, allow_pickle=True)
+        self.agent.read_npy(data)
+        self.indexes_list = self.agent.get_idx_list()
+        if len(self.indexes_list) > 10:
+            self.set_indexes([i for i in range(10)])
+        else:
+            self.set_indexes([-1])
 
     def on_reload(self, data=None):
         if data:
@@ -33,7 +43,7 @@ class ParcelLayer(LayerBase):
                     t.set_description_str("Painting parcels")
                     bias = rect_bias(parcels.area)
                     self.parcels_area_dict[parcels.index] = parcels.area
-                    pixmap = QPixmap(parcels.area.aoi_size() * 10)
+                    pixmap = QPixmap(parcels.area.size() * 10)
                     pixmap.fill(QColor(0, 0, 0, 0))
                     color = parcels.color
                     brush_id = QBrush(color)
