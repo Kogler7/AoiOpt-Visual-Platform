@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
+from visual_plat.render_layer.layer_base import LayerBase
 from visual_plat.global_proxy.async_proxy import AsyncProxy
 from visual_plat.global_proxy.config_proxy import ConfigProxy
 from visual_plat.global_proxy.update_proxy import UpdateProxy
@@ -17,7 +18,8 @@ class VisualPlatform:
     def launch(
             async_task: callable = None,
             canvas_init: callable = None,
-            canvas_config: callable = None
+            canvas_config: callable = None,
+            plat_path: str = '.'
     ):
         """
         启动可视化平台
@@ -26,11 +28,12 @@ class VisualPlatform:
         也不要在此函数后再执行其他同步任务
         此函数全局仅允许被调用一次
         """
+        ConfigProxy.plat_path = plat_path # 平台路径
         if not ConfigProxy.loaded:
             ConfigProxy.load()
             app = QApplication([])
             version = str(ConfigProxy.canvas('version')) \
-                      + ("-pre" if not ConfigProxy.canvas("release") else "")
+                + ("-pre" if not ConfigProxy.canvas("release") else "")
             app_name = f"AoiOpt Visual Platform {version}"
             app.setApplicationName(app_name)
             canvas = VisualPlatform.new_canvas(app_name, canvas_init)
@@ -55,4 +58,14 @@ class VisualPlatform:
 
     @staticmethod
     def get_canvas(index: int = 0):
-        return VisualPlatform.canvas_list[index]
+        if VisualPlatform.canvas_list and len(VisualPlatform.canvas_list) > index:
+            return VisualPlatform.canvas_list[index]
+        return None
+
+    @staticmethod
+    def mount_layer(layer: LayerBase, tag: str, config: dict = None):
+        canvas = VisualPlatform.get_canvas()
+        if canvas:
+            canvas.mount_layer(layer, tag, config)
+        else:
+            return lambda canvas: canvas.mount_layer(layer, tag, config)

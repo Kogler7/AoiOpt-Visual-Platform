@@ -2,5 +2,5 @@
   "aoi": "",
   "traj": "",
   "parcel": "",
-  "record": "./output/record/"
+  "output": "./output"
 }

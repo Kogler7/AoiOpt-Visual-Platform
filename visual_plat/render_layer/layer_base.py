@@ -43,6 +43,10 @@ class LayerBase:
     def on_paint(self, device: QWidget):
         """重绘时自动调用"""
         return False
+    
+    def get_data(self):
+        """保存数据"""
+        return self.data
 
     """
     主动调用以更新状态
@@ -64,3 +68,4 @@ class LayerBase:
     def hide(self):
         self.visible = False
         self.force_restage()
+    

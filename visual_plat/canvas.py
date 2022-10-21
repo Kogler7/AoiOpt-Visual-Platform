@@ -48,11 +48,14 @@ class VisualCanvas(QWidget):
 
         # Deputies
         self.tooltip_deputy = TooltipDeputy(self)
-        self.state_deputy = StateDeputy(layers=self.layer_dict, status_bar=self.status_bar)
+        self.state_deputy = StateDeputy(
+            layers=self.layer_dict, status_bar=self.status_bar)
         self.event_deputy = EventDeputy(self)
-        self.render_deputy = RenderDeputy(self, layers=self.layer_list, tooltip=self.tooltip_deputy)
+        self.render_deputy = RenderDeputy(
+            self, layers=self.layer_list, tooltip=self.tooltip_deputy)
         self.layout_deputy = LayoutDeputy(size=self.size())
-        self.menu_deputy = MenuDeputy(self, self.render_deputy.tooltip_deputy.anchor_tips["cursor"])
+        self.menu_deputy = MenuDeputy(
+            self, self.render_deputy.tooltip_deputy.anchor_tips["cursor"])
 
         # Layers 载入，需要在 Deputy 声明后完成
         layers_config = ConfigProxy.get("layers")
@@ -95,17 +98,38 @@ class VisualCanvas(QWidget):
                 if "visible" in layer_cfg.keys():
                     layer_obj.visible = layer_cfg["visible"]
                 if "event" in layer_cfg.keys():
-                    self.event_deputy.bind_layer_event(layer_obj, layer_cfg["event"])
+                    self.event_deputy.bind_layer_event(
+                        layer_obj, layer_cfg["event"])
                 self.layer_dict[tag] = layer_obj
                 self.layer_list.append(layer_obj)
 
         path_base = "visual_plat.render_layer."
-        load_layers(path_base + "builtin.geo_map.", layers_config["builtin"]["geo_map"])
-        load_layers(path_base + "builtin.grid_layer.", layers_config["builtin"]["grid_layer"])
+        load_layers(path_base + "builtin.geo_map.",
+                    layers_config["builtin"]["geo_map"])
+        load_layers(path_base + "builtin.grid_layer.",
+                    layers_config["builtin"]["grid_layer"])
         load_layers(path_base + "custom.", layers_config["custom"])
 
         # 根据层级排序
         self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
+
+    def mount_layer(self, layer_cls: LayerBase, tag: str, config: dict = None):
+        """挂载外部图层"""
+        layer_obj = layer_cls(self)
+        if tag in self.layer_dict.keys():
+            raise Exception("VisualCanvas: Layer tag already exists.")
+        if "level" in config.keys():
+            layer_obj.level = config["level"]
+        if "xps_tag" in config.keys():
+            layer_obj.xps_tag = config["xps_tag"]
+        if "visible" in config.keys():
+            layer_obj.visible = config["visible"]
+        if "event" in config.keys():
+            self.event_deputy.bind_layer_event(layer_obj, config["event"])
+        self.layer_dict[tag] = layer_obj
+        self.layer_list.append(layer_obj)
+        self.layer_list.sort(key=lambda layer: layer_obj.level, reverse=False)
+        self.update()
 
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
@@ -116,7 +140,8 @@ class VisualCanvas(QWidget):
     def on_sliding(self):
         """中键滑动"""
         while self.event_deputy.on_sliding:
-            delt = -(self.event_deputy.start_sliding_pos - self.event_deputy.last_mouse_pos) / 20
+            delt = -(self.event_deputy.start_sliding_pos -
+                     self.event_deputy.last_mouse_pos) / 20
             self.layout_deputy.translate(delt)
             self.render_deputy.mark_need_restage()
             self.update()
@@ -135,7 +160,8 @@ class VisualCanvas(QWidget):
             p = 0.0
             while p < 1.0:
                 p += 0.05
-                self.layout_deputy.teleport(init_bias + distance * curve.transform(p))
+                self.layout_deputy.teleport(
+                    init_bias + distance * curve.transform(p))
                 self.render_deputy.mark_need_restage()
                 self.update()
                 time.sleep(0.01)
@@ -162,8 +188,10 @@ class VisualCanvas(QWidget):
             self.setCursor(Qt.ArrowCursor)
 
         self.tooltip_proxy.anchor_tips["cursor"].show()
-        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
-        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
+        self.tooltip_proxy.anchor_tips["cursor"].move(
+            event.pos + QPoint(10, -20))
+        self.tooltip_proxy.anchor_tips["cursor"].set(
+            "At", f"({event.crd.x()}, {event.crd.y()})")
 
         self.update()
 
@@ -177,15 +205,18 @@ class VisualCanvas(QWidget):
     def mouseMoveEvent(self, event):
         """鼠标移动时调用"""
         if self.event_deputy.on_dragging:
-            self.layout_deputy.translate(self.event_deputy.last_mouse_pos - event.pos())
+            self.layout_deputy.translate(
+                self.event_deputy.last_mouse_pos - event.pos())
             self.render_deputy.mark_need_restage()
 
         event = self.layout_deputy.wrap_event(event)
         self.event_deputy.on_mouse_move(event)
 
         self.render_deputy.tooltip_deputy.anchor_tips["cursor"].hide()
-        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set("CRD", f"({event.crd.x()}, {event.crd.y()})")
-        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set("POS", f"({event.pos.x()}, {event.pos.y()})")
+        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set(
+            "CRD", f"({event.crd.x()}, {event.crd.y()})")
+        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set(
+            "POS", f"({event.pos.x()}, {event.pos.y()})")
 
         self.update()
 
@@ -206,7 +237,8 @@ class VisualCanvas(QWidget):
         if success:
             self.event_deputy.on_mouse_wheel(event)
 
-            self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", str(self.layout_deputy.grid_level))
+            self.tooltip_proxy.anchor_tips["btm_rgt"].set(
+                "LEVEL", str(self.layout_deputy.grid_level))
 
             self.render_deputy.mark_need_restage()
             self.update()
@@ -258,14 +290,17 @@ class VisualCanvas(QWidget):
             self.accept_record(drp_path, drp_name)
             self.status_bar.set(f"File loaded:", f"[{drp_name}] ({drp_type})")
         elif self.event_deputy.drag_notifier.has_event(drp_type):
-            success = self.event_deputy.drag_notifier.invoke(drp_type, drp_path)
+            success = self.event_deputy.drag_notifier.invoke(
+                drp_type, drp_path)
             if success:
-                self.status_bar.set(f"File loaded:", f"[{drp_name}] ({drp_type})")
+                self.status_bar.set(
+                    f"File loaded:", f"[{drp_name}] ({drp_type})")
 
     def accept_record(self, drp_path: str, drp_name: str):
         rcd = self.state_deputy.load_record(drp_path)
         if not hasattr(rcd, 'comp_idx'):
-            print("RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
+            print(
+                "RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
         elif rcd.comp_idx != ConfigProxy.record("compatible_index"):
             print(f"The RECORD is not COMPATIBLE with this VERSION of canvas. "
                   f"[{rcd.comp_idx} != {ConfigProxy.record('compatible_index')}]")

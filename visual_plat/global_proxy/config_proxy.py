@@ -5,13 +5,14 @@ from glob import glob
 
 class ConfigProxy:
     loaded = False
-    config_path = os.path.abspath(".\\visual_plat\\builtin_config\\*.json")
+    plat_path = "."
     config: dict[str, dict] = {}
     layer_config: dict[str, dict] = {}
 
     @staticmethod
     def load():
-        path = os.path.join(ConfigProxy.config_path)
+        config_path = os.path.abspath(f"{ConfigProxy.plat_path}\\visual_plat\\builtin_config\\*.json")
+        path = os.path.join(config_path)
         config_paths = glob(path)
         for pth in config_paths:
             with open(pth) as f:
