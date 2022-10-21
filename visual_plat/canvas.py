@@ -77,6 +77,22 @@ class VisualCanvas(QWidget):
 
         # Teleport
         self.animate2center()
+    
+    def mount_layer(self, layer_cls:LayerBase, layer_tag:str, layer_cfg:dict):
+        layer_obj = layer_cls(self)
+        if layer_tag in self.layer_dict.keys():
+            raise Exception("VisualCanvas: Layer tag already exists.")
+        if "level" in layer_cfg.keys():
+            layer_obj.level = layer_cfg["level"]
+        if "xps_tag" in layer_cfg.keys():
+            layer_obj.xps_tag = layer_cfg["xps_tag"]
+        if "visible" in layer_cfg.keys():
+            layer_obj.visible = layer_cfg["visible"]
+        if "event" in layer_cfg.keys():
+            self.event_deputy.bind_layer_event(layer_obj, layer_cfg["event"])
+        self.layer_dict[layer_tag] = layer_obj
+        self.layer_list.append(layer_obj)
+        self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
 
     def load_layers_by_config(self, layers_config: dict):
         """根据配置文件载入图层"""
@@ -90,18 +106,7 @@ class VisualCanvas(QWidget):
                 mod = import_module(module)
                 name = tag.capitalize() + nme_back
                 layer_cls = getattr(mod, name)
-                layer_obj = layer_cls(self)
-                if "level" in layer_cfg.keys():
-                    layer_obj.level = layer_cfg["level"]
-                if "xps_tag" in layer_cfg.keys():
-                    layer_obj.xps_tag = layer_cfg["xps_tag"]
-                if "visible" in layer_cfg.keys():
-                    layer_obj.visible = layer_cfg["visible"]
-                if "event" in layer_cfg.keys():
-                    self.event_deputy.bind_layer_event(
-                        layer_obj, layer_cfg["event"])
-                self.layer_dict[tag] = layer_obj
-                self.layer_list.append(layer_obj)
+                self.mount_layer(layer_cls, tag, layer_cfg)
 
         path_base = "visual_plat.render_layer."
         load_layers(path_base + "builtin.geo_map.",
@@ -109,27 +114,11 @@ class VisualCanvas(QWidget):
         load_layers(path_base + "builtin.grid_layer.",
                     layers_config["builtin"]["grid_layer"])
         load_layers(path_base + "custom.", layers_config["custom"])
-
-        # 根据层级排序
-        self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
-
-    def mount_layer(self, layer_cls: LayerBase, tag: str, config: dict = None):
-        """挂载外部图层"""
-        layer_obj = layer_cls(self)
-        if tag in self.layer_dict.keys():
-            raise Exception("VisualCanvas: Layer tag already exists.")
-        if "level" in config.keys():
-            layer_obj.level = config["level"]
-        if "xps_tag" in config.keys():
-            layer_obj.xps_tag = config["xps_tag"]
-        if "visible" in config.keys():
-            layer_obj.visible = config["visible"]
-        if "event" in config.keys():
-            self.event_deputy.bind_layer_event(layer_obj, config["event"])
-        self.layer_dict[tag] = layer_obj
-        self.layer_list.append(layer_obj)
-        self.layer_list.sort(key=lambda layer: layer_obj.level, reverse=False)
-        self.update()
+        
+    def unmount_layer(self, tag: str):
+        """卸载外部图层"""
+        self.layer_list.remove(self.layer_dict[tag])
+        self.layer_dict.pop(tag)
 
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
