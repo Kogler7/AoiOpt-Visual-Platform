@@ -9,7 +9,7 @@ class LayerBase:
         self.state: vis_canvas.EventDeputy = canvas.event_deputy
         self.render: vis_canvas.RenderDeputy = canvas.render_deputy
         self.layout: vis_canvas.LayoutDeputy = canvas.layout_deputy
-        self.layers: list[LayerBase] = canvas.layer_list
+        self.layers: dict[str, LayerBase] = canvas.layer_dict
         self.level = 0
         self.xps_tag = ""
         self.visible = True

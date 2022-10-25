@@ -93,6 +93,9 @@ class VisualCanvas(QWidget):
         self.layer_dict[layer_tag] = layer_obj
         self.layer_list.append(layer_obj)
         self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
+        
+    def get_layer(self, tag: str) -> LayerBase:
+        return self.layer_dict[tag]
 
     def load_layers_by_config(self, layers_config: dict):
         """根据配置文件载入图层"""
