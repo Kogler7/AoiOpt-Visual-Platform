@@ -275,7 +275,6 @@ class VisualCanvas(QWidget):
         url = event.mimeData().urls()
         drp_path = url.pop().toLocalFile()
         drp_full_name = drp_path.split("/")[-1].split(".")
-        print(drp_full_name)
         drp_name = drp_full_name[0]
         drp_type = drp_full_name[-1]
         if drp_type == "rcd":

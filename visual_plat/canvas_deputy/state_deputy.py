@@ -55,7 +55,7 @@ class StateDeputy:
         StateDeputy.record_path = os.path.abspath(ConfigProxy.path("output"))
         if not os.path.exists(StateDeputy.record_path):
             os.mkdir(StateDeputy.record_path)
-        StateDeputy.record_path = os.path.join(StateDeputy.record_path, "record")
+        StateDeputy.record_path = os.path.join(StateDeputy.record_path, "record/")
         if not os.path.exists(StateDeputy.record_path):
             os.mkdir(StateDeputy.record_path)
 

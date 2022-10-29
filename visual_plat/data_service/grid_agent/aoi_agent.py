@@ -131,9 +131,15 @@ class AoiAgent:
             for x in range(shape[1]):
                 if keep_color:
                     val = int(arr[y][x])
-                    self.color_map.setPixelColor(QPoint(x, y), QColor(val, val, val))
+                    self.color_map.setPixelColor(
+                        QPoint(int(x), int(y)),
+                        QColor(val, val, val)
+                    )
                 else:
-                    self.color_map.setPixelColor(QPoint(x, y), ColorProxy.idx_color(arr[y][x]))
+                    self.color_map.setPixelColor(
+                        QPoint(int(x), int(y)),
+                        ColorProxy.idx_color(int(arr[y][x]))
+                    )
         self.aoi_size = self.color_map.size()
 
     def get_aoi_map(self, idx: int = -1):
