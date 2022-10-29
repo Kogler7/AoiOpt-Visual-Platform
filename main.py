@@ -10,13 +10,15 @@ def update_task():
     index = 0
     xps = XPSChecker()
     while True:
-        data = np.zeros((100, 100), dtype=np.int)
+        data = np.zeros((5, 5), dtype=np.int)
         data[int(index / 5)][index % 5] = 1
+        data[index % 5][int(index / 5)] = 2
+        data[index % 5][index % 5] = 3
         UpdateProxy.reload("aoi", data)
         index += 1
         if index >= 25:
             index = 0
-        time.sleep(0.1)
+        time.sleep(10)
 
 
 if __name__ == '__main__':

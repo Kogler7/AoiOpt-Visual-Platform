@@ -24,14 +24,16 @@ class ColorProxy:
     def init(cls):
         color_dict: dict = ConfigProxy.get("colors")
         for cate, colors in color_dict.items():
-            for c_str in colors:
+            alpha = colors["alpha"]
+            for c_str in colors["value"]:
                 color = cls.hex_to_rgb(c_str)
-                cls.color_dict[cate].append(QColor(color[0], color[1], color[2]))
+                cls.color_dict[cate].append(QColor(color[0], color[1], color[2], alpha))
 
     @classmethod
     def new_color(cls, c_type: str = "light"):
         """按顺序返回一个颜色"""
         if c_type not in cls.color_dict.keys():
+            print(f"ColorProxy: Color Type ({c_type}) Not Found.")
             return QColor(0, 0, 0)
         if not cls.color_dict[c_type]:
             cls.init()
@@ -45,7 +47,7 @@ class ColorProxy:
             return QColor(0, 0, 0)
         if not cls.color_dict[c_type]:
             cls.init()
-        return cls.color_dict[c_type][idx * 3 % len(cls.color_dict[c_type])]
+        return cls.color_dict[c_type][(idx << 2) % len(cls.color_dict[c_type])]
 
     @staticmethod
     def hex_to_rgb(value):

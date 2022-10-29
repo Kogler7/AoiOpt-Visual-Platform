@@ -48,11 +48,14 @@ class VisualCanvas(QWidget):
 
         # Deputies
         self.tooltip_deputy = TooltipDeputy(self)
-        self.state_deputy = StateDeputy(layers=self.layer_dict, status_bar=self.status_bar)
+        self.state_deputy = StateDeputy(
+            layers=self.layer_dict, status_bar=self.status_bar)
         self.event_deputy = EventDeputy(self)
-        self.render_deputy = RenderDeputy(self, layers=self.layer_list, tooltip=self.tooltip_deputy)
+        self.render_deputy = RenderDeputy(
+            self, layers=self.layer_list, tooltip=self.tooltip_deputy)
         self.layout_deputy = LayoutDeputy(size=self.size())
-        self.menu_deputy = MenuDeputy(self, self.render_deputy.tooltip_deputy.anchor_tips["cursor"])
+        self.menu_deputy = MenuDeputy(
+            self, self.render_deputy.tooltip_deputy.anchor_tips["cursor"])
 
         # Layers 载入，需要在 Deputy 声明后完成
         layers_config = ConfigProxy.get("layers")
@@ -74,6 +77,25 @@ class VisualCanvas(QWidget):
 
         # Teleport
         self.animate2center()
+    
+    def mount_layer(self, layer_cls:LayerBase, layer_tag:str, layer_cfg:dict):
+        layer_obj = layer_cls(self)
+        if layer_tag in self.layer_dict.keys():
+            raise Exception("VisualCanvas: Layer tag already exists.")
+        if "level" in layer_cfg.keys():
+            layer_obj.level = layer_cfg["level"]
+        if "xps_tag" in layer_cfg.keys():
+            layer_obj.xps_tag = layer_cfg["xps_tag"]
+        if "visible" in layer_cfg.keys():
+            layer_obj.visible = layer_cfg["visible"]
+        if "event" in layer_cfg.keys():
+            self.event_deputy.bind_layer_event(layer_obj, layer_cfg["event"])
+        self.layer_dict[layer_tag] = layer_obj
+        self.layer_list.append(layer_obj)
+        self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
+        
+    def get_layer(self, tag: str) -> LayerBase:
+        return self.layer_dict[tag]
 
     def load_layers_by_config(self, layers_config: dict):
         """根据配置文件载入图层"""
@@ -87,25 +109,19 @@ class VisualCanvas(QWidget):
                 mod = import_module(module)
                 name = tag.capitalize() + nme_back
                 layer_cls = getattr(mod, name)
-                layer_obj = layer_cls(self)
-                if "level" in layer_cfg.keys():
-                    layer_obj.level = layer_cfg["level"]
-                if "xps_tag" in layer_cfg.keys():
-                    layer_obj.xps_tag = layer_cfg["xps_tag"]
-                if "visible" in layer_cfg.keys():
-                    layer_obj.visible = layer_cfg["visible"]
-                if "event" in layer_cfg.keys():
-                    self.event_deputy.bind_layer_event(layer_obj, layer_cfg["event"])
-                self.layer_dict[tag] = layer_obj
-                self.layer_list.append(layer_obj)
+                self.mount_layer(layer_cls, tag, layer_cfg)
 
         path_base = "visual_plat.render_layer."
-        load_layers(path_base + "builtin.geo_map.", layers_config["builtin"]["geo_map"])
-        load_layers(path_base + "builtin.grid_layer.", layers_config["builtin"]["grid_layer"])
+        load_layers(path_base + "builtin.geo_map.",
+                    layers_config["builtin"]["geo_map"])
+        load_layers(path_base + "builtin.grid_layer.",
+                    layers_config["builtin"]["grid_layer"])
         load_layers(path_base + "custom.", layers_config["custom"])
-
-        # 根据层级排序
-        self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
+        
+    def unmount_layer(self, tag: str):
+        """卸载外部图层"""
+        self.layer_list.remove(self.layer_dict[tag])
+        self.layer_dict.pop(tag)
 
     def paintEvent(self, event):
         """窗口刷新时被调用，完全交由 Render Deputy 代理"""
@@ -116,7 +132,8 @@ class VisualCanvas(QWidget):
     def on_sliding(self):
         """中键滑动"""
         while self.event_deputy.on_sliding:
-            delt = -(self.event_deputy.start_sliding_pos - self.event_deputy.last_mouse_pos) / 20
+            delt = -(self.event_deputy.start_sliding_pos -
+                     self.event_deputy.last_mouse_pos) / 20
             self.layout_deputy.translate(delt)
             self.render_deputy.mark_need_restage()
             self.update()
@@ -124,6 +141,9 @@ class VisualCanvas(QWidget):
 
     def animate_to(self, target: QPointF = QPointF(0, 0)):
         """滑动至（另起线程调用）"""
+        self.event_deputy.on_sliding = True
+        self.event_deputy.view_notifier.invoke("slide_begin")
+        self.event_deputy.try_start_view_update()
 
         def step():
             curve = BezierCurves.ease_in_out()
@@ -132,10 +152,14 @@ class VisualCanvas(QWidget):
             p = 0.0
             while p < 1.0:
                 p += 0.05
-                self.layout_deputy.teleport(init_bias + distance * curve.transform(p))
+                self.layout_deputy.teleport(
+                    init_bias + distance * curve.transform(p))
                 self.render_deputy.mark_need_restage()
                 self.update()
                 time.sleep(0.01)
+            self.event_deputy.on_sliding = False
+            self.event_deputy.view_notifier.invoke("slide_end")
+            self.event_deputy.try_end_view_update()
 
         AsyncProxy.run(step)
 
@@ -156,8 +180,10 @@ class VisualCanvas(QWidget):
             self.setCursor(Qt.ArrowCursor)
 
         self.tooltip_proxy.anchor_tips["cursor"].show()
-        self.tooltip_proxy.anchor_tips["cursor"].move(event.pos + QPoint(10, -20))
-        self.tooltip_proxy.anchor_tips["cursor"].set("At", f"({event.crd.x()}, {event.crd.y()})")
+        self.tooltip_proxy.anchor_tips["cursor"].move(
+            event.pos + QPoint(10, -20))
+        self.tooltip_proxy.anchor_tips["cursor"].set(
+            "At", f"({event.crd.x()}, {event.crd.y()})")
 
         self.update()
 
@@ -171,15 +197,18 @@ class VisualCanvas(QWidget):
     def mouseMoveEvent(self, event):
         """鼠标移动时调用"""
         if self.event_deputy.on_dragging:
-            self.layout_deputy.translate(self.event_deputy.last_mouse_pos - event.pos())
+            self.layout_deputy.translate(
+                self.event_deputy.last_mouse_pos - event.pos())
             self.render_deputy.mark_need_restage()
 
         event = self.layout_deputy.wrap_event(event)
         self.event_deputy.on_mouse_move(event)
 
         self.render_deputy.tooltip_deputy.anchor_tips["cursor"].hide()
-        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set("CRD", f"({event.crd.x()}, {event.crd.y()})")
-        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set("POS", f"({event.pos.x()}, {event.pos.y()})")
+        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set(
+            "CRD", f"({event.crd.x()}, {event.crd.y()})")
+        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set(
+            "POS", f"({event.pos.x()}, {event.pos.y()})")
 
         self.update()
 
@@ -194,13 +223,17 @@ class VisualCanvas(QWidget):
 
     def wheelEvent(self, event):
         """滚动鼠标滚轮时调用"""
-        self.event_deputy.on_mouse_wheel(event)
-        self.layout_deputy.zoom_at(event.angleDelta().y(), self.event_deputy.last_mouse_pos)
+        success = self.layout_deputy.zoom_at(
+            event.angleDelta().y(), self.event_deputy.last_mouse_pos
+        )
+        if success:
+            self.event_deputy.on_mouse_wheel(event)
 
-        self.tooltip_proxy.anchor_tips["btm_rgt"].set("LEVEL", str(self.layout_deputy.grid_level))
+            self.tooltip_proxy.anchor_tips["btm_rgt"].set(
+                "LEVEL", str(self.layout_deputy.grid_level))
 
-        self.render_deputy.mark_need_restage()
-        self.update()
+            self.render_deputy.mark_need_restage()
+            self.update()
 
     @staticmethod
     def create_new_canvas():
@@ -229,25 +262,42 @@ class VisualCanvas(QWidget):
         self.event_deputy.on_key_pressed(event)
 
     def dragEnterEvent(self, event: QDragEnterEvent):
-        """检测是否拖拽rcd文件进入窗口"""
+        """检测是否拖拽文件进入窗口"""
         if event.mimeData().hasUrls():
-            tp = event.mimeData().urls().pop().toLocalFile()[-4:]
-            if tp == ".rcd":
+            tp = event.mimeData().urls().pop().toLocalFile().split(".")[-1]
+            if tp == "rcd":
+                event.accept()
+            if self.event_deputy.drag_notifier.has_event(tp):
                 event.accept()
 
     def dropEvent(self, event: QDropEvent):
-        """放下rcd文件时触发"""
+        """放下文件时触发"""
         url = event.mimeData().urls()
-        rcd_path = url.pop().toLocalFile()
-        rcd_name = rcd_path.split("/")[-1][:-4]
-        rcd = self.state_deputy.load_record(rcd_path)
+        drp_path = url.pop().toLocalFile()
+        drp_full_name = drp_path.split("/")[-1].split(".")
+        print(drp_full_name)
+        drp_name = drp_full_name[0]
+        drp_type = drp_full_name[-1]
+        if drp_type == "rcd":
+            self.accept_record(drp_path, drp_name)
+            self.status_bar.set(f"File loaded:", f"[{drp_name}] ({drp_type})")
+        elif self.event_deputy.drag_notifier.has_event(drp_type):
+            success = self.event_deputy.drag_notifier.invoke(
+                drp_type, drp_path)
+            if success:
+                self.status_bar.set(
+                    f"File loaded:", f"[{drp_name}] ({drp_type})")
+
+    def accept_record(self, drp_path: str, drp_name: str):
+        rcd = self.state_deputy.load_record(drp_path)
         if not hasattr(rcd, 'comp_idx'):
-            print("RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
+            print(
+                "RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
         elif rcd.comp_idx != ConfigProxy.record("compatible_index"):
             print(f"The RECORD is not COMPATIBLE with this VERSION of canvas. "
                   f"[{rcd.comp_idx} != {ConfigProxy.record('compatible_index')}]")
         else:
-            self.state_deputy.start_replay(rcd, rcd_name)
+            self.state_deputy.start_replay(rcd, drp_name)
             self.animate2center()
 
     def resizeEvent(self, event):

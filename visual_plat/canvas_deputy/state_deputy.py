@@ -52,7 +52,10 @@ class StateDeputy:
         self.replay_record = None
         self.replay_mutex = QMutex()
         self.comp_idx = ConfigProxy.record("compatible_index")
-        StateDeputy.record_path = ConfigProxy.path("record")
+        StateDeputy.record_path = os.path.abspath(ConfigProxy.path("output"))
+        if not os.path.exists(StateDeputy.record_path):
+            os.mkdir(StateDeputy.record_path)
+        StateDeputy.record_path = os.path.join(StateDeputy.record_path, "record")
         if not os.path.exists(StateDeputy.record_path):
             os.mkdir(StateDeputy.record_path)
 
@@ -113,7 +116,7 @@ class StateDeputy:
         """截图并保存"""
         record = Record([], [], self.comp_idx)
         for tag, layer in self.layers.items():
-            record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
+            record.initial.append(RecordUnit(tag, RecordType.reload, layer.get_data()))
         path, self.replay_name = self.save_record(record)
         return path, self.replay_name
 
@@ -123,7 +126,7 @@ class StateDeputy:
             self.record = Record([], [], self.comp_idx)
             self.record_len = 1
             for tag, layer in self.layers.items():
-                self.record.initial.append(RecordUnit(tag, RecordType.reload, layer.data))
+                self.record.initial.append(RecordUnit(tag, RecordType.reload, layer.get_data()))
             self.recording = True
             self.status_bar.set("Recording")
             print("Recording started.")
@@ -158,14 +161,13 @@ class StateDeputy:
                 for r in self.replay_record.initial:
                     self.reload(r.layer_tag, r.record_data, deep_copy=False)
                     self.status_bar.set(
-                        "Replaying", f"[{self.replay_name}] 1/{self.replay_range + 1}"
+                        "Replaying", f"1/{self.replay_range + 1}"
                     )
             else:
                 updates = self.replay_record.updates
                 if 0 < self.replay_index <= self.replay_range:
                     self.status_bar.set(
-                        "Replaying", f"[{self.replay_name}] "
-                                     f"{self.replay_index + 1}/{self.replay_range + 1}"
+                        "Replaying", f"{self.replay_index + 1}/{self.replay_range + 1}"
                     )
                     for upd in updates[self.replay_index - 1]:
                         if upd.record_type == RecordType.reload:

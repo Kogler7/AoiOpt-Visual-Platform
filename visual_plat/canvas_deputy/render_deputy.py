@@ -1,3 +1,4 @@
+from time import sleep
 from PySide6.QtWidgets import QWidget
 from PySide6.QtGui import *
 
@@ -43,7 +44,7 @@ class RenderDeputy:
                 rendered = False
                 if layer.visible:
                     rendered = layer.on_stage(device=self.buff_map)
-                if layer.xps_tag:
+                if layer.xps_tag != '':
                     if rendered:
                         self.xps.check(layer.xps_tag)
                     else:

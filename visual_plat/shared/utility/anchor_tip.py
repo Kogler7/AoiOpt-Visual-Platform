@@ -67,9 +67,9 @@ class AnchorTip:
         else:
             raise
 
-    def draw(self, canvas: QWidget):
+    def draw(self, device: QWidget):
         if self.visible:
-            painter = QPainter(canvas)
+            painter = QPainter(device)
             painter.setRenderHint(QPainter.Antialiasing)
             rect = self.get_rect()
             path = QPainterPath()
@@ -86,6 +86,10 @@ class AnchorTip:
     def set(self, key="", words=""):
         self.tips[key] = words
         self.text = " | ".join([f"{str(k)}:{v}" for k, v in self.tips.items() if v != ""])
+        
+    def get(self, key=""):
+        if key in self.tips:
+            return self.tips[key]
 
     def show(self):
         self.visible = True

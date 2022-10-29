@@ -1,14 +1,15 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
+import visual_plat.canvas as vis_canvas
 
 
 class LayerBase:
     def __init__(self, canvas):
-        self.canvas = canvas
-        self.state = canvas.event_deputy
-        self.render = canvas.render_deputy
-        self.layout = canvas.layout_deputy
-        self.layers: list[LayerBase] = canvas.layer_list
+        self.canvas: vis_canvas.VisualCanvas = canvas
+        self.state: vis_canvas.EventDeputy = canvas.event_deputy
+        self.render: vis_canvas.RenderDeputy = canvas.render_deputy
+        self.layout: vis_canvas.LayoutDeputy = canvas.layout_deputy
+        self.layers: dict[str, LayerBase] = canvas.layer_dict
         self.level = 0
         self.xps_tag = ""
         self.visible = True
@@ -42,6 +43,10 @@ class LayerBase:
     def on_paint(self, device: QWidget):
         """重绘时自动调用"""
         return False
+    
+    def get_data(self):
+        """保存数据"""
+        return self.data
 
     """
     主动调用以更新状态
@@ -63,3 +68,4 @@ class LayerBase:
     def hide(self):
         self.visible = False
         self.force_restage()
+    

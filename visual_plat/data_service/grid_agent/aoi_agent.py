@@ -124,12 +124,16 @@ class AoiAgent:
         self.color_map = img
         self.aoi_size = self.color_map.size()
 
-    def read_npy(self, arr: np.array):
+    def read_npy(self, arr: np.array, keep_color=False):
         shape = arr.shape
-        self.color_map = QImage(shape[1], shape[0], QImage.Format_BGR888)
+        self.color_map = QImage(shape[1], shape[0], QImage.Format_RGBA8888)
         for y in range(shape[0]):
             for x in range(shape[1]):
-                self.color_map.setPixelColor(QPoint(x, y), ColorProxy.idx_color(arr[y][x]))
+                if keep_color:
+                    val = int(arr[y][x])
+                    self.color_map.setPixelColor(QPoint(x, y), QColor(val, val, val))
+                else:
+                    self.color_map.setPixelColor(QPoint(x, y), ColorProxy.idx_color(arr[y][x]))
         self.aoi_size = self.color_map.size()
 
     def get_aoi_map(self, idx: int = -1):

@@ -45,6 +45,10 @@ class LayoutDeputy:
         self.grid_gap_max = self.grid_gap_min * self.grid_cov_fac  # 栅格最大间距
         self.grid_gap = self.win2view_factor * self.grid_lvl_fac  # 基础栅格间距
 
+        # 节约计算
+        self.crd_rect_level = 0
+        self.crd_rect_fac = self.grid_cov_fac ** self.crd_rect_level
+
     def calculate_factors(self):
         # 计算映射因数
         self.view2win_factor = self.window_size / self.viewport_size
@@ -129,6 +133,9 @@ class LayoutDeputy:
                     self.grid_level -= 1
             self.grid_lvl_fac = self.grid_cov_fac ** self.grid_level
             self.grid_gap = self.win2view_factor * self.grid_lvl_fac
+            self.set_crd_rect_level(self.grid_level)
+            return True  # 缩放成功
+        return False  # 缩放失败
 
     def resize(self, size=QSize()):
         """改变窗口大小"""
@@ -170,3 +177,15 @@ class LayoutDeputy:
         h = math.ceil(self.size.height() * self.view2win_factor)
         w = math.ceil(self.size.width() * self.view2win_factor)
         return QSize(w, h)
+
+    def set_crd_rect_level(self, level: int):
+        """设置坐标矩形的level"""
+        self.crd_rect_level = level
+        self.crd_rect_fac = self.grid_cov_fac ** self.crd_rect_level
+
+    def get_crd_rect(self, crd: QPoint):
+        """返回指定逻辑坐标的矩形"""
+        pos = self.crd2pos(crd)
+        size = self.crd_rect_fac * self.win2view_factor
+        siz = QSize(size, size)
+        return QRect(pos, siz)
