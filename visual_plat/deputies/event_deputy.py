@@ -5,9 +5,9 @@ from visual_plat.proxies.async_proxy import AsyncProxy
 from visual_plat.layers.layer_base import LayerBase
 
 from visual_plat.shared.static.custom_2d import *
-from visual_plat.shared.utilities.count_down import CountDownWorker
-from visual_plat.shared.utilities.notifier.key_notifier import KeyEventNotifier
-from visual_plat.shared.utilities.notifier.event_notifier import EventNotifier
+from visual_plat.shared.utils.count_down import CountDownWorker
+from visual_plat.shared.utils.notifier.key_notifier import KeyEventNotifier
+from visual_plat.shared.utils.notifier.event_notifier import EventNotifier
 
 from visual_plat.proxies.config_proxy import ConfigProxy
 

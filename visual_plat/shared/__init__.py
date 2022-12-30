@@ -1,4 +1,4 @@
 __all__ = [
     'static',
-    'utilities',
+    'utils',
 ]

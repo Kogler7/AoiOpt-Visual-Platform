@@ -5,7 +5,7 @@ from PySide6.QtCore import QSize, QPoint, QRect, QMutex
 
 from visual_plat.layers.layer_base import *
 from visual_plat.shared.static.custom_2d import rects_intersection, size2rect, max_2d
-from visual_plat.services.data_service.grid_agent.aoi_agent import AoiAgent
+from visual_plat.agents.aoi_agent import AoiAgent
 from visual_plat.proxies.config_proxy import ConfigProxy
 from visual_plat.proxies.async_proxy import AsyncProxy
 

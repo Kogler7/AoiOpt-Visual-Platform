@@ -10,7 +10,7 @@ from PySide6.QtCore import QMutex
 from visual_plat.layers.layer_base import LayerBase
 from visual_plat.proxies.config_proxy import ConfigProxy
 from visual_plat.proxies.async_proxy import AsyncProxy
-from visual_plat.shared.utilities.status_bar import StatusBar
+from visual_plat.shared.utils.status_bar import StatusBar
 
 
 class RecordType(Enum):

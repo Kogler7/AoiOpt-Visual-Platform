@@ -17,8 +17,8 @@ from visual_plat.deputies.tooltip_deputy import TooltipDeputy
 
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
-from visual_plat.shared.utilities.status_bar import StatusBar
-from visual_plat.shared.utilities.notifier.key_notifier import KeyEventNotifier
+from visual_plat.shared.utils.status_bar import StatusBar
+from visual_plat.shared.utils.notifier.key_notifier import KeyEventNotifier
 
 from visual_plat.proxies.config_proxy import ConfigProxy
 from visual_plat.proxies.async_proxy import AsyncProxy

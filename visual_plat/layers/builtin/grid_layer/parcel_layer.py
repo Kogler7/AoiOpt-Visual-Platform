@@ -1,7 +1,7 @@
 from visual_plat.layers.layer_base import *
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.proxies.color_proxy import ColorProxy
-from visual_plat.services.data_service.grid_agent.parcel_agent import ParcelAgent
+from visual_plat.agents.parcel_agent import ParcelAgent
 from tqdm import tqdm
 
 

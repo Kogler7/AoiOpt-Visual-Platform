@@ -4,7 +4,7 @@ from PySide6.QtGui import *
 
 from visual_plat.proxies.color_proxy import ColorProxy
 from visual_plat.shared.static.custom_2d import *
-from visual_plat.shared.utilities.xps_checker import XPSChecker
+from visual_plat.shared.utils.xps_checker import XPSChecker
 from visual_plat.layers.layer_base import LayerBase
 from visual_plat.deputies.tooltip_deputy import TooltipDeputy
 

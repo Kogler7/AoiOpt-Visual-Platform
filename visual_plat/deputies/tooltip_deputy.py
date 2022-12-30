@@ -1,7 +1,7 @@
 from PySide6.QtCore import QPointF, QSize
 from PySide6.QtWidgets import QWidget
-from visual_plat.shared.utilities.anchor_tip import AnchorTip, AnchorLocate
-from visual_plat.shared.utilities.floating_tip import FloatingTip
+from visual_plat.shared.utils.anchor_tip import AnchorTip, AnchorLocate
+from visual_plat.shared.utils.floating_tip import FloatingTip
 from visual_plat.proxies.config_proxy import ConfigProxy
 
 
