@@ -2,7 +2,7 @@ import numpy as np
 import time
 
 from visual_plat.platform import VisualPlatform
-from visual_plat.global_proxy.update_proxy import UpdateProxy
+from visual_plat.proxies.update_proxy import UpdateProxy
 from visual_plat.shared.utility.xps_checker import XPSChecker
 
 

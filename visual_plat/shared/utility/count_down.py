@@ -1,6 +1,6 @@
 import time
 from PySide6.QtCore import *
-from visual_plat.global_proxy.async_proxy import AsyncWorker
+from visual_plat.proxies.async_proxy import AsyncWorker
 
 
 class CountDownWorker(AsyncWorker):

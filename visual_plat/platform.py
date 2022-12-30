@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
-from visual_plat.render_layer.layer_base import LayerBase
-from visual_plat.global_proxy.async_proxy import AsyncProxy
-from visual_plat.global_proxy.config_proxy import ConfigProxy
-from visual_plat.global_proxy.update_proxy import UpdateProxy
+from visual_plat.layers.layer_base import LayerBase
+from visual_plat.proxies.async_proxy import AsyncProxy
+from visual_plat.proxies.config_proxy import ConfigProxy
+from visual_plat.proxies.update_proxy import UpdateProxy
 
 """
 可视化服务平台
@@ -52,7 +52,7 @@ class VisualPlatform:
         VisualPlatform.canvas_list.append(canvas)
         canvas.setWindowTitle(title)
         canvas.status_bar.set_default(title)
-        canvas.key_notifier.parse_config(ConfigProxy.event(), canvas)
+        canvas.key_notifier.parse_config(ConfigProxy.canvas_event("key"), canvas)
         canvas.show()
         return canvas
 

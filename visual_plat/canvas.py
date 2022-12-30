@@ -8,23 +8,23 @@ import warnings
 
 import visual_plat.platform as platform
 
-from visual_plat.canvas_deputy.layout_deputy import LayoutDeputy
-from visual_plat.canvas_deputy.menu_deputy import MenuDeputy
-from visual_plat.canvas_deputy.state_deputy import StateDeputy
-from visual_plat.canvas_deputy.render_deputy import RenderDeputy
-from visual_plat.canvas_deputy.event_deputy import EventDeputy
-from visual_plat.canvas_deputy.tooltip_deputy import TooltipDeputy
+from visual_plat.deputies.layout_deputy import LayoutDeputy
+from visual_plat.deputies.menu_deputy import MenuDeputy
+from visual_plat.deputies.state_deputy import StateDeputy
+from visual_plat.deputies.render_deputy import RenderDeputy
+from visual_plat.deputies.event_deputy import EventDeputy
+from visual_plat.deputies.tooltip_deputy import TooltipDeputy
 
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
 from visual_plat.shared.utility.status_bar import StatusBar
 from visual_plat.shared.utility.notifier.key_notifier import KeyEventNotifier
 
-from visual_plat.global_proxy.config_proxy import ConfigProxy
-from visual_plat.global_proxy.async_proxy import AsyncProxy
+from visual_plat.proxies.config_proxy import ConfigProxy
+from visual_plat.proxies.async_proxy import AsyncProxy
 
-from visual_plat.render_layer.layer_base import LayerBase
-from visual_plat.render_layer.builtin.grid_layer.aoi_layer import AoiLayer
+from visual_plat.layers.layer_base import LayerBase
+from visual_plat.layers.builtin.grid_layer.aoi_layer import AoiLayer
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
@@ -39,7 +39,7 @@ class VisualCanvas(QWidget):
         # 事件监听
         self.key_notifier = KeyEventNotifier()
 
-        init_size = ConfigProxy.canvas("init_size")
+        init_size = ConfigProxy.canvas_config("init_size")
         self.resize(init_size[0], init_size[1])
 
         # Layers
@@ -69,7 +69,7 @@ class VisualCanvas(QWidget):
         # Other
         self.setMouseTracking(True)  # 开启鼠标追踪
         self.setAcceptDrops(True)  # 接受拖拽
-        self.show_tooltips = ConfigProxy.tooltip("visible")
+        self.show_tooltips = ConfigProxy.tooltip_config("visible")
 
         # 预处理
         if on_init_finished:
@@ -77,8 +77,8 @@ class VisualCanvas(QWidget):
 
         # Teleport
         self.animate2center()
-    
-    def mount_layer(self, layer_cls:LayerBase, layer_tag:str, layer_cfg:dict):
+
+    def mount_layer(self, layer_cls: LayerBase, layer_tag: str, layer_cfg: dict):
         layer_obj = layer_cls(self)
         if layer_tag in self.layer_dict.keys():
             raise Exception("VisualCanvas: Layer tag already exists.")
@@ -93,7 +93,7 @@ class VisualCanvas(QWidget):
         self.layer_dict[layer_tag] = layer_obj
         self.layer_list.append(layer_obj)
         self.layer_list.sort(key=lambda layer: layer.level, reverse=False)
-        
+
     def get_layer(self, tag: str) -> LayerBase:
         return self.layer_dict[tag]
 
@@ -111,13 +111,13 @@ class VisualCanvas(QWidget):
                 layer_cls = getattr(mod, name)
                 self.mount_layer(layer_cls, tag, layer_cfg)
 
-        path_base = "visual_plat.render_layer."
+        path_base = "visual_plat.layers."
         load_layers(path_base + "builtin.geo_map.",
                     layers_config["builtin"]["geo_map"])
         load_layers(path_base + "builtin.grid_layer.",
                     layers_config["builtin"]["grid_layer"])
         load_layers(path_base + "custom.", layers_config["custom"])
-        
+
     def unmount_layer(self, tag: str):
         """卸载外部图层"""
         self.layer_list.remove(self.layer_dict[tag])
@@ -292,9 +292,9 @@ class VisualCanvas(QWidget):
         if not hasattr(rcd, 'comp_idx'):
             print(
                 "RECORD has no COMPATIBLE INDEX. [It may be derived from ANCIENT versions]")
-        elif rcd.comp_idx != ConfigProxy.record("compatible_index"):
+        elif rcd.comp_idx != ConfigProxy.record_config("compatible_index"):
             print(f"The RECORD is not COMPATIBLE with this VERSION of canvas. "
-                  f"[{rcd.comp_idx} != {ConfigProxy.record('compatible_index')}]")
+                  f"[{rcd.comp_idx} != {ConfigProxy.record_config('compatible_index')}]")
         else:
             self.state_deputy.start_replay(rcd, drp_name)
             self.animate2center()
@@ -304,3 +304,15 @@ class VisualCanvas(QWidget):
         self.layout_deputy.resize(event.size())
         self.render_deputy.mark_need_restage()
         self.update()
+
+    def server_switch(self):
+        """启动服务器"""
+        # self.server = Server(self)
+        # self.server.start()
+        print("Server started.")
+        pass
+
+    def switch_server_host(self):
+        """按下键盘"""
+        print("key down")
+        pass
