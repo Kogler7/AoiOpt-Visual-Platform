@@ -3,7 +3,7 @@ import time
 
 from visual_plat.platform import VisualPlatform
 from visual_plat.proxies.update_proxy import UpdateProxy
-from visual_plat.shared.utility.xps_checker import XPSChecker
+from visual_plat.shared.utilities.xps_checker import XPSChecker
 
 
 def update_task():

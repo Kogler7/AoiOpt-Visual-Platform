@@ -10,7 +10,7 @@ from PySide6.QtCore import QMutex
 from visual_plat.layers.layer_base import LayerBase
 from visual_plat.proxies.config_proxy import ConfigProxy
 from visual_plat.proxies.async_proxy import AsyncProxy
-from visual_plat.shared.utility.status_bar import StatusBar
+from visual_plat.shared.utilities.status_bar import StatusBar
 
 
 class RecordType(Enum):
@@ -32,7 +32,7 @@ class Record:
     comp_idx: int  # 兼容编号
 
 
-class StateDeputy:
+class RecordDeputy:
     record_path = ""
 
     def __init__(self, layers: dict[str, LayerBase], status_bar: StatusBar):
@@ -52,12 +52,12 @@ class StateDeputy:
         self.replay_record = None
         self.replay_mutex = QMutex()
         self.comp_idx = ConfigProxy.record_config("compatible_index")
-        StateDeputy.record_path = os.path.abspath(ConfigProxy.path("output"))
-        if not os.path.exists(StateDeputy.record_path):
-            os.mkdir(StateDeputy.record_path)
-        StateDeputy.record_path = os.path.join(StateDeputy.record_path, "record/")
-        if not os.path.exists(StateDeputy.record_path):
-            os.mkdir(StateDeputy.record_path)
+        RecordDeputy.record_path = os.path.abspath(ConfigProxy.path("output"))
+        if not os.path.exists(RecordDeputy.record_path):
+            os.mkdir(RecordDeputy.record_path)
+        RecordDeputy.record_path = os.path.join(RecordDeputy.record_path, "record/")
+        if not os.path.exists(RecordDeputy.record_path):
+            os.mkdir(RecordDeputy.record_path)
 
     def block(self):
         """切换阻塞状态"""
@@ -106,7 +106,7 @@ class StateDeputy:
             '%y%m%d-%H%M%S',
             time.localtime(time.time())
         ) + f"-{len(record.updates) + 1}"
-        path = StateDeputy.record_path + rcd_name + ".rcd"
+        path = RecordDeputy.record_path + rcd_name + ".rcd"
         with open(path, 'wb') as rcd:
             pickle.dump(record, rcd)
         print(f"Record saved as {rcd_name}.rcd")

@@ -10,15 +10,15 @@ import visual_plat.platform as platform
 
 from visual_plat.deputies.layout_deputy import LayoutDeputy
 from visual_plat.deputies.menu_deputy import MenuDeputy
-from visual_plat.deputies.state_deputy import StateDeputy
+from visual_plat.deputies.record_deputy import RecordDeputy
 from visual_plat.deputies.render_deputy import RenderDeputy
 from visual_plat.deputies.event_deputy import EventDeputy
 from visual_plat.deputies.tooltip_deputy import TooltipDeputy
 
 from visual_plat.shared.static.custom_2d import *
 from visual_plat.shared.static.bezier_curves import *
-from visual_plat.shared.utility.status_bar import StatusBar
-from visual_plat.shared.utility.notifier.key_notifier import KeyEventNotifier
+from visual_plat.shared.utilities.status_bar import StatusBar
+from visual_plat.shared.utilities.notifier.key_notifier import KeyEventNotifier
 
 from visual_plat.proxies.config_proxy import ConfigProxy
 from visual_plat.proxies.async_proxy import AsyncProxy
@@ -48,7 +48,7 @@ class VisualCanvas(QWidget):
 
         # Deputies
         self.tooltip_deputy = TooltipDeputy(self)
-        self.state_deputy = StateDeputy(
+        self.state_deputy = RecordDeputy(
             layers=self.layer_dict, status_bar=self.status_bar)
         self.event_deputy = EventDeputy(self)
         self.render_deputy = RenderDeputy(

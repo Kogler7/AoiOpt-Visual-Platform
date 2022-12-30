@@ -31,11 +31,11 @@ class RouteLayer(LayerBase):
 
     def start_service(self):
         self.show()
-        print("Route service started.")
+        # print("Route service started.")
 
     def stop_service(self):
         self.hide()
-        print("Route service stopped.")
+        # print("Route service stopped.")
 
     def trans_state(self):
         if self.visible:

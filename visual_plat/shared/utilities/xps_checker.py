@@ -1,4 +1,4 @@
-from visual_plat.shared.utility.anchor_tip import AnchorTip
+from visual_plat.shared.utilities.anchor_tip import AnchorTip
 from collections import defaultdict
 import timeit
 

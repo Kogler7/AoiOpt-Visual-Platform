@@ -228,7 +228,7 @@ class Matrix2D:
 
 
 if __name__ == "__main__":
-    from visual_plat.shared.utility.xps_checker import XPSChecker
+    from visual_plat.shared.utilities.xps_checker import XPSChecker
 
     rect = QRect(1, 1, 100, 100)
     ctr_r = QRect(2, 2, 4, 4)

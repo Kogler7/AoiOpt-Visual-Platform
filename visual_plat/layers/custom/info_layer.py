@@ -1,5 +1,5 @@
 from visual_plat.layers.auto.async_layer import *
-from visual_plat.shared.utility.anchor_tip import AnchorTip, AnchorLocate
+from visual_plat.shared.utilities.anchor_tip import AnchorTip, AnchorLocate
 
 
 class InfoLayer(LayerBase):

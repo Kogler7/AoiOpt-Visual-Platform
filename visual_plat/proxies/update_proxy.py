@@ -1,11 +1,11 @@
 import time
 
-from visual_plat.deputies.state_deputy import StateDeputy
+from visual_plat.deputies.record_deputy import RecordDeputy
 
 
 class UpdateProxy:
     canvas = None
-    state_deputy: StateDeputy = None
+    state_deputy: RecordDeputy = None
 
     @staticmethod
     def set_canvas(canvas):
