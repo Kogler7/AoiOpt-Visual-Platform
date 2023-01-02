@@ -1,10 +1,10 @@
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-import visual_plat.canvas as vis_canvas
 
 
 class LayerBase:
     def __init__(self, canvas):
+        import visual_plat.canvas as vis_canvas
         self.canvas: vis_canvas.VisualCanvas = canvas
         self.event: vis_canvas.EventDeputy = canvas.event_deputy
         self.render: vis_canvas.RenderDeputy = canvas.render_deputy
@@ -18,7 +18,7 @@ class LayerBase:
     def set_level(self, level: int):
         """调整层级关系"""
         self.level = level
-        self.layers.sort(key=lambda layer: layer.level, reverse=False)
+        self.canvas.layer_list.sort(key=lambda layer: layer.level, reverse=False)
 
     """
     由StateDeputy自动调用

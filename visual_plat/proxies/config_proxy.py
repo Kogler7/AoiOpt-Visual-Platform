@@ -46,7 +46,8 @@ class ConfigProxy:
         ver_cfg = ConfigProxy.canvas("version")
         version = f"{ver_cfg['major']}.{ver_cfg['minor']}.{ver_cfg['patch']}"
         if not ConfigProxy.canvas("release"):
-            version += f"-pre-{ver_cfg['preview']}"
+            pre_cfg = ConfigProxy.canvas("preview")
+            version += f"-pre-{pre_cfg['phase']}.{pre_cfg['patch']}"
         return version
 
     @staticmethod

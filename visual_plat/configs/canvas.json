@@ -2,10 +2,13 @@
   "version": {
     "major": 6,
     "minor": 0,
-    "patch": 0,
-    "preview": 1
+    "patch": 0
   },
   "release": false,
+  "preview": {
+    "phase": 1,
+    "patch": 1
+  },
   "setting": {
     "mouse_listening": false
   },
