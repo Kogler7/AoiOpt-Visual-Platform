@@ -96,6 +96,7 @@ class RecordDeputy:
     def load_record(path):
         """解析记录"""
         with open(path, 'rb') as rcd:
+            print(rcd)
             res = pickle.load(rcd)
         return res
 

@@ -9,7 +9,8 @@ class ColorProxy:
     color_dict = {
         "light": [],
         "normal": [],
-        "dark": []
+        "dark": [],
+        "all": []
     }
     named = {
         "Background": QColor(240, 240, 240),
@@ -28,6 +29,7 @@ class ColorProxy:
             for c_str in colors["value"]:
                 color = cls.hex_to_rgb(c_str)
                 cls.color_dict[cate].append(QColor(color[0], color[1], color[2], alpha))
+        cls.color_dict["all"] = cls.color_dict["light"] + cls.color_dict["normal"] + cls.color_dict["dark"]
 
     @classmethod
     def new_color(cls, c_type: str = "light"):
@@ -43,11 +45,12 @@ class ColorProxy:
     @classmethod
     def idx_color(cls, idx: int, c_type: str = "light"):
         """根据idx返回对应颜色"""
+        step_factor = 7 if c_type == "all" else 3
         if c_type not in cls.color_dict.keys():
             return QColor(0, 0, 0)
         if not cls.color_dict[c_type]:
             cls.init()
-        return cls.color_dict[c_type][(idx << 2) % len(cls.color_dict[c_type])]
+        return cls.color_dict[c_type][idx * step_factor % len(cls.color_dict[c_type])]
 
     @staticmethod
     def hex_to_rgb(value):

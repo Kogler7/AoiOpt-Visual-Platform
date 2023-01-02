@@ -13,12 +13,12 @@ class FocusLayer(LayerBase):
     def on_paint(self, device: QWidget):
         """绘制聚焦框"""
         with QPainter(device) as painter:
-            if self.state.focus_rect:
-                tl = self.layout.crd2pos(self.state.focus_rect.topLeft())
-                br = self.layout.crd2pos(self.state.focus_rect.bottomRight() + QPoint(1, 1))
+            if self.event.focus_rect:
+                tl = self.layout.crd2pos(self.event.focus_rect.topLeft())
+                br = self.layout.crd2pos(self.event.focus_rect.bottomRight() + QPoint(1, 1))
             else:
-                tl = self.layout.crd2pos(self.state.focus_point)
-                br = self.layout.crd2pos(self.state.focus_point + QPoint(1, 1))
+                tl = self.layout.crd2pos(self.event.focus_point)
+                br = self.layout.crd2pos(self.event.focus_point + QPoint(1, 1))
             rect = QRect(tl, br)
             path = QPainterPath()
             painter.setRenderHint(QPainter.Antialiasing)

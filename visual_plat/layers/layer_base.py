@@ -6,7 +6,7 @@ import visual_plat.canvas as vis_canvas
 class LayerBase:
     def __init__(self, canvas):
         self.canvas: vis_canvas.VisualCanvas = canvas
-        self.state: vis_canvas.EventDeputy = canvas.event_deputy
+        self.event: vis_canvas.EventDeputy = canvas.event_deputy
         self.render: vis_canvas.RenderDeputy = canvas.render_deputy
         self.layout: vis_canvas.LayoutDeputy = canvas.layout_deputy
         self.layers: dict[str, LayerBase] = canvas.layer_dict
@@ -30,6 +30,10 @@ class LayerBase:
 
     def on_adjust(self, data: any):
         """局部更新时调用"""
+        return False
+
+    def on_reverse(self, data: any):
+        """反向更新时调用"""
         return False
 
     """
@@ -69,3 +73,6 @@ class LayerBase:
         self.visible = False
         self.force_restage()
     
+    def switch_visibility(self):
+        self.visible = not self.visible
+        self.force_restage()

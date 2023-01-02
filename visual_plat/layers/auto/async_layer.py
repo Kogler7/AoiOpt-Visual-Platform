@@ -52,8 +52,8 @@ class AutoRectAsyncLayer(LayerBase):
         return False
 
     def on_paint(self, device: QWidget):
-        if self.focus_triggered and self.state.focus_rect:
-            should_start = self.bound_diff(self.state.focus_rect)
+        if self.focus_triggered and self.event.focus_rect:
+            should_start = self.bound_diff(self.event.focus_rect)
             if should_start:
                 AsyncProxy.run(self.async_update)
 

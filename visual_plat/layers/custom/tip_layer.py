@@ -2,9 +2,9 @@ from visual_plat.layers.auto.async_layer import *
 from visual_plat.shared.utils.anchor_tip import AnchorTip, AnchorLocate
 
 
-class InfoLayer(LayerBase):
+class TipLayer(LayerBase):
     def __init__(self, canvas):
-        super(InfoLayer, self).__init__(canvas)
+        super(TipLayer, self).__init__(canvas)
         self.tooltip = AnchorTip(anchor=AnchorLocate.top_lft, anchor_bias=QPoint(90, 100))
         canvas.tooltip_deputy.add_anchor_tip("info", self.tooltip)
         self.action = (0, 0, 0)

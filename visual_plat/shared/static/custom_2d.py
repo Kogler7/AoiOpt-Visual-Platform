@@ -103,6 +103,13 @@ def point_azimuth(p: QPointF):
     return math.atan2(-p.y(), p.x()) + 2 * math.pi
 
 
+def rect2list(rect: QRect):
+    """Rect中的每个点加入到List"""
+    for x in range(rect.x(), rect.right() + 1):
+        for y in range(rect.y(), rect.bottom() + 1):
+            yield QPoint(x, y)
+
+
 def masked_rect2list(src_r: QRect, ctr_r: QRect, mask: QRect = QRect()):
     """
     将矩形中的点按照一定规则进行序列化
@@ -228,7 +235,7 @@ class Matrix2D:
 
 
 if __name__ == "__main__":
-    from visual_plat.shared.utilities.xps_checker import XPSChecker
+    from visual_plat.shared.utils.xps_checker import XPSChecker
 
     rect = QRect(1, 1, 100, 100)
     ctr_r = QRect(2, 2, 4, 4)

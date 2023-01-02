@@ -21,5 +21,10 @@ def update_task():
         time.sleep(10)
 
 
+def color_test():
+    data = np.arange(64).reshape((8, 8))
+    UpdateProxy.reload("aoi", data)
+
+
 if __name__ == '__main__':
-    VisualPlatform.launch(async_task=update_task)
+    VisualPlatform.launch(async_task=color_test)

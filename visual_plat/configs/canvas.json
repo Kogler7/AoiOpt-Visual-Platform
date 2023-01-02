@@ -55,7 +55,7 @@
       "easing": "linear"
     },
     "record": {
-      "compatible_index": 1,
+      "compatible_index": 2,
       "max_record": 1000
     },
     "server": [
