@@ -28,12 +28,16 @@ class VisualPlatform:
         也不要在此函数后再执行其他同步任务
         此函数全局仅允许被调用一次
         """
-        ConfigProxy.plat_path = plat_path # 平台路径
+        ConfigProxy.plat_path = plat_path  # 平台路径
         if not ConfigProxy.loaded:
             ConfigProxy.load()
             app = QApplication([])
-            version = str(ConfigProxy.canvas('version')) \
-                + ("-pre" if not ConfigProxy.canvas("release") else "")
+            released = ConfigProxy.canvas("release")
+            version = ConfigProxy.get_version()
+            if not released:
+                print("\033[31m[AoiOpt Visual Platform] Warning: "
+                      f"Version {version} is under Test and may NOT be "
+                      "Stable.\033[0m")
             app_name = f"AoiOpt Visual Platform {version}"
             app.setApplicationName(app_name)
             canvas = VisualPlatform.new_canvas(app_name, canvas_init)

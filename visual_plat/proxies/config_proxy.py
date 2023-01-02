@@ -42,6 +42,14 @@ class ConfigProxy:
         return ConfigProxy.config["canvas"][tag]
 
     @staticmethod
+    def get_version():
+        ver_cfg = ConfigProxy.canvas("version")
+        version = f"{ver_cfg['major']}.{ver_cfg['minor']}.{ver_cfg['patch']}"
+        if not ConfigProxy.canvas("release"):
+            version += f"-pre-{ver_cfg['preview']}"
+        return version
+
+    @staticmethod
     def canvas_config(tag):
         return ConfigProxy.config["canvas"]["config"][tag]
 
