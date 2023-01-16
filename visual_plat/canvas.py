@@ -78,7 +78,7 @@ class VisualCanvas(QWidget):
         # Teleport
         self.animate2center()
 
-    def mount_layer(self, layer_cls: LayerBase, layer_tag: str, layer_cfg: dict):
+    def mount_layer(self, layer_cls, layer_tag: str, layer_cfg: dict):
         layer_obj = layer_cls(self)
         if layer_tag in self.layer_dict.keys():
             raise Exception("VisualCanvas: Layer tag already exists.")

@@ -17,8 +17,9 @@ class TipLayer(LayerBase):
         self.data = data
         if data:
             self.action, self.reward, self.time = data
+            self.force_restage()
 
-    def on_paint(self, device: QWidget):
+    def on_stage(self, device: QWidget):
         if self.data and self.layout.win2view_factor > 10:
             with QPainter(device) as painter:
                 crd = QPoint(self.action[0], self.action[1])
