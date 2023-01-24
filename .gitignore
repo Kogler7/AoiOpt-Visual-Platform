@@ -3,3 +3,4 @@ output/*
 .idea/
 __pycache__/
 */__pycache__/
+result.json

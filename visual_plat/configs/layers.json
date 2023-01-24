@@ -103,6 +103,7 @@
     "tip": {
       "level": 0,
       "visible": true,
+      "xps_tag": "TIP",
       "event": {
         "key": {
           "control+t": "switch_visibility"
@@ -112,6 +113,7 @@
     "mark": {
       "level": 0,
       "visible": true,
+      "xps_tag": "MRK",
       "event": {
         "key": {
           "control+m": "switch_visibility"
