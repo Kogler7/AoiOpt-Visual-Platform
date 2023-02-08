@@ -16,7 +16,7 @@ class TrajLayer(LayerBase):
         self.dot_back_line_pen = QPen(ColorProxy.named["LightGrey"])
         """初始化轨迹图层"""
         self.on_reload()
-        self.indexes_list = []
+        self.indexes_list = [0]
 
     def set_indexes(self, indexes: list[int]):
         self.data = indexes

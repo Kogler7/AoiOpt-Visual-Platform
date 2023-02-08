@@ -14,7 +14,7 @@ class ParcelLayer(LayerBase):
         self.parcels_area_dict: dict[int, QRect] = {}
         """初始化包裹图层"""
         self.on_reload()
-        self.indexes_list = []
+        self.indexes_list = [0]
 
     def set_indexes(self, indexes):
         self.data = indexes
