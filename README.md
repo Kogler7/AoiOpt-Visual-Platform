@@ -136,14 +136,14 @@ AsyncProxy.start(learner) # 申请并启动线程
 例如，在子线程的某一个过程中执行下列指令：
 
 ```python
-if self.signal: # 以防在未传入signal时报错
+if self.signal:  # 以防在未传入signal时报错
     data = (
-        self.state,
+        self.event,
         (j, i, int(act[0])),
         (int(reward0), int(reward1), int(reward_one)),
         (0, 0)
-    ) # 根据需要定义data
-    self.signal.emit(data) # 通过signal将data传回主线程并启动槽函数
+    )  # 根据需要定义data
+    self.signal.emit(data)  # 通过signal将data传回主线程并启动槽函数
 ```
 
 - 进入事件循环

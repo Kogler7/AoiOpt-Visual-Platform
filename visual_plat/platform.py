@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QApplication
 from visual_plat.canvas import VisualCanvas
-from visual_plat.render_layer.layer_base import LayerBase
-from visual_plat.global_proxy.async_proxy import AsyncProxy
-from visual_plat.global_proxy.config_proxy import ConfigProxy
-from visual_plat.global_proxy.update_proxy import UpdateProxy
+from visual_plat.layers.layer_base import LayerBase
+from visual_plat.proxies.async_proxy import AsyncProxy
+from visual_plat.proxies.config_proxy import ConfigProxy
+from visual_plat.proxies.update_proxy import UpdateProxy
 
 """
 可视化服务平台
@@ -28,12 +28,16 @@ class VisualPlatform:
         也不要在此函数后再执行其他同步任务
         此函数全局仅允许被调用一次
         """
-        ConfigProxy.plat_path = plat_path # 平台路径
+        ConfigProxy.plat_path = plat_path  # 平台路径
         if not ConfigProxy.loaded:
             ConfigProxy.load()
             app = QApplication([])
-            version = str(ConfigProxy.canvas('version')) \
-                + ("-pre" if not ConfigProxy.canvas("release") else "")
+            released = ConfigProxy.canvas("release")
+            version = ConfigProxy.get_version()
+            if not released:
+                print("\033[31m[AoiOpt Visual Platform] Warning: "
+                      f"Version {version} is under Test and may NOT be "
+                      "Stable.\033[0m")
             app_name = f"AoiOpt Visual Platform {version}"
             app.setApplicationName(app_name)
             canvas = VisualPlatform.new_canvas(app_name, canvas_init)
@@ -52,7 +56,7 @@ class VisualPlatform:
         VisualPlatform.canvas_list.append(canvas)
         canvas.setWindowTitle(title)
         canvas.status_bar.set_default(title)
-        canvas.key_notifier.parse_config(ConfigProxy.event(), canvas)
+        canvas.key_notifier.parse_config(ConfigProxy.canvas_event("key"), canvas)
         canvas.show()
         return canvas
 

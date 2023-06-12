@@ -2,8 +2,8 @@ import numpy as np
 import time
 
 from visual_plat.platform import VisualPlatform
-from visual_plat.global_proxy.update_proxy import UpdateProxy
-from visual_plat.shared.utility.xps_checker import XPSChecker
+from visual_plat.proxies.update_proxy import UpdateProxy
+from visual_plat.shared.utils.xps_checker import XPSChecker
 
 
 def update_task():
@@ -21,5 +21,10 @@ def update_task():
         time.sleep(10)
 
 
+def color_test():
+    data = np.arange(64).reshape((8, 8))
+    UpdateProxy.reload("aoi", data)
+
+
 if __name__ == '__main__':
-    VisualPlatform.launch(async_task=update_task)
+    VisualPlatform.launch(async_task=color_test)
