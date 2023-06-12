@@ -11,8 +11,7 @@ class ConfigProxy:
 
     @staticmethod
     def load():
-        config_path = os.path.abspath(f"{ConfigProxy.plat_path}\\visual_plat\\configs\\*.json")
-        path = os.path.join(config_path)
+        path = f"{ConfigProxy.plat_path}\\visual_plat\\configs\\*.json"
         config_paths = glob(path)
         for pth in config_paths:
             with open(pth) as f:

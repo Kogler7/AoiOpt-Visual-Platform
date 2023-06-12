@@ -13,10 +13,10 @@ class UpdateProxy:
         UpdateProxy.state_deputy = canvas.state_deputy
 
     @staticmethod
-    def reload(layer_tag: str, data=None, new_step=True):
+    def reload(layer_tag: str, data=None, new_step=True, deep_copy=True):
         if UpdateProxy.canvas:
             if not UpdateProxy.state_deputy.suspended:
-                UpdateProxy.state_deputy.reload(layer_tag=layer_tag, data=data, new_step=new_step)
+                UpdateProxy.state_deputy.reload(layer_tag=layer_tag, data=data, new_step=new_step, deep_copy=deep_copy)
                 while UpdateProxy.state_deputy.blocked:
                     time.sleep(0.2)
         else:
