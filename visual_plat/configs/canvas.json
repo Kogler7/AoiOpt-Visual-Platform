@@ -6,8 +6,8 @@
   },
   "release": false,
   "preview": {
-    "phase": 1,
-    "patch": 2
+    "phase": 2,
+    "patch": 0
   },
   "setting": {
     "mouse_listening": false

@@ -110,6 +110,19 @@
         }
       }
     },
+    "real": {
+      "level": 0,
+      "visible": true,
+      "xps_tag": "PKG",
+      "event": {
+        "key": {
+          "control+t": "switch_visibility"
+        },
+        "drop": {
+          "rpkg": "load_rpkg"
+        }
+      }
+    },
     "mark": {
       "level": 0,
       "visible": true,

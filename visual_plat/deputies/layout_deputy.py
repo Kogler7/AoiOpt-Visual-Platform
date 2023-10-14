@@ -90,6 +90,14 @@ class LayoutDeputy:
             crd.setY(-crd.y())
         return crd
 
+    def geo2pos(self, geo: QPointF):
+        """地理坐标转物理坐标"""
+        return self.crd2pos_f(self.geo2crd(geo))
+
+    def pos2geo(self, pos: QPoint):
+        """物理坐标转地理坐标"""
+        return self.crd2geo(self.pos2crd_f(pos))
+
     def translate(self, delt: QPointF):
         """平移视窗"""
         self.window_bias += QPointF(delt) * self.view2win_factor
