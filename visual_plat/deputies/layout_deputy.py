@@ -164,6 +164,7 @@ class LayoutDeputy:
         pos = event.pos()
         event.pos = pos
         event.crd = self.pos2crd(pos)
+        event.geo = self.crd2geo(event.crd)
         return event
 
     def get_central_bias(self, aoi_size: QSize):
