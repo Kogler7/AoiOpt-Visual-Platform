@@ -18,7 +18,7 @@ class VisualPlatform:
     def launch(
             async_task: callable = None,
             canvas_init: callable = None,
-            canvas_config: callable = None,
+            canvas_config: list[callable] = None,
             plat_path: str = '.'
     ):
         """
@@ -43,7 +43,8 @@ class VisualPlatform:
             canvas = VisualPlatform.new_canvas(app_name, canvas_init)
             UpdateProxy.set_canvas(canvas)
             if canvas_config is not None:
-                canvas_config(canvas)
+                for config in canvas_config:
+                    config(canvas)
             if async_task is not None:
                 AsyncProxy.run(async_task)
             app.exec()

@@ -120,9 +120,17 @@ class AoiAgent:
         else:
             print("Aoi Agent: No Data.")
 
+    def colorMap2IndexMap(self, img: QImage):
+        # 将像素颜色三通道色值相加得到索引值
+        self.index_map = np.zeros((img.height(), img.width()))
+        for y in range(img.height()):
+            for x in range(img.width()):
+                color = img.pixelColor(QPoint(x, y))
+                self.index_map[y][x] = color.red() + color.green() + color.blue()
+
     def read_img(self, img: QImage):
         self.color_map = img
-        self.index_map = np.zeros((img.height(), img.width()))
+        self.colorMap2IndexMap(self.color_map)
         self.aoi_size = self.color_map.size()
 
     def read_npy(self, arr: np.array, keep_color=False):

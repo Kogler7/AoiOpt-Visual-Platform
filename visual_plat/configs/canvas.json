@@ -7,7 +7,7 @@
   "release": false,
   "preview": {
     "phase": 1,
-    "patch": 1
+    "patch": 2
   },
   "setting": {
     "mouse_listening": false
@@ -35,8 +35,8 @@
     ],
     "geo_info": {
       "locate": [
-        31.140,
-        21.290
+        121.3500,
+        31.1488
       ],
       "eastern": true,
       "southern": false
@@ -50,7 +50,7 @@
     },
     "layout": {
       "zoom_step": 1,
-      "precision": 0.001,
+      "precision": 0.000379355,
       "init_window_size": 10,
       "min_window_size": 8,
       "min_grid_gap": 50,

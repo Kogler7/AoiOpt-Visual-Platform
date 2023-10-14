@@ -204,11 +204,17 @@ class VisualCanvas(QWidget):
         event = self.layout_deputy.wrap_event(event)
         self.event_deputy.on_mouse_move(event)
 
-        self.render_deputy.tooltip_deputy.anchor_tips["cursor"].hide()
-        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set(
+        self.tooltip_proxy.anchor_tips["cursor"].hide()
+        self.tooltip_proxy.anchor_tips["btm_lft"].set(
             "CRD", f"({event.crd.x()}, {event.crd.y()})")
-        self.render_deputy.tooltip_deputy.anchor_tips["btm_lft"].set(
+        self.tooltip_proxy.anchor_tips["btm_lft"].set(
             "POS", f"({event.pos.x()}, {event.pos.y()})")
+        self.tooltip_proxy.anchor_tips["btm_lft"].set(
+            "GEO", f"({event.geo.x():.4f}, {event.geo.y():.4f})")
+        rect = self.event_deputy.focus_rect
+        size = rect.size() if rect else QSize()
+        self.tooltip_proxy.anchor_tips["btm_rgt"].set(
+            "COUNT", str(size.height() * size.width()))
 
         self.update()
 
