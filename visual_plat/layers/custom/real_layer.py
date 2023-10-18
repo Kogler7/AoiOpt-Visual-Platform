@@ -15,16 +15,17 @@ class RealLayer(LayerBase):
         data = pd.read_csv(path).head(50000)
         area_id = data['area_id']
         courier_id = data['courier_id']
+        timestamp = data['time']
         lng = data['lng']
         lat = data['lat']
         data_map: dict[str, list[QPoint]] = dict()
-        for i in range(len(area_id)):
-            if area_id[i] is None or lng[i] is None or lat[i] is None:
+        for i in range(len(courier_id)):
+            if courier_id[i] is None or lng[i] is None or lat[i] is None:
                 print("Real Layer: Invalid data.", area_id[i], lng[i], lat[i])
                 continue
-            if area_id[i] not in data_map:
-                data_map[area_id[i]] = []
-            data_map[area_id[i]].append(QPointF(lng[i], lat[i]))
+            if courier_id[i] not in data_map:
+                data_map[courier_id[i]] = []
+            data_map[courier_id[i]].append(QPointF(lng[i], lat[i]))
         self.data = data_map
         self.force_restage()
 
@@ -32,9 +33,13 @@ class RealLayer(LayerBase):
         rect = self.layout.win_sample
         if self.data:
             with QPainter(device) as painter:
-                painter.setPen(QPen(QColor(0, 0, 0, 100), 2))
-                for area_id in self.data:
-                    for point in self.data[area_id]:
+                painter.setPen(QPen(QColor(0, 0, 0, 100), 3))
+                for courier_id in self.data:
+                    last_p = None
+                    for point in self.data[courier_id]:
                         crd = self.layout.geo2crd(point)
-                        if rect.contains(crd.toPoint()):
-                            painter.drawPoint(self.layout.crd2pos(crd))
+                        pos = self.layout.crd2pos(crd)
+                        painter.drawPoint(pos)
+                        if last_p is not None:
+                            painter.drawLine(last_p, pos)
+                        last_p = pos
